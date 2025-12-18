@@ -129,18 +129,17 @@ const OrderCreate = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="delivery_method">Teslimat Şekli</Label>
-                <Select
+                <select
+                  id="delivery_method"
                   value={formData.delivery_method}
-                  onValueChange={(value) => handleChange('delivery_method', value)}
+                  onChange={(e) => handleChange('delivery_method', e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                  data-testid="delivery-method-select"
                 >
-                  <SelectTrigger data-testid="delivery-method-select">
-                    <SelectValue placeholder="Seçiniz" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="kargo">Kargo</SelectItem>
-                    <SelectItem value="elden">Elden</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="">Seçiniz</option>
+                  <option value="kargo">Kargo</option>
+                  <option value="elden">Elden</option>
+                </select>
               </div>
             </div>
 
