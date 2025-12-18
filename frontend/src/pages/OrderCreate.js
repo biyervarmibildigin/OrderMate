@@ -75,20 +75,18 @@ const OrderCreate = () => {
           <div className="space-y-6">
             {/* Order Type */}
             <div className="space-y-2">
-              <Label>Sipariş Türü</Label>
-              <Select
+              <Label htmlFor="order_type">Sipariş Türü</Label>
+              <select
+                id="order_type"
                 value={formData.order_type}
-                onValueChange={(value) => handleChange('order_type', value)}
+                onChange={(e) => handleChange('order_type', e.target.value)}
+                className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                data-testid="order-type-select"
               >
-                <SelectTrigger data-testid="order-type-select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="showroom_satis">Showroom Satış (Perakende)</SelectItem>
-                  <SelectItem value="cari_kurumsal">Cari/Kurumsal</SelectItem>
-                  <SelectItem value="eksik_bilgili">Eksik Bilgili</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="showroom_satis">Showroom Satış (Perakende)</option>
+                <option value="cari_kurumsal">Cari/Kurumsal</option>
+                <option value="eksik_bilgili">Eksik Bilgili</option>
+              </select>
             </div>
 
             {/* Customer Info */}
