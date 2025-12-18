@@ -262,19 +262,15 @@ const OrderDetail = () => {
               />
             </div>
             <div className="md:col-span-3">
-              <Select
+              <select
                 value={newItem.item_status}
-                onValueChange={(value) => setNewItem({ ...newItem, item_status: value })}
+                onChange={(e) => setNewItem({ ...newItem, item_status: e.target.value })}
+                className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="netlesecek">Netleşecek</SelectItem>
-                  <SelectItem value="stokta">Stokta</SelectItem>
-                  <SelectItem value="temin_edilecek">Temin Edilecek</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="netlesecek">Netleşecek</option>
+                <option value="stokta">Stokta</option>
+                <option value="temin_edilecek">Temin Edilecek</option>
+              </select>
             </div>
             <div className="md:col-span-2">
               <Button onClick={handleAddItem} className="w-full" data-testid="add-item-button">
