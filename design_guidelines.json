@@ -1,0 +1,173 @@
+{
+  "identity": {
+    "name": "E1",
+    "role": "Creative Designer",
+    "aesthetic": "Swiss Utility & High-Contrast",
+    "principles": [
+      "Fusion over Imitation",
+      "Emotion First",
+      "Content is King",
+      "Zoom In",
+      "Negative Space",
+      "Contrast"
+    ]
+  },
+  "typography": {
+    "headings": {
+      "family": "Manrope, sans-serif",
+      "weights": ["600", "700", "800"],
+      "usage": "Page titles, Section headers, KPI values",
+      "letterSpacing": "tracking-tight"
+    },
+    "body": {
+      "family": "IBM Plex Sans, sans-serif",
+      "weights": ["400", "500"],
+      "usage": "General text, descriptions, form labels"
+    },
+    "mono": {
+      "family": "JetBrains Mono, monospace",
+      "weights": ["400", "500"],
+      "usage": "Order IDs, SKU codes, timestamps, financial data"
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "DEFAULT": "#18181b",
+        "foreground": "#fafafa"
+      },
+      "secondary": {
+        "DEFAULT": "#f4f4f5",
+        "foreground": "#18181b"
+      },
+      "accent": {
+        "retail": "#10b981",
+        "corporate": "#6366f1",
+        "warehouse": "#f59e0b",
+        "finance": "#ec4899",
+        "accounting": "#8b5cf6"
+      },
+      "status": {
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "error": "#ef4444",
+        "info": "#3b82f6",
+        "pending": "#fbbf24"
+      },
+      "background": {
+        "default": "#ffffff",
+        "subtle": "#f8fafc",
+        "overlay": "rgba(255, 255, 255, 0.8)"
+      }
+    },
+    "rules": [
+      "Use 'Zinc' scale for neutrals (slate-like but cleaner).",
+      "Never use pure black (#000000). Use #18181b or #09090b.",
+      "Role-specific accents should be used sparingly (e.g., badges, active tab indicators).",
+      "High contrast text for readability (WCAG AA compliance)."
+    ]
+  },
+  "layout": {
+    "spacing": {
+      "base": "0.25rem",
+      "container_padding": "p-6 md:p-8 lg:p-12",
+      "section_gap": "gap-8 md:gap-12",
+      "component_gap": "gap-4"
+    },
+    "grids": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6",
+      "card_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
+      "detail_view": "grid grid-cols-1 lg:grid-cols-3 gap-8"
+    },
+    "radius": {
+      "default": "rounded-lg",
+      "button": "rounded-md",
+      "card": "rounded-xl"
+    }
+  },
+  "components": {
+    "buttons": {
+      "style": "Flat, high contrast. No gradients.",
+      "hover": "translate-y-[-1px] shadow-md transition-all duration-200",
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90",
+      "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+      "ghost": "hover:bg-accent hover:text-accent-foreground"
+    },
+    "cards": {
+      "style": "bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow duration-200",
+      "padding": "p-6"
+    },
+    "inputs": {
+      "style": "bg-white border-zinc-200 focus:ring-2 focus:ring-zinc-950 focus:border-transparent rounded-md h-10"
+    },
+    "badges": {
+      "style": "rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide uppercase",
+      "variants": {
+        "retail": "bg-emerald-100 text-emerald-800 border border-emerald-200",
+        "corporate": "bg-indigo-100 text-indigo-800 border border-indigo-200",
+        "pending": "bg-amber-100 text-amber-800 border border-amber-200",
+        "error": "bg-rose-100 text-rose-800 border border-rose-200"
+      }
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-white/70 border-b border-white/20",
+    "gradients": "None for backgrounds. Use subtle mesh gradients only for empty states or 'hero' moments.",
+    "shadows": {
+      "soft": "shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+      "medium": "shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
+      "float": "shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+    }
+  },
+  "assets": {
+    "images": {
+      "login_bg": {
+        "url": "https://images.unsplash.com/photo-1597681317170-9a0f5a350454?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Minimalist Warehouse Hallway",
+        "usage": "Login page background with dark overlay"
+      },
+      "showroom_placeholder": {
+        "url": "https://images.unsplash.com/photo-1722603037473-22866cddade7?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Modern Furniture Showroom",
+        "usage": "Dashboard widget background or empty state"
+      },
+      "default_product": {
+        "url": "https://placehold.co/600x400/f4f4f5/a1a1aa?text=Product+Image",
+        "alt": "Default Product Placeholder",
+        "usage": "Fallback for missing product images"
+      }
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "Stroke width 1.5px or 2px. Consistent sizing (w-4 h-4 for small, w-5 h-5 for medium)."
+    }
+  },
+  "motion": {
+    "transitions": "transition-all duration-200 ease-out",
+    "hover_lift": "hover:-translate-y-1",
+    "page_enter": "animate-in fade-in slide-in-from-bottom-4 duration-500",
+    "list_stagger": "stagger-children"
+  },
+  "accessibility": {
+    "contrast": "Ensure text meets WCAG AA (4.5:1). Use Zinc-600 or darker for body text on white.",
+    "focus_states": "Visible focus rings (ring-2 ring-offset-2) on all interactive elements.",
+    "aria": "Use aria-labels for icon-only buttons. Ensure semantic HTML (main, section, nav)."
+  },
+  "instructions_to_main_agent": [
+    "Implement a 'Control Room' grid layout for the main dashboard.",
+    "Use the defined color palette strictly. Do not introduce new colors without reason.",
+    "Ensure all interactive elements have hover states defined in the 'components' section.",
+    "Use 'Manrope' for all headings to give a distinct modern feel.",
+    "For the 'Order List', use a dense table layout with 'JetBrains Mono' for IDs and Dates.",
+    "Implement role-based view logic: Showroom sees 'Grid View' by default, Corporate sees 'List View'.",
+    "Use the 'login_bg' image for the authentication screen with a heavy blur or overlay to ensure text readability.",
+    "Add 'data-testid' to all key interactive elements (buttons, inputs, rows)."
+  ],
+  "universal_guidelines": [
+    "Avoid 'AI slop' - generic centered layouts. Use asymmetry and whitespace.",
+    "No gradients for main backgrounds. Use solid colors or subtle textures.",
+    "Micro-animations are mandatory for all interactions.",
+    "Use 'sonner' for toast notifications.",
+    "Prioritize 'Shadcn UI' components but customize them to match the 'Swiss Utility' aesthetic."
+  ]
+}
