@@ -1,0 +1,148 @@
+{
+  "summary": {
+    "total_tests": 23,
+    "passed_tests": 23,
+    "success_rate": 1.0,
+    "timestamp": "2025-12-18T18:20:38.396529"
+  },
+  "detailed_results": [
+    {
+      "test": "Login admin",
+      "success": true,
+      "details": "Role: admin \u2713",
+      "timestamp": "2025-12-18T18:20:36.413540"
+    },
+    {
+      "test": "Login showroom",
+      "success": true,
+      "details": "Role: showroom \u2713",
+      "timestamp": "2025-12-18T18:20:36.678266"
+    },
+    {
+      "test": "Login furkan",
+      "success": true,
+      "details": "Role: corporate_sales \u2713",
+      "timestamp": "2025-12-18T18:20:36.941473"
+    },
+    {
+      "test": "Login esat",
+      "success": true,
+      "details": "Role: warehouse \u2713",
+      "timestamp": "2025-12-18T18:20:37.203618"
+    },
+    {
+      "test": "Login ozgen",
+      "success": true,
+      "details": "Role: accounting \u2713",
+      "timestamp": "2025-12-18T18:20:37.467714"
+    },
+    {
+      "test": "Dashboard stats for admin",
+      "success": true,
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
+      "timestamp": "2025-12-18T18:20:37.547741"
+    },
+    {
+      "test": "Dashboard stats for showroom",
+      "success": true,
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
+      "timestamp": "2025-12-18T18:20:37.585571"
+    },
+    {
+      "test": "Dashboard stats for furkan",
+      "success": true,
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
+      "timestamp": "2025-12-18T18:20:37.664810"
+    },
+    {
+      "test": "Dashboard stats for esat",
+      "success": true,
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
+      "timestamp": "2025-12-18T18:20:37.705246"
+    },
+    {
+      "test": "Dashboard stats for ozgen",
+      "success": true,
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
+      "timestamp": "2025-12-18T18:20:37.743969"
+    },
+    {
+      "test": "Get users (admin)",
+      "success": true,
+      "details": "Retrieved 7 users",
+      "timestamp": "2025-12-18T18:20:37.784161"
+    },
+    {
+      "test": "Get users (showroom - should fail)",
+      "success": true,
+      "details": "Status: 403 (Expected 403)",
+      "timestamp": "2025-12-18T18:20:37.822984"
+    },
+    {
+      "test": "Get products",
+      "success": true,
+      "details": "Retrieved 0 products",
+      "timestamp": "2025-12-18T18:20:37.860974"
+    },
+    {
+      "test": "Create product",
+      "success": true,
+      "details": "Created product ID: fd2aad6b-34ca-4c3a-a484-d3abcd64560e",
+      "timestamp": "2025-12-18T18:20:37.905711"
+    },
+    {
+      "test": "Get single product",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-12-18T18:20:37.941599"
+    },
+    {
+      "test": "Get orders",
+      "success": true,
+      "details": "Retrieved 0 orders",
+      "timestamp": "2025-12-18T18:20:38.017521"
+    },
+    {
+      "test": "Create order",
+      "success": true,
+      "details": "Created order #1 (ID: 5101911e-f4da-44c1-a23a-4d26ab8c49a3)",
+      "timestamp": "2025-12-18T18:20:38.064480"
+    },
+    {
+      "test": "Get order with items",
+      "success": true,
+      "details": "Order #1 with 0 items",
+      "timestamp": "2025-12-18T18:20:38.142902"
+    },
+    {
+      "test": "Add order item",
+      "success": true,
+      "details": "Added item ID: d987ebd1-9cc4-4279-a089-eb4356bde3dc",
+      "timestamp": "2025-12-18T18:20:38.199385"
+    },
+    {
+      "test": "Update item status",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-12-18T18:20:38.240287"
+    },
+    {
+      "test": "Delete order item",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-12-18T18:20:38.317041"
+    },
+    {
+      "test": "Showroom role filtering",
+      "success": true,
+      "details": "Total orders: 1, Showroom orders: 1",
+      "timestamp": "2025-12-18T18:20:38.355467"
+    },
+    {
+      "test": "CSV upload",
+      "success": true,
+      "details": "Uploaded 2 products (Added: 2, Updated: 0)",
+      "timestamp": "2025-12-18T18:20:38.396324"
+    }
+  ]
+}
