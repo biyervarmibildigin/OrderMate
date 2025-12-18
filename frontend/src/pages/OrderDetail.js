@@ -214,23 +214,19 @@ const OrderDetail = () => {
                 <p className="text-sm text-zinc-500">Adet: {item.quantity}</p>
               </div>
               <div className="flex items-center gap-3">
-                <Select
+                <select
                   value={item.item_status}
-                  onValueChange={(value) => handleUpdateItemStatus(item.id, value)}
+                  onChange={(e) => handleUpdateItemStatus(item.id, e.target.value)}
+                  className="w-40 h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
                 >
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="netlesecek">Netleşecek</SelectItem>
-                    <SelectItem value="stokta">Stokta</SelectItem>
-                    <SelectItem value="temin_edilecek">Temin Edilecek</SelectItem>
-                    <SelectItem value="uretimde">Üretimde</SelectItem>
-                    <SelectItem value="hazir">Hazır</SelectItem>
-                    <SelectItem value="gonderildi">Gönderildi</SelectItem>
-                    <SelectItem value="iptal">İptal</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="netlesecek">Netleşecek</option>
+                  <option value="stokta">Stokta</option>
+                  <option value="temin_edilecek">Temin Edilecek</option>
+                  <option value="uretimde">Üretimde</option>
+                  <option value="hazir">Hazır</option>
+                  <option value="gonderildi">Gönderildi</option>
+                  <option value="iptal">İptal</option>
+                </select>
                 <Button
                   variant="ghost"
                   size="icon"
