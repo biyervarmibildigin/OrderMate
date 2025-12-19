@@ -245,6 +245,9 @@ class OrderMateAPITester:
             "customer_name": f"Test Customer {datetime.now().strftime('%H%M%S')}",
             "customer_phone": "+90 555 123 4567",
             "customer_email": "test@example.com",
+            "tax_id_type": "tc",
+            "tax_number": "12345678902",  # Valid TC format
+            "tax_office": "Test Vergi Dairesi",
             "delivery_method": "kargo",
             "whatsapp_content": "Test WhatsApp content for order",
             "notes": "Test order notes"
