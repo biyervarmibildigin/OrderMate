@@ -248,6 +248,26 @@ class OrderTypeCreate(BaseModel):
     is_active: bool = True
     order: int = 0
 
+# Bank Account Model
+class BankAccount(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    bank_name: str
+    account_holder: str
+    iban: str
+    branch_code: Optional[str] = None
+    account_number: Optional[str] = None
+    currency: str = "TRY"
+    is_active: bool = True
+
+class BankAccountCreate(BaseModel):
+    bank_name: str
+    account_holder: str
+    iban: str
+    branch_code: Optional[str] = None
+    account_number: Optional[str] = None
+    currency: str = "TRY"
+    is_active: bool = True
+
 # PDF Template Settings
 class PDFTemplateSettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -257,12 +277,20 @@ class PDFTemplateSettings(BaseModel):
     company_address: Optional[str] = None
     company_phone: Optional[str] = None
     company_email: Optional[str] = None
-    logo_text: Optional[str] = None
+    company_tax_number: Optional[str] = None
+    company_tax_office: Optional[str] = None
+    company_website: Optional[str] = None
+    logo_base64: Optional[str] = None  # Base64 encoded logo image
     header_color: str = "#000000"
     show_prices: bool = True
     show_customer_info: bool = True
+    show_bank_accounts: bool = True
     footer_text: str = "OrderMate - Sipariş Takip Sistemi"
     notes: Optional[str] = None
+    validity_days: int = 30  # Teklif geçerlilik süresi
+    payment_terms: Optional[str] = None  # Ödeme koşulları
+    delivery_terms: Optional[str] = None  # Teslimat koşulları
+    bank_accounts: List[BankAccount] = []
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class PDFTemplateUpdate(BaseModel):
@@ -271,12 +299,19 @@ class PDFTemplateUpdate(BaseModel):
     company_address: Optional[str] = None
     company_phone: Optional[str] = None
     company_email: Optional[str] = None
-    logo_text: Optional[str] = None
+    company_tax_number: Optional[str] = None
+    company_tax_office: Optional[str] = None
+    company_website: Optional[str] = None
+    logo_base64: Optional[str] = None
     header_color: Optional[str] = "#000000"
     show_prices: Optional[bool] = True
     show_customer_info: Optional[bool] = True
+    show_bank_accounts: Optional[bool] = True
     footer_text: Optional[str] = "OrderMate - Sipariş Takip Sistemi"
     notes: Optional[str] = None
+    validity_days: Optional[int] = 30
+    payment_terms: Optional[str] = None
+    delivery_terms: Optional[str] = None
 
 # ==================== AUTH UTILITIES ====================
 
