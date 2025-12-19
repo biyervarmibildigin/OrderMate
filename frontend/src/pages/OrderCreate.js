@@ -395,14 +395,34 @@ const OrderCreate = () => {
                       <div className="flex-1">
                         <div className="font-medium text-sm">{product.product_name}</div>
                         <div className="text-xs text-zinc-500">{product.web_service_code}</div>
+                        {product.total_price > 0 && (
+                          <div className="text-xs font-semibold text-zinc-700 mt-1">
+                            Toplam: {product.total_price.toFixed(2)} TL
+                          </div>
+                        )}
                       </div>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={product.quantity}
-                        onChange={(e) => handleUpdateQuantity(index, e.target.value)}
-                        className="w-20"
-                      />
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-zinc-500">Adet</div>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={product.quantity}
+                          onChange={(e) => handleUpdateQuantity(index, e.target.value)}
+                          className="w-20"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs text-zinc-500">Fiyat</div>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={product.unit_price}
+                          onChange={(e) => handleUpdatePrice(index, e.target.value)}
+                          className="w-24"
+                          placeholder="0.00"
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
@@ -414,6 +434,18 @@ const OrderCreate = () => {
                       </Button>
                     </div>
                   ))}
+                  
+                  {/* Grand Total */}
+                  {selectedProducts.some(p => p.unit_price > 0) && (
+                    <div className="pt-3 border-t border-zinc-200 flex justify-end">
+                      <div className="text-right">
+                        <p className="text-sm text-zinc-600">Toplam Tutar</p>
+                        <p className="text-xl font-bold text-zinc-900">
+                          {selectedProducts.reduce((sum, p) => sum + (p.total_price || 0), 0).toFixed(2)} TL
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
