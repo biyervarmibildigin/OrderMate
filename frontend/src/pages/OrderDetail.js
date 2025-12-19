@@ -268,10 +268,16 @@ const OrderDetail = () => {
             </Button>
           )}
           {!editMode ? (
-            <Button onClick={() => setEditMode(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Düzenle
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setEditMode(true)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Düzenle
+              </Button>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(true)} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Sil
+              </Button>
+            </div>
           ) : (
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => { setEditMode(false); setEditData(order); }}>
