@@ -1357,10 +1357,7 @@ async def get_next_order_code(order_type: str) -> str:
 
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
-    # Auto-assign order type as INCOMPLETE if missing delivery info
-    if not order_data.delivery_method or not order_data.customer_name:
-        order_data.order_type = OrderType.INCOMPLETE
-    
+    # Sipariş türü kullanıcı tarafından seçildi, otomatik değiştirme yok
     order_number = await get_next_order_number()
     order_code = await get_next_order_code(order_data.order_type)
     
