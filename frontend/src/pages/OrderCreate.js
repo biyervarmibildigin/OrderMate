@@ -8,7 +8,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from 'sonner';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -17,6 +17,10 @@ const OrderCreate = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [orderTypes, setOrderTypes] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [formData, setFormData] = useState({
     order_type: '',
     customer_name: '',
@@ -34,6 +38,7 @@ const OrderCreate = () => {
 
   useEffect(() => {
     fetchOrderTypes();
+    fetchProducts();
   }, []);
 
   const fetchOrderTypes = async () => {
@@ -42,7 +47,6 @@ const OrderCreate = () => {
       const activeTypes = response.data.filter(t => t.is_active);
       setOrderTypes(activeTypes);
       
-      // Set default order type
       if (activeTypes.length > 0) {
         const defaultType = user?.role === 'showroom' 
           ? activeTypes.find(t => t.code === 'showroom_satis') 
@@ -54,14 +58,95 @@ const OrderCreate = () => {
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/products?limit=1000`);
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    if (!value.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const searchLower = value.toLowerCase();
+    const results = products.filter(p => 
+      p.product_name.toLowerCase().includes(searchLower) ||
+      p.web_service_code?.toLowerCase().includes(searchLower) ||
+      p.barcode?.toLowerCase().includes(searchLower)
+    ).slice(0, 10);
+
+    setSearchResults(results);
+  };
+
+  const handleSelectProduct = (product) => {
+    const exists = selectedProducts.find(p => p.id === product.id);
+    if (exists) {
+      toast.error('Bu ürün zaten eklendi');
+      return;
+    }
+
+    setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+    setSearchTerm('');
+    setSearchResults([]);
+  };
+
+  const handleCreateManualProduct = async () => {
+    if (!searchTerm.trim()) return;
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/products/create-manual?product_name=${encodeURIComponent(searchTerm)}`
+      );
+      toast.success(`"${response.data.product_name}" ürünü oluşturuldu (${response.data.web_service_code})`);
+      
+      setSelectedProducts([...selectedProducts, { ...response.data, quantity: 1 }]);
+      setSearchTerm('');
+      setSearchResults([]);
+      fetchProducts();
+    } catch (error) {
+      toast.error('Ürün oluşturulamadı');
+    }
+  };
+
+  const handleRemoveProduct = (index) => {
+    setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateQuantity = (index, quantity) => {
+    const updated = [...selectedProducts];
+    updated[index].quantity = Math.max(1, parseInt(quantity) || 1);
+    setSelectedProducts(updated);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Create order
       const response = await axios.post(`${API_URL}/orders`, formData);
+      const orderId = response.data.id;
+
+      // Add order items
+      for (const product of selectedProducts) {
+        await axios.post(`${API_URL}/order-items`, {
+          order_id: orderId,
+          product_id: product.id,
+          product_name: product.product_name,
+          quantity: product.quantity,
+          item_type: 'katalog_urunu',
+          item_status: 'netlesecek'
+        });
+      }
+
       toast.success('Sipariş başarıyla oluşturuldu!');
-      navigate(`/orders/${response.data.id}`);
+      navigate(`/orders/${orderId}`);
     } catch (error) {
       toast.error('Sipariş oluşturulurken hata: ' + (error.response?.data?.detail || error.message));
     } finally {
@@ -72,6 +157,8 @@ const OrderCreate = () => {
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const isShowroomDelivery = formData.delivery_method === 'showroom';
 
   return (
     <div className="space-y-6">
@@ -162,7 +249,7 @@ const OrderCreate = () => {
                 >
                   <option value="">Seçiniz</option>
                   <option value="kargo">Kargo</option>
-                  <option value="elden">Elden</option>
+                  <option value="showroom">Showroom</option>
                 </select>
               </div>
             </div>
@@ -179,8 +266,43 @@ const OrderCreate = () => {
               />
             </div>
 
+            {/* Cargo Info - Only show if delivery is kargo */}
+            {formData.delivery_method === 'kargo' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cargo_company">Kargo Firması</Label>
+                  <select
+                    id="cargo_company"
+                    value={formData.cargo_company}
+                    onChange={(e) => handleChange('cargo_company', e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                    data-testid="cargo-company-select"
+                  >
+                    <option value="">Seçiniz</option>
+                    <option value="yurtici">Yurtiçi Kargo</option>
+                    <option value="mng">MNG Kargo</option>
+                    <option value="aras">Aras Kargo</option>
+                    <option value="ptt">PTT Kargo</option>
+                    <option value="ups">UPS Kargo</option>
+                    <option value="dhl">DHL</option>
+                    <option value="fedex">FedEx</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cargo_tracking_code">Kargo Takip Kodu</Label>
+                  <Input
+                    id="cargo_tracking_code"
+                    value={formData.cargo_tracking_code}
+                    onChange={(e) => handleChange('cargo_tracking_code', e.target.value)}
+                    placeholder="Takip numarası"
+                    data-testid="cargo-tracking-code-input"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Tax Info */}
-            {formData.order_type === 'cari_kurumsal' && (
+            {formData.order_type === 'kurumsal_cari' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="tax_number">Vergi Kimlik No</Label>
@@ -205,37 +327,84 @@ const OrderCreate = () => {
               </div>
             )}
 
-            {/* Cargo Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="cargo_company">Kargo Firması</Label>
-                <select
-                  id="cargo_company"
-                  value={formData.cargo_company}
-                  onChange={(e) => handleChange('cargo_company', e.target.value)}
-                  className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
-                  data-testid="cargo-company-select"
-                >
-                  <option value="">Seçiniz</option>
-                  <option value="yurtici">Yurtiçi Kargo</option>
-                  <option value="mng">MNG Kargo</option>
-                  <option value="aras">Aras Kargo</option>
-                  <option value="ptt">PTT Kargo</option>
-                  <option value="ups">UPS Kargo</option>
-                  <option value="dhl">DHL</option>
-                  <option value="fedex">FedEx</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cargo_tracking_code">Kargo Takip Kodu</Label>
+            {/* Product Selection */}
+            <div className="space-y-4 pt-4 border-t border-zinc-200">
+              <Label>Ürün Ekle</Label>
+              <div className="relative">
                 <Input
-                  id="cargo_tracking_code"
-                  value={formData.cargo_tracking_code}
-                  onChange={(e) => handleChange('cargo_tracking_code', e.target.value)}
-                  placeholder="Takip numarası"
-                  data-testid="cargo-tracking-code-input"
+                  placeholder="Ürün adı veya T kodu ile ara..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  data-testid="product-search-input"
                 />
+                
+                {searchResults.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {searchResults.map((product) => (
+                      <div
+                        key={product.id}
+                        className="p-3 hover:bg-zinc-50 cursor-pointer border-b border-zinc-100"
+                        onClick={() => handleSelectProduct(product)}
+                      >
+                        <div className="font-medium text-sm">{product.product_name}</div>
+                        <div className="text-xs text-zinc-500 mt-1">
+                          Kod: {product.web_service_code} • Stok: {product.stock}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {searchTerm && searchResults.length === 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg p-4">
+                    <p className="text-sm text-zinc-600 mb-3">Ürün bulunamadı</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCreateManualProduct}
+                      className="w-full"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      "{searchTerm}" olarak manuel ekle
+                    </Button>
+                  </div>
+                )}
               </div>
+
+              {/* Selected Products */}
+              {selectedProducts.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Seçili Ürünler ({selectedProducts.length})</Label>
+                  {selectedProducts.map((product, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 bg-zinc-50 rounded-md border border-zinc-200"
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{product.product_name}</div>
+                        <div className="text-xs text-zinc-500">{product.web_service_code}</div>
+                      </div>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={product.quantity}
+                        onChange={(e) => handleUpdateQuantity(index, e.target.value)}
+                        className="w-20"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveProduct(index)}
+                        className="text-red-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* WhatsApp Content */}
