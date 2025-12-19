@@ -551,6 +551,7 @@ class OrderMateAPITester:
             self.test_user_management()
             self.test_product_management()
             self.test_order_management()
+            self.test_corporate_order_addresses()  # New test for corporate orders
             self.test_role_based_access()
             self.test_csv_upload()
         except Exception as e:
