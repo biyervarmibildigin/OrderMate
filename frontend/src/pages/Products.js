@@ -290,14 +290,25 @@ const Products = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleOpenEditDialog(product)}
-                        data-testid={`edit-product-${product.id}`}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenEditDialog(product)}
+                          data-testid={`edit-product-${product.id}`}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteProduct(product.id, product.product_name)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          data-testid={`delete-product-${product.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
