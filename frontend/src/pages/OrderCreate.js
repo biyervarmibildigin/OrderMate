@@ -107,9 +107,11 @@ const OrderCreate = () => {
                 className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
                 data-testid="order-type-select"
               >
-                <option value="showroom_satis">Showroom Satış (Perakende)</option>
-                <option value="cari_kurumsal">Cari/Kurumsal</option>
-                <option value="eksik_bilgili">Eksik Bilgili</option>
+                {orderTypes.map((orderType) => (
+                  <option key={orderType.id} value={orderType.code}>
+                    {orderType.name}
+                  </option>
+                ))}
               </select>
             </div>
 
