@@ -149,6 +149,8 @@ const OrderCreate = () => {
           product_id: product.id,
           product_name: product.product_name,
           quantity: product.quantity,
+          unit_price: product.unit_price || 0,
+          total_price: product.total_price || 0,
           item_type: 'katalog_urunu',
           item_status: 'netlesecek'
         });
