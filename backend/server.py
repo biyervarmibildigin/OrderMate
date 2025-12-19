@@ -772,10 +772,10 @@ logger = logging.getLogger(__name__)
 async def shutdown_db_client():
     client.close()
 
-# Initialize default users on startup
+# Initialize default data on startup
 @app.on_event("startup")
-async def create_default_users():
-    # Check if users exist
+async def create_default_data():
+    # Create default users
     count = await db.users.count_documents({})
     if count == 0:
         default_users = [
@@ -798,3 +798,21 @@ async def create_default_users():
             await db.users.insert_one(doc)
         
         logger.info("Default users created successfully")
+    
+    # Create default order types
+    order_types_count = await db.order_types.count_documents({})
+    if order_types_count == 0:
+        default_order_types = [
+            {"name": "Teklif Aşaması", "code": "teklif", "description": "Müşteriye teklif hazırlanıyor", "order": 1},
+            {"name": "Showroom Satış (Perakende)", "code": "showroom_satis", "description": "Mağazadan perakende satış", "order": 2},
+            {"name": "Kurumsal/Cari Hesap", "code": "kurumsal_cari", "description": "Kurumsal cari hesap satışı", "order": 3},
+            {"name": "Kurumsal (Peşin Ödeme)", "code": "kurumsal_pesin", "description": "Kurumsal peşin ödemeli satış", "order": 4},
+        ]
+        
+        for ot_data in default_order_types:
+            order_type = OrderTypeModel(**ot_data)
+            doc = order_type.model_dump()
+            doc['created_at'] = doc['created_at'].isoformat()
+            await db.order_types.insert_one(doc)
+        
+        logger.info("Default order types created successfully")
