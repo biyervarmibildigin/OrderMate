@@ -71,6 +71,8 @@ const OrderDetail = () => {
         product_name: '',
         product_id: '',
         quantity: 1,
+        unit_price: 0,
+        total_price: 0,
         item_type: 'katalog_urunu',
         item_status: 'netlesecek'
       });
