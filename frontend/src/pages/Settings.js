@@ -19,6 +19,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingType, setEditingType] = useState(null);
+  const [pdfTemplate, setPdfTemplate] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -29,6 +30,7 @@ const Settings = () => {
 
   useEffect(() => {
     fetchOrderTypes();
+    fetchPdfTemplate();
   }, []);
 
   const fetchOrderTypes = async () => {
