@@ -180,6 +180,39 @@ const OrderCreate = () => {
               </div>
             )}
 
+            {/* Cargo Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cargo_company">Kargo Firması</Label>
+                <select
+                  id="cargo_company"
+                  value={formData.cargo_company}
+                  onChange={(e) => handleChange('cargo_company', e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
+                  data-testid="cargo-company-select"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="yurtici">Yurtiçi Kargo</option>
+                  <option value="mng">MNG Kargo</option>
+                  <option value="aras">Aras Kargo</option>
+                  <option value="ptt">PTT Kargo</option>
+                  <option value="ups">UPS Kargo</option>
+                  <option value="dhl">DHL</option>
+                  <option value="fedex">FedEx</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cargo_tracking_code">Kargo Takip Kodu</Label>
+                <Input
+                  id="cargo_tracking_code"
+                  value={formData.cargo_tracking_code}
+                  onChange={(e) => handleChange('cargo_tracking_code', e.target.value)}
+                  placeholder="Takip numarası"
+                  data-testid="cargo-tracking-code-input"
+                />
+              </div>
+            </div>
+
             {/* WhatsApp Content */}
             <div className="space-y-2">
               <Label htmlFor="whatsapp_content">WhatsApp İçeriği</Label>
