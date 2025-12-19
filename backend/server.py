@@ -1122,57 +1122,103 @@ async def upload_logo(file: UploadFile = File(...), current_user: User = Depends
 
 @api_router.post("/products/upload-csv")
 async def upload_products_csv(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
-    # Allow all authenticated users to upload products
-    pass
+    """Upload products from CSV file. Supports both comma (,) and semicolon (;) delimiters."""
     
     contents = await file.read()
     csv_text = contents.decode('utf-8-sig')  # Handle BOM
-    csv_reader = csv.DictReader(io.StringIO(csv_text))
+    
+    # Auto-detect delimiter (semicolon or comma)
+    first_line = csv_text.split('\n')[0]
+    delimiter = ';' if ';' in first_line else ','
+    
+    logger.info(f"CSV Upload - Detected delimiter: '{delimiter}'")
+    
+    csv_reader = csv.DictReader(io.StringIO(csv_text), delimiter=delimiter)
     
     products_added = 0
     products_updated = 0
+    errors = []
     
-    for row in csv_reader:
-        # Map CSV columns (Turkish) to our model
-        product_data = {
-            "product_id": int(row.get('Ürün İd', row.get('Urun Id', 0))) if row.get('Ürün İd', row.get('Urun Id')) else None,
-            "web_service_code": row.get('Web Servis Kodu', ''),
-            "product_name": row.get('Ürün Adı', row.get('Urun Adi', '')),
-            "supplier_product_code": row.get('Tedarikçi Ürün Kodu', row.get('Tedarikci Urun Kodu', '')),
-            "barcode": row.get('Barkod', ''),
-            "stock": int(row.get('Stok', 0)) if row.get('Stok') else 0,
-            "stock_unit": row.get('Stok Birimi', ''),
-            "is_active": row.get('Aktif', '').lower() in ['true', '1', 'yes', 'evet'],
-            "brand": row.get('Marka', ''),
-            "supplier": row.get('Tedarikçi', row.get('Tedarikci', ''))
-        }
-        
-        # Check if product exists by web_service_code or product_id
-        existing = None
-        if product_data['web_service_code']:
-            existing = await db.products.find_one({"web_service_code": product_data['web_service_code']}, {"_id": 0})
-        
-        if existing:
-            # Update existing
-            await db.products.update_one(
-                {"id": existing['id']},
-                {"$set": product_data}
-            )
-            products_updated += 1
-        else:
-            # Create new
-            product = Product(**product_data)
-            doc = product.model_dump()
-            doc['created_at'] = doc['created_at'].isoformat()
-            await db.products.insert_one(doc)
-            products_added += 1
+    for row_num, row in enumerate(csv_reader, start=2):  # start=2 because row 1 is header
+        try:
+            # Map CSV columns (Turkish) to our model - handle both Turkish and non-Turkish column names
+            product_name = (
+                row.get('Ürün Adı') or 
+                row.get('Urun Adi') or 
+                row.get('Product Name') or 
+                ''
+            ).strip()
+            
+            # Skip rows without product name
+            if not product_name:
+                continue
+            
+            # Parse product_id safely
+            product_id_raw = row.get('Ürün İd') or row.get('Ürün Id') or row.get('Urun Id') or row.get('Product Id') or ''
+            try:
+                product_id = int(product_id_raw) if product_id_raw and str(product_id_raw).strip() else None
+            except (ValueError, TypeError):
+                product_id = None
+            
+            # Parse stock safely
+            stock_raw = row.get('Stok') or row.get('Stock') or '0'
+            try:
+                stock = int(float(stock_raw)) if stock_raw and str(stock_raw).strip() else 0
+            except (ValueError, TypeError):
+                stock = 0
+            
+            product_data = {
+                "product_id": product_id,
+                "web_service_code": (row.get('Web Servis Kodu') or row.get('Web Service Code') or '').strip(),
+                "product_name": product_name,
+                "supplier_product_code": (row.get('Tedarikçi Ürün Kodu') or row.get('Tedarikci Urun Kodu') or row.get('Supplier Product Code') or '').strip(),
+                "barcode": (row.get('Barkod') or row.get('Barcode') or '').strip(),
+                "stock": stock,
+                "stock_unit": (row.get('Stok Birimi') or row.get('Stock Unit') or 'Adet').strip(),
+                "is_active": str(row.get('Aktif') or row.get('Active') or 'true').lower() in ['true', '1', 'yes', 'evet'],
+                "brand": (row.get('Marka') or row.get('Brand') or '').strip(),
+                "supplier": (row.get('Tedarikçi') or row.get('Tedarikci') or row.get('Supplier') or '').strip()
+            }
+            
+            # Check if product exists by web_service_code or product_id
+            existing = None
+            if product_data['web_service_code']:
+                existing = await db.products.find_one({"web_service_code": product_data['web_service_code']}, {"_id": 0})
+            
+            if existing:
+                # Update existing
+                await db.products.update_one(
+                    {"id": existing['id']},
+                    {"$set": product_data}
+                )
+                products_updated += 1
+            else:
+                # Create new
+                product = Product(**product_data)
+                doc = product.model_dump()
+                doc['created_at'] = doc['created_at'].isoformat()
+                await db.products.insert_one(doc)
+                products_added += 1
+                
+        except Exception as e:
+            errors.append(f"Satır {row_num}: {str(e)}")
+            logger.error(f"CSV row {row_num} error: {e}")
+            continue
     
-    return {
-        "message": "CSV uploaded successfully",
+    result = {
+        "message": "CSV yükleme tamamlandı",
         "products_added": products_added,
         "products_updated": products_updated,
         "total": products_added + products_updated
     }
+    
+    if errors:
+        result["errors"] = errors[:10]  # Return first 10 errors only
+        result["total_errors"] = len(errors)
+    
+    logger.info(f"CSV Upload completed: {products_added} added, {products_updated} updated, {len(errors)} errors")
+    
+    return result
 
 # ==================== ORDER ENDPOINTS ====================
 
