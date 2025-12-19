@@ -399,8 +399,8 @@ async def get_product(product_id: str, current_user: User = Depends(get_current_
 
 @api_router.post("/products/upload-csv")
 async def upload_products_csv(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
-    if current_user.role not in [UserRole.ADMIN, UserRole.WAREHOUSE, UserRole.FINANCE]:
-        raise HTTPException(status_code=403, detail="Not authorized to upload products")
+    # Allow all authenticated users to upload products
+    pass
     
     contents = await file.read()
     csv_text = contents.decode('utf-8-sig')  # Handle BOM
