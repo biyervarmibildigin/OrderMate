@@ -148,6 +148,17 @@ const OrderCreate = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Nested adres alanları için handler
+  const handleAddressChange = (addressType, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [addressType]: {
+        ...prev[addressType],
+        [field]: value
+      }
+    }));
+  };
+
   const handleSearchInput = (value) => {
     setSearchTerm(value);
     if (!value.trim()) setSearchResults([]);
