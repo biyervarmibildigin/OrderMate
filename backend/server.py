@@ -544,6 +544,38 @@ async def delete_product(product_id: str, current_user: User = Depends(get_curre
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product deleted successfully"}
 
+class BulkDeleteRequest(BaseModel):
+    ids: List[str]
+
+@api_router.post("/products/bulk-delete")
+async def bulk_delete_products(request: BulkDeleteRequest, current_user: User = Depends(get_current_user)):
+    """Delete multiple products at once"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can bulk delete products")
+    
+    if not request.ids:
+        raise HTTPException(status_code=400, detail="No product IDs provided")
+    
+    result = await db.products.delete_many({"id": {"$in": request.ids}})
+    
+    return {
+        "message": f"{result.deleted_count} ürün silindi",
+        "deleted_count": result.deleted_count
+    }
+
+@api_router.delete("/products/delete-all")
+async def delete_all_products(current_user: User = Depends(get_current_user)):
+    """Delete all products - USE WITH CAUTION"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can delete all products")
+    
+    result = await db.products.delete_many({})
+    
+    return {
+        "message": f"Tüm ürünler silindi ({result.deleted_count} adet)",
+        "deleted_count": result.deleted_count
+    }
+
 # ==================== SETTINGS / ORDER TYPES ====================
 
 @api_router.get("/settings/order-types", response_model=List[OrderTypeModel])
