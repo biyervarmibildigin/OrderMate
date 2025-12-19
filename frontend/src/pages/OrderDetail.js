@@ -188,6 +188,28 @@ const OrderDetail = () => {
             <p className="text-zinc-500">Kargo Durumu</p>
             <p className="font-semibold">{order.cargo_status}</p>
           </div>
+          {order.cargo_company && (
+            <div>
+              <p className="text-zinc-500">Kargo Firması</p>
+              <p className="font-semibold capitalize">{order.cargo_company}</p>
+            </div>
+          )}
+          {order.cargo_tracking_code && (
+            <div className="md:col-span-2">
+              <p className="text-zinc-500 mb-1">Kargo Takip</p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono font-semibold">{order.cargo_tracking_code}</p>
+                <a
+                  href={getCargoTrackingUrl(order.cargo_company, order.cargo_tracking_code)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline text-sm"
+                >
+                  Takip Et →
+                </a>
+              </div>
+            </div>
+          )}
         </div>
         {order.whatsapp_content && (
           <div className="mt-4 pt-4 border-t border-zinc-200">
