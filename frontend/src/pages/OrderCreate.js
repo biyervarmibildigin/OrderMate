@@ -49,8 +49,32 @@ const OrderCreate = () => {
 
   useEffect(() => {
     fetchOrderTypes();
-    fetchProducts();
   }, []);
+
+  // Search products when debounced search term changes
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (!debouncedSearch.trim() || debouncedSearch.length < 2) {
+        setSearchResults([]);
+        setSearching(false);
+        return;
+      }
+
+      setSearching(true);
+      try {
+        // Search from backend - searches ALL 14,000+ products
+        const response = await axios.get(`${API_URL}/products?search=${encodeURIComponent(debouncedSearch)}&limit=20`);
+        setSearchResults(response.data);
+      } catch (error) {
+        console.error('Product search failed:', error);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    };
+
+    searchProducts();
+  }, [debouncedSearch]);
 
   const fetchOrderTypes = async () => {
     try {
@@ -69,23 +93,9 @@ const OrderCreate = () => {
     }
   };
 
-  const fetchProducts = async () => {
-    // Initial load not needed - we search from backend
-  };
-
-  const handleSearch = async (value) => {
+  const handleSearchInput = (value) => {
     setSearchTerm(value);
-    if (!value.trim() || value.length < 2) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      // Search from backend - searches ALL products
-      const response = await axios.get(`${API_URL}/products?search=${encodeURIComponent(value)}&limit=15`);
-      setSearchResults(response.data);
-    } catch (error) {
-      console.error('Product search failed:', error);
+    if (!value.trim()) {
       setSearchResults([]);
     }
   };
