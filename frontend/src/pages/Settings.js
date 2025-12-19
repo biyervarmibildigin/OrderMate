@@ -149,6 +149,108 @@ const Settings = () => {
         </div>
       </div>
 
+      {/* PDF Template Section */}
+      {pdfTemplate && (
+        <Card className="p-6 border-zinc-200">
+          <h2 className="text-xl font-bold font-heading text-zinc-900 mb-4">
+            PDF Şablon Ayarları
+          </h2>
+          <p className="text-sm text-zinc-600 mb-6">
+            Teklif PDF'lerinin görünümünü özelleştirin
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label>Başlık</Label>
+              <Input
+                value={pdfTemplate.title}
+                onChange={(e) => handleUpdatePdfTemplate('title', e.target.value)}
+                placeholder="TEKLİF"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Şirket Adı</Label>
+              <Input
+                value={pdfTemplate.company_name}
+                onChange={(e) => handleUpdatePdfTemplate('company_name', e.target.value)}
+                placeholder="OrderMate"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Şirket Adresi</Label>
+              <Input
+                value={pdfTemplate.company_address || ''}
+                onChange={(e) => handleUpdatePdfTemplate('company_address', e.target.value)}
+                placeholder="Adres bilgisi"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Telefon</Label>
+              <Input
+                value={pdfTemplate.company_phone || ''}
+                onChange={(e) => handleUpdatePdfTemplate('company_phone', e.target.value)}
+                placeholder="+90 XXX XXX XX XX"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>E-posta</Label>
+              <Input
+                value={pdfTemplate.company_email || ''}
+                onChange={(e) => handleUpdatePdfTemplate('company_email', e.target.value)}
+                placeholder="info@company.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Alt Bilgi (Footer)</Label>
+              <Input
+                value={pdfTemplate.footer_text}
+                onChange={(e) => handleUpdatePdfTemplate('footer_text', e.target.value)}
+                placeholder="OrderMate - Sipariş Takip Sistemi"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 mt-6">
+            <Label>Notlar (PDF'de görünür)</Label>
+            <Textarea
+              value={pdfTemplate.notes || ''}
+              onChange={(e) => handleUpdatePdfTemplate('notes', e.target.value)}
+              placeholder="PDF'de gösterilecek ek notlar..."
+              rows={3}
+            />
+          </div>
+
+          <div className="flex gap-6 mt-6">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="show_prices"
+                checked={pdfTemplate.show_prices}
+                onChange={(e) => handleUpdatePdfTemplate('show_prices', e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-300"
+              />
+              <Label htmlFor="show_prices">Fiyatları Göster</Label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="show_customer_info"
+                checked={pdfTemplate.show_customer_info}
+                onChange={(e) => handleUpdatePdfTemplate('show_customer_info', e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-300"
+              />
+              <Label htmlFor="show_customer_info">Müşteri Bilgilerini Göster</Label>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Order Types Section */}
       <Card className="p-6 border-zinc-200">
         <div className="flex items-center justify-between mb-6">
