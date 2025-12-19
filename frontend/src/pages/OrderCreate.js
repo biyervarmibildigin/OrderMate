@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -7,8 +7,9 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import { Badge } from '../components/ui/badge';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Plus, X, Loader } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, Loader, ShoppingBag, FileText, Building2, CreditCard, ChevronRight } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -22,9 +23,42 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
+// Sipariş Türü Konfigürasyonları
+const ORDER_TYPE_CONFIG = {
+  teklif: {
+    label: 'Teklif Aşaması',
+    icon: FileText,
+    color: 'bg-purple-100 text-purple-800 border-purple-300',
+    description: 'Fiyat teklifi hazırlamak için',
+    fields: ['customer', 'tax', 'products', 'notes']
+  },
+  showroom_satis: {
+    label: 'Showroom Satış (Perakende)',
+    icon: ShoppingBag,
+    color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    description: 'Mağazadan perakende satış',
+    fields: ['customer', 'tax_optional', 'payment', 'delivery', 'products', 'notes']
+  },
+  kurumsal_cari: {
+    label: 'Kurumsal / Cari Hesap',
+    icon: Building2,
+    color: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+    description: 'Cari hesaplı kurumsal satış',
+    fields: ['customer', 'tax_required', 'delivery', 'products', 'notes']
+  },
+  kurumsal_pesin: {
+    label: 'Kurumsal (Peşin Ödeme)',
+    icon: CreditCard,
+    color: 'bg-blue-100 text-blue-800 border-blue-300',
+    description: 'Peşin ödemeli kurumsal satış',
+    fields: ['customer', 'tax_required', 'payment', 'delivery', 'products', 'notes']
+  }
+};
+
 const OrderCreate = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [step, setStep] = useState(1); // 1: Tür Seçimi, 2: Form
   const [loading, setLoading] = useState(false);
   const [orderTypes, setOrderTypes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,28 +66,128 @@ const OrderCreate = () => {
   const [searching, setSearching] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const debouncedSearch = useDebounce(searchTerm, 300);
+  const [taxError, setTaxError] = useState('');
+  
   const [formData, setFormData] = useState({
     order_type: '',
     customer_name: '',
     customer_phone: '',
     customer_email: '',
     customer_address: '',
-    tax_id_type: 'vkn', // 'vkn' veya 'tc'
+    tax_id_type: 'vkn',
     tax_number: '',
     tax_office: '',
     delivery_method: '',
     cargo_company: '',
     cargo_tracking_code: '',
-    // Ödeme ve Teslimat Durumları
-    pos_payment: false,        // POS cihazından çekildi
-    delivered_invoice_only: false, // Teslim edildi sadece fatura
-    online_payment_ref: '',    // Site ödemesi işlem numarası (CRxxxxxx)
+    pos_payment: false,
+    delivered_invoice_only: false,
+    online_payment_ref: '',
     whatsapp_content: '',
     notes: ''
   });
-  const [taxError, setTaxError] = useState('');
 
-  // VKN/TC Validasyon Fonksiyonları
+  useEffect(() => {
+    fetchOrderTypes();
+  }, []);
+
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (!debouncedSearch.trim() || debouncedSearch.length < 2) {
+        setSearchResults([]);
+        setSearching(false);
+        return;
+      }
+      setSearching(true);
+      try {
+        const response = await axios.get(`${API_URL}/products?search=${encodeURIComponent(debouncedSearch)}&limit=20`);
+        setSearchResults(response.data);
+      } catch (error) {
+        console.error('Product search failed:', error);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    };
+    searchProducts();
+  }, [debouncedSearch]);
+
+  const fetchOrderTypes = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/settings/order-types`);
+      const activeTypes = response.data.filter(t => t.is_active);
+      setOrderTypes(activeTypes);
+    } catch (error) {
+      console.error('Failed to fetch order types:', error);
+    }
+  };
+
+  const handleSelectOrderType = (typeCode) => {
+    setFormData(prev => ({ ...prev, order_type: typeCode }));
+    setStep(2);
+  };
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSearchInput = (value) => {
+    setSearchTerm(value);
+    if (!value.trim()) setSearchResults([]);
+  };
+
+  const handleSelectProduct = (product) => {
+    const exists = selectedProducts.find(p => p.product_id === product.id);
+    if (exists) {
+      toast.error('Bu ürün zaten eklenmiş');
+      return;
+    }
+    setSelectedProducts([...selectedProducts, {
+      product_id: product.id,
+      product_name: product.product_name,
+      web_service_code: product.web_service_code,
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      item_type: 'katalog_urunu',
+      item_status: 'netlesecek'
+    }]);
+    setSearchTerm('');
+    setSearchResults([]);
+    toast.success('Ürün eklendi');
+  };
+
+  const handleRemoveProduct = (index) => {
+    setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
+  };
+
+  const handleProductChange = (index, field, value) => {
+    const updated = [...selectedProducts];
+    updated[index][field] = value;
+    if (field === 'quantity' || field === 'unit_price') {
+      updated[index].total_price = (updated[index].quantity || 0) * (updated[index].unit_price || 0);
+    }
+    setSelectedProducts(updated);
+  };
+
+  const handleCreateManualProduct = () => {
+    if (!searchTerm.trim()) return;
+    setSelectedProducts([...selectedProducts, {
+      product_id: null,
+      product_name: searchTerm,
+      web_service_code: '',
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0,
+      item_type: 'manuel_urun',
+      item_status: 'netlesecek'
+    }]);
+    setSearchTerm('');
+    setSearchResults([]);
+    toast.success('Manuel ürün eklendi');
+  };
+
+  // VKN/TC Validasyon
   const validateVKN = (vkn) => {
     if (!vkn) return 'VKN zorunludur';
     if (vkn.length !== 10) return 'VKN 10 karakter olmalıdır';
@@ -71,422 +205,279 @@ const OrderCreate = () => {
     return '';
   };
 
-  const validateTaxNumber = () => {
-    if (formData.tax_id_type === 'vkn') {
-      return validateVKN(formData.tax_number);
-    } else {
-      return validateTC(formData.tax_number);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrderTypes();
-  }, []);
-
-  // Search products when debounced search term changes
-  useEffect(() => {
-    const searchProducts = async () => {
-      if (!debouncedSearch.trim() || debouncedSearch.length < 2) {
-        setSearchResults([]);
-        setSearching(false);
-        return;
-      }
-
-      setSearching(true);
-      try {
-        // Search from backend - searches ALL 14,000+ products
-        const response = await axios.get(`${API_URL}/products?search=${encodeURIComponent(debouncedSearch)}&limit=20`);
-        setSearchResults(response.data);
-      } catch (error) {
-        console.error('Product search failed:', error);
-        setSearchResults([]);
-      } finally {
-        setSearching(false);
-      }
-    };
-
-    searchProducts();
-  }, [debouncedSearch]);
-
-  const fetchOrderTypes = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/settings/order-types`);
-      const activeTypes = response.data.filter(t => t.is_active);
-      setOrderTypes(activeTypes);
-      
-      if (activeTypes.length > 0) {
-        const defaultType = user?.role === 'showroom' 
-          ? activeTypes.find(t => t.code === 'showroom_satis') 
-          : activeTypes[0];
-        setFormData(prev => ({ ...prev, order_type: defaultType?.code || activeTypes[0].code }));
-      }
-    } catch (error) {
-      console.error('Failed to fetch order types:', error);
-    }
-  };
-
-  const handleSearchInput = (value) => {
-    setSearchTerm(value);
-    if (!value.trim()) {
-      setSearchResults([]);
-    }
-  };
-
-  const handleSelectProduct = (product) => {
-    const exists = selectedProducts.find(p => p.id === product.id);
-    if (exists) {
-      toast.error('Bu ürün zaten eklendi');
-      return;
-    }
-
-    setSelectedProducts([...selectedProducts, { ...product, quantity: 1, unit_price: 0, total_price: 0 }]);
-    setSearchTerm('');
-    setSearchResults([]);
-  };
-
-  const handleCreateManualProduct = async () => {
-    if (!searchTerm.trim()) return;
-
-    try {
-      const response = await axios.post(
-        `${API_URL}/products/create-manual`,
-        { product_name: searchTerm }
-      );
-      toast.success(`"${response.data.product_name}" ürünü oluşturuldu (${response.data.web_service_code})`);
-      
-      setSelectedProducts([...selectedProducts, { ...response.data, quantity: 1, unit_price: 0, total_price: 0 }]);
-      setSearchTerm('');
-      setSearchResults([]);
-      fetchProducts();
-    } catch (error) {
-      toast.error('Ürün oluşturulamadı');
-    }
-  };
-
-  const handleRemoveProduct = (index) => {
-    setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
-  };
-
-  const handleUpdateQuantity = (index, quantity) => {
-    const updated = [...selectedProducts];
-    updated[index].quantity = Math.max(1, parseInt(quantity) || 1);
-    updated[index].total_price = updated[index].quantity * updated[index].unit_price;
-    setSelectedProducts(updated);
-  };
-
-  const handleUpdatePrice = (index, price) => {
-    const updated = [...selectedProducts];
-    updated[index].unit_price = Math.max(0, parseFloat(price) || 0);
-    updated[index].total_price = updated[index].quantity * updated[index].unit_price;
-    setSelectedProducts(updated);
-  };
+  const currentConfig = ORDER_TYPE_CONFIG[formData.order_type] || {};
+  const isTaxRequired = currentConfig.fields?.includes('tax_required');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // VKN/TC Validasyonu
-    const taxValidationError = validateTaxNumber();
-    if (taxValidationError) {
-      setTaxError(taxValidationError);
-      toast.error(taxValidationError);
-      return;
+    // VKN/TC Validasyonu - sadece zorunlu ise
+    if (isTaxRequired) {
+      const taxValidationError = formData.tax_id_type === 'vkn' 
+        ? validateVKN(formData.tax_number)
+        : validateTC(formData.tax_number);
+      if (taxValidationError) {
+        setTaxError(taxValidationError);
+        toast.error(taxValidationError);
+        return;
+      }
     }
     setTaxError('');
     
+    if (selectedProducts.length === 0) {
+      toast.error('En az bir ürün eklemelisiniz');
+      return;
+    }
+    
     setLoading(true);
-
     try {
-      // Create order
       const response = await axios.post(`${API_URL}/orders`, formData);
       const orderId = response.data.id;
-
-      // Add order items
+      
       for (const product of selectedProducts) {
-        await axios.post(`${API_URL}/order-items`, {
-          order_id: orderId,
-          product_id: product.id,
-          product_name: product.product_name,
-          quantity: product.quantity,
-          unit_price: product.unit_price || 0,
-          total_price: product.total_price || 0,
-          item_type: 'katalog_urunu',
-          item_status: 'netlesecek'
-        });
+        await axios.post(`${API_URL}/order-items`, { ...product, order_id: orderId });
       }
-
-      toast.success('Sipariş başarıyla oluşturuldu!');
+      
+      toast.success('Sipariş oluşturuldu');
       navigate(`/orders/${orderId}`);
     } catch (error) {
-      toast.error('Sipariş oluşturulurken hata: ' + (error.response?.data?.detail || error.message));
+      toast.error(error.response?.data?.detail || 'Sipariş oluşturulamadı');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const totalPrice = selectedProducts.reduce((sum, p) => sum + (p.total_price || 0), 0);
 
-  const isShowroomDelivery = formData.delivery_method === 'showroom';
+  // STEP 1: Sipariş Türü Seçimi
+  if (step === 1) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-4xl font-bold font-heading tracking-tight text-zinc-900">
+              Yeni Sipariş
+            </h1>
+            <p className="text-sm text-zinc-600 mt-1">Sipariş türünü seçin</p>
+          </div>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Object.entries(ORDER_TYPE_CONFIG).map(([code, config]) => {
+            const Icon = config.icon;
+            return (
+              <Card
+                key={code}
+                className={`p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-2 ${
+                  formData.order_type === code ? 'border-zinc-900' : 'border-zinc-200 hover:border-zinc-400'
+                }`}
+                onClick={() => handleSelectOrderType(code)}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-lg ${config.color}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-zinc-900">{config.label}</h3>
+                    <p className="text-sm text-zinc-500 mt-1">{config.description}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-zinc-400" />
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // STEP 2: Sipariş Formu
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/orders')}
-          data-testid="back-button"
-        >
+        <Button variant="ghost" size="icon" onClick={() => setStep(1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div>
-          <h1 className="text-4xl font-bold font-heading tracking-tight text-zinc-900">
-            Yeni Sipariş
-          </h1>
-          <p className="text-sm text-zinc-600 mt-1">
-            Yeni sipariş oluştur
-          </p>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-4xl font-bold font-heading tracking-tight text-zinc-900">
+              Yeni Sipariş
+            </h1>
+            <Badge className={currentConfig.color}>{currentConfig.label}</Badge>
+          </div>
+          <p className="text-sm text-zinc-600 mt-1">Sipariş bilgilerini doldurun</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Card className="p-6 border-zinc-200">
-          <div className="space-y-6">
-            {/* Order Type */}
-            <div className="space-y-2">
-              <Label htmlFor="order_type">Sipariş Türü</Label>
-              <select
-                id="order_type"
-                value={formData.order_type}
-                onChange={(e) => handleChange('order_type', e.target.value)}
-                className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
-                data-testid="order-type-select"
-              >
-                {orderTypes.map((orderType) => (
-                  <option key={orderType.id} value={orderType.code}>
-                    {orderType.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Customer Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="customer_name">Müşteri Adı</Label>
-                <Input
-                  id="customer_name"
-                  value={formData.customer_name}
-                  onChange={(e) => handleChange('customer_name', e.target.value)}
-                  placeholder="Müşteri adı"
-                  data-testid="customer-name-input"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="customer_phone">Telefon</Label>
-                <Input
-                  id="customer_phone"
-                  value={formData.customer_phone}
-                  onChange={(e) => handleChange('customer_phone', e.target.value)}
-                  placeholder="+90 XXX XXX XX XX"
-                  data-testid="customer-phone-input"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="customer_email">E-posta</Label>
-                <Input
-                  id="customer_email"
-                  type="email"
-                  value={formData.customer_email}
-                  onChange={(e) => handleChange('customer_email', e.target.value)}
-                  placeholder="ornek@email.com"
-                  data-testid="customer-email-input"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="delivery_method">Teslimat Şekli</Label>
-                <select
-                  id="delivery_method"
-                  value={formData.delivery_method}
-                  onChange={(e) => handleChange('delivery_method', e.target.value)}
-                  className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
-                  data-testid="delivery-method-select"
-                >
-                  <option value="">Seçiniz</option>
-                  <option value="kargo">Kargo</option>
-                  <option value="showroom">Showroom</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="customer_address">Adres</Label>
-              <Textarea
-                id="customer_address"
-                value={formData.customer_address}
-                onChange={(e) => handleChange('customer_address', e.target.value)}
-                placeholder="Müşteri adresi"
-                rows={2}
-                data-testid="customer-address-input"
-              />
-            </div>
-
-            {/* Cargo Info - Only show if delivery is kargo */}
-            {formData.delivery_method === 'kargo' && (
+        <Card className="p-6 border-zinc-200 space-y-6">
+          
+          {/* Müşteri Bilgileri */}
+          {(currentConfig.fields?.includes('customer')) && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-zinc-900 border-b pb-2">Müşteri Bilgileri</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="cargo_company">Kargo Firması</Label>
-                  <select
-                    id="cargo_company"
-                    value={formData.cargo_company}
-                    onChange={(e) => handleChange('cargo_company', e.target.value)}
-                    className="w-full h-10 px-3 rounded-md border border-zinc-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-zinc-950"
-                    data-testid="cargo-company-select"
-                  >
-                    <option value="">Seçiniz</option>
-                    <option value="yurtici">Yurtiçi Kargo</option>
-                    <option value="mng">MNG Kargo</option>
-                    <option value="aras">Aras Kargo</option>
-                    <option value="ptt">PTT Kargo</option>
-                    <option value="ups">UPS Kargo</option>
-                    <option value="dhl">DHL</option>
-                    <option value="fedex">FedEx</option>
-                  </select>
+                  <Label>Müşteri Adı *</Label>
+                  <Input
+                    value={formData.customer_name}
+                    onChange={(e) => handleChange('customer_name', e.target.value)}
+                    placeholder="Müşteri adı"
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="cargo_tracking_code">Kargo Takip Kodu</Label>
+                  <Label>Telefon</Label>
                   <Input
-                    id="cargo_tracking_code"
-                    value={formData.cargo_tracking_code}
-                    onChange={(e) => handleChange('cargo_tracking_code', e.target.value)}
-                    placeholder="Takip numarası"
-                    data-testid="cargo-tracking-code-input"
+                    value={formData.customer_phone}
+                    onChange={(e) => handleChange('customer_phone', e.target.value)}
+                    placeholder="+90 XXX XXX XX XX"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>E-posta</Label>
+                  <Input
+                    value={formData.customer_email}
+                    onChange={(e) => handleChange('customer_email', e.target.value)}
+                    placeholder="ornek@email.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Adres</Label>
+                  <Input
+                    value={formData.customer_address}
+                    onChange={(e) => handleChange('customer_address', e.target.value)}
+                    placeholder="Müşteri adresi"
                   />
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Tax Info - Zorunlu */}
+          {/* VKN/TC - Zorunlu */}
+          {(currentConfig.fields?.includes('tax_required')) && (
             <div className="space-y-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200">
               <h3 className="font-semibold text-zinc-900">VKN / TC Kimlik No *</h3>
               
-              {/* VKN/TC Seçimi */}
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="tax_id_type"
-                    value="vkn"
-                    checked={formData.tax_id_type === 'vkn'}
-                    onChange={(e) => {
-                      handleChange('tax_id_type', e.target.value);
-                      handleChange('tax_number', '');
-                      setTaxError('');
-                    }}
-                    className="h-4 w-4"
-                  />
+                  <input type="radio" name="tax_id_type" value="vkn" checked={formData.tax_id_type === 'vkn'}
+                    onChange={(e) => { handleChange('tax_id_type', e.target.value); handleChange('tax_number', ''); setTaxError(''); }}
+                    className="h-4 w-4" />
                   <span className="text-sm">VKN (Kurumsal - 10 hane)</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="tax_id_type"
-                    value="tc"
-                    checked={formData.tax_id_type === 'tc'}
-                    onChange={(e) => {
-                      handleChange('tax_id_type', e.target.value);
-                      handleChange('tax_number', '');
-                      setTaxError('');
-                    }}
-                    className="h-4 w-4"
-                  />
+                  <input type="radio" name="tax_id_type" value="tc" checked={formData.tax_id_type === 'tc'}
+                    onChange={(e) => { handleChange('tax_id_type', e.target.value); handleChange('tax_number', ''); setTaxError(''); }}
+                    className="h-4 w-4" />
                   <span className="text-sm">TC Kimlik No (Bireysel - 11 hane)</span>
                 </label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="tax_number">
-                    {formData.tax_id_type === 'vkn' ? 'Vergi Kimlik No (VKN) *' : 'TC Kimlik No *'}
-                  </Label>
+                  <Label>{formData.tax_id_type === 'vkn' ? 'Vergi Kimlik No (VKN) *' : 'TC Kimlik No *'}</Label>
                   <Input
-                    id="tax_number"
                     value={formData.tax_number}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, ''); // Sadece rakam
+                      const value = e.target.value.replace(/\D/g, '');
                       const maxLength = formData.tax_id_type === 'vkn' ? 10 : 11;
                       handleChange('tax_number', value.slice(0, maxLength));
                       setTaxError('');
                     }}
                     placeholder={formData.tax_id_type === 'vkn' ? '10 haneli VKN' : '11 haneli TC No'}
                     className={taxError ? 'border-red-500' : ''}
-                    data-testid="tax-number-input"
                   />
-                  {taxError && (
-                    <p className="text-xs text-red-600">{taxError}</p>
-                  )}
+                  {taxError && <p className="text-xs text-red-600">{taxError}</p>}
                   <p className="text-xs text-zinc-500">
                     {formData.tax_id_type === 'vkn' 
                       ? `${formData.tax_number.length}/10 karakter`
-                      : `${formData.tax_number.length}/11 karakter ${formData.tax_number.length === 11 ? (parseInt(formData.tax_number[10]) % 2 === 0 ? '✓' : '(son hane çift olmalı!)') : ''}`
-                    }
+                      : `${formData.tax_number.length}/11 karakter ${formData.tax_number.length === 11 ? (parseInt(formData.tax_number[10]) % 2 === 0 ? '✓' : '(son hane çift olmalı!)') : ''}`}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tax_office">
-                    {formData.tax_id_type === 'vkn' ? 'Vergi Dairesi *' : 'Vergi Dairesi (Opsiyonel)'}
-                  </Label>
+                  <Label>Vergi Dairesi *</Label>
                   <Input
-                    id="tax_office"
                     value={formData.tax_office}
                     onChange={(e) => handleChange('tax_office', e.target.value)}
                     placeholder="Vergi dairesi adı"
-                    data-testid="tax-office-input"
                   />
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Ödeme ve Teslimat Durumu */}
+          {/* VKN/TC - Opsiyonel */}
+          {(currentConfig.fields?.includes('tax_optional') || currentConfig.fields?.includes('tax')) && (
+            <div className="space-y-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200">
+              <h3 className="font-semibold text-zinc-900">VKN / TC Kimlik No (Opsiyonel)</h3>
+              
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="tax_id_type" value="vkn" checked={formData.tax_id_type === 'vkn'}
+                    onChange={(e) => { handleChange('tax_id_type', e.target.value); handleChange('tax_number', ''); }}
+                    className="h-4 w-4" />
+                  <span className="text-sm">VKN (10 hane)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="tax_id_type" value="tc" checked={formData.tax_id_type === 'tc'}
+                    onChange={(e) => { handleChange('tax_id_type', e.target.value); handleChange('tax_number', ''); }}
+                    className="h-4 w-4" />
+                  <span className="text-sm">TC Kimlik No (11 hane)</span>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{formData.tax_id_type === 'vkn' ? 'VKN' : 'TC Kimlik No'}</Label>
+                  <Input
+                    value={formData.tax_number}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      const maxLength = formData.tax_id_type === 'vkn' ? 10 : 11;
+                      handleChange('tax_number', value.slice(0, maxLength));
+                    }}
+                    placeholder={formData.tax_id_type === 'vkn' ? '10 haneli VKN' : '11 haneli TC No'}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vergi Dairesi</Label>
+                  <Input
+                    value={formData.tax_office}
+                    onChange={(e) => handleChange('tax_office', e.target.value)}
+                    placeholder="Vergi dairesi adı"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Ödeme Bilgileri */}
+          {(currentConfig.fields?.includes('payment')) && (
             <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h3 className="font-semibold text-zinc-900">Ödeme ve Teslimat Durumu</h3>
+              <h3 className="font-semibold text-zinc-900">Ödeme Durumu</h3>
               
               <div className="flex flex-wrap gap-6">
-                {/* POS Cihazından Çekildi */}
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.pos_payment}
+                  <input type="checkbox" checked={formData.pos_payment}
                     onChange={(e) => handleChange('pos_payment', e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300"
-                  />
+                    className="h-4 w-4 rounded border-zinc-300" />
                   <span className="text-sm font-medium">POS Cihazından Çekildi</span>
                 </label>
-
-                {/* Teslim Edildi Sadece Fatura */}
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.delivered_invoice_only}
+                  <input type="checkbox" checked={formData.delivered_invoice_only}
                     onChange={(e) => handleChange('delivered_invoice_only', e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300"
-                  />
+                    className="h-4 w-4 rounded border-zinc-300" />
                   <span className="text-sm font-medium">Teslim Edildi Sadece Fatura</span>
                 </label>
               </div>
 
-              {/* Site Ödemesi İşlem Numarası */}
               <div className="space-y-2">
-                <Label htmlFor="online_payment_ref">
-                  Site Ödemesi İşlem Numarası
-                  <span className="text-xs text-zinc-500 ml-2">(İşlem numaranızı not ediniz)</span>
-                </Label>
+                <Label>Site Ödemesi İşlem Numarası <span className="text-xs text-zinc-500">(İşlem numaranızı not ediniz)</span></Label>
                 <Input
-                  id="online_payment_ref"
                   value={formData.online_payment_ref}
                   onChange={(e) => handleChange('online_payment_ref', e.target.value.toUpperCase())}
                   placeholder="CRxxxxxx"
@@ -494,17 +485,62 @@ const OrderCreate = () => {
                 />
               </div>
             </div>
+          )}
 
-            {/* Product Selection */}
-            <div className="space-y-4 pt-4 border-t border-zinc-200">
-              <Label>Ürün Ekle</Label>
+          {/* Teslimat Bilgileri */}
+          {(currentConfig.fields?.includes('delivery')) && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-zinc-900 border-b pb-2">Teslimat Bilgileri</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Teslimat Şekli</Label>
+                  <select
+                    value={formData.delivery_method}
+                    onChange={(e) => handleChange('delivery_method', e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-zinc-300 bg-white"
+                  >
+                    <option value="">Seçiniz</option>
+                    <option value="kargo">Kargo</option>
+                    <option value="elden">Elden Teslim</option>
+                    <option value="kurye">Kurye</option>
+                  </select>
+                </div>
+                {formData.delivery_method === 'kargo' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Kargo Firması</Label>
+                      <Input
+                        value={formData.cargo_company}
+                        onChange={(e) => handleChange('cargo_company', e.target.value)}
+                        placeholder="Aras, Yurtiçi, MNG..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Kargo Takip Kodu</Label>
+                      <Input
+                        value={formData.cargo_tracking_code}
+                        onChange={(e) => handleChange('cargo_tracking_code', e.target.value)}
+                        placeholder="Takip kodu"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Ürün Ekleme */}
+          {(currentConfig.fields?.includes('products')) && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-zinc-900 border-b pb-2">Ürünler *</h3>
+              
+              {/* Ürün Arama */}
               <div className="relative">
                 <div className="relative">
                   <Input
                     placeholder="Ürün adı veya T kodu ile ara... (en az 2 karakter)"
                     value={searchTerm}
                     onChange={(e) => handleSearchInput(e.target.value)}
-                    data-testid="product-search-input"
                   />
                   {searching && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -516,11 +552,8 @@ const OrderCreate = () => {
                 {searchResults.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg max-h-60 overflow-auto">
                     {searchResults.map((product) => (
-                      <div
-                        key={product.id}
-                        className="p-3 hover:bg-zinc-50 cursor-pointer border-b border-zinc-100"
-                        onClick={() => handleSelectProduct(product)}
-                      >
+                      <div key={product.id} className="p-3 hover:bg-zinc-50 cursor-pointer border-b border-zinc-100"
+                        onClick={() => handleSelectProduct(product)}>
                         <div className="font-medium text-sm">{product.product_name}</div>
                         <div className="text-xs text-zinc-500 mt-1">
                           Kod: {product.web_service_code} • Marka: {product.brand || '-'} • Stok: {product.stock}
@@ -533,132 +566,75 @@ const OrderCreate = () => {
                 {searchTerm.length >= 2 && !searching && searchResults.length === 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg p-4">
                     <p className="text-sm text-zinc-600 mb-3">"{searchTerm}" için ürün bulunamadı</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCreateManualProduct}
-                      className="w-full"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      "{searchTerm}" olarak manuel ekle
+                    <Button type="button" variant="outline" size="sm" onClick={handleCreateManualProduct} className="w-full">
+                      <Plus className="mr-2 h-4 w-4" />"{searchTerm}" olarak manuel ekle
                     </Button>
                   </div>
                 )}
               </div>
 
-              {/* Selected Products */}
+              {/* Seçilen Ürünler */}
               {selectedProducts.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Seçili Ürünler ({selectedProducts.length})</Label>
+                <div className="space-y-3">
                   {selectedProducts.map((product, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 bg-zinc-50 rounded-md border border-zinc-200"
-                    >
+                    <div key={index} className="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg">
                       <div className="flex-1">
-                        <div className="font-medium text-sm">{product.product_name}</div>
-                        <div className="text-xs text-zinc-500">{product.web_service_code}</div>
-                        {product.total_price > 0 && (
-                          <div className="text-xs font-semibold text-zinc-700 mt-1">
-                            Toplam: {product.total_price.toFixed(2)} TL
-                          </div>
+                        <p className="font-medium text-sm">{product.product_name}</p>
+                        {product.web_service_code && (
+                          <p className="text-xs text-zinc-500">Kod: {product.web_service_code}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-xs text-zinc-500">Adet</div>
-                        <Input
-                          type="number"
-                          min="1"
-                          value={product.quantity}
-                          onChange={(e) => handleUpdateQuantity(index, e.target.value)}
-                          className="w-20"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-xs text-zinc-500">Fiyat</div>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={product.unit_price}
-                          onChange={(e) => handleUpdatePrice(index, e.target.value)}
-                          className="w-24"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveProduct(index)}
-                        className="text-red-600"
-                      >
+                      <Input type="number" placeholder="Adet" value={product.quantity} min="1"
+                        onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value) || 0)}
+                        className="w-20" />
+                      <Input type="number" placeholder="Fiyat" value={product.unit_price} step="0.01"
+                        onChange={(e) => handleProductChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                        className="w-28" />
+                      <span className="text-sm font-semibold w-24 text-right">{product.total_price.toFixed(2)} TL</span>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveProduct(index)}
+                        className="text-red-600 hover:text-red-700">
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
-                  
-                  {/* Grand Total */}
-                  {selectedProducts.some(p => p.unit_price > 0) && (
-                    <div className="pt-3 border-t border-zinc-200 flex justify-end">
-                      <div className="text-right">
-                        <p className="text-sm text-zinc-600">Toplam Tutar</p>
-                        <p className="text-xl font-bold text-zinc-900">
-                          {selectedProducts.reduce((sum, p) => sum + (p.total_price || 0), 0).toFixed(2)} TL
-                        </p>
-                      </div>
+                  <div className="flex justify-end pt-3 border-t border-zinc-200">
+                    <div className="text-right">
+                      <span className="text-zinc-500 text-sm">Toplam: </span>
+                      <span className="text-xl font-bold">{totalPrice.toFixed(2)} TL</span>
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
-            </div>
 
-            {/* WhatsApp Content */}
-            <div className="space-y-2">
-              <Label htmlFor="whatsapp_content">WhatsApp İçeriği</Label>
-              <Textarea
-                id="whatsapp_content"
-                value={formData.whatsapp_content}
-                onChange={(e) => handleChange('whatsapp_content', e.target.value)}
-                placeholder="WhatsApp mesajını buraya yapıştırın..."
-                rows={4}
-                data-testid="whatsapp-content-input"
-              />
+              {selectedProducts.length === 0 && (
+                <p className="text-sm text-zinc-500 text-center py-4">Henüz ürün eklenmedi</p>
+              )}
             </div>
+          )}
 
-            {/* Notes */}
+          {/* Notlar */}
+          {(currentConfig.fields?.includes('notes')) && (
             <div className="space-y-2">
-              <Label htmlFor="notes">Notlar</Label>
+              <Label>Notlar</Label>
               <Textarea
-                id="notes"
                 value={formData.notes}
                 onChange={(e) => handleChange('notes', e.target.value)}
-                placeholder="Ek notlar..."
+                placeholder="Sipariş ile ilgili notlar..."
                 rows={3}
-                data-testid="notes-input"
               />
             </div>
+          )}
 
-            {/* Submit Button */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/orders')}
-                data-testid="cancel-button"
-              >
-                İptal
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                data-testid="submit-order-button"
-              >
-                <Save className="mr-2 h-4 w-4" />
-                {loading ? 'Kaydediliyor...' : 'Siparişi Oluştur'}
-              </Button>
-            </div>
+          {/* Submit */}
+          <div className="flex justify-between items-center pt-4 border-t border-zinc-200">
+            <Button type="button" variant="outline" onClick={() => setStep(1)}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Sipariş Türünü Değiştir
+            </Button>
+            <Button type="submit" disabled={loading || selectedProducts.length === 0}>
+              {loading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {loading ? 'Kaydediliyor...' : 'Siparişi Kaydet'}
+            </Button>
           </div>
         </Card>
       </form>
