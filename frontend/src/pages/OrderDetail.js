@@ -177,6 +177,20 @@ const OrderDetail = () => {
             Oluşturan: {order.created_by_name} • {new Date(order.created_at).toLocaleString('tr-TR')}
           </p>
         </div>
+        {/* PDF Download for Teklif */}
+        {order.order_type === 'teklif' && (
+          <a
+            href={`${API_URL}/orders/${order.id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+          >
+            <Button variant="outline" size="lg">
+              <FileDown className="mr-2 h-4 w-4" />
+              Teklif PDF İndir
+            </Button>
+          </a>
+        )}
       </div>
 
       {/* Order Info */}
