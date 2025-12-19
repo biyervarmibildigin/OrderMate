@@ -1372,6 +1372,64 @@ async def update_order(order_id: str, order_data: OrderCreate, current_user: Use
     update_data = order_data.model_dump()
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
     
+    # Track changes in history
+    history_entries = existing.get('history', [])
+    changes = []
+    
+    # Check for status changes
+    status_fields = {
+        'general_status': 'Genel Durum',
+        'invoice_status': 'Fatura Durumu',
+        'waybill_status': 'İrsaliye Durumu',
+        'cargo_status': 'Kargo Durumu'
+    }
+    
+    for field, label in status_fields.items():
+        old_val = existing.get(field)
+        new_val = update_data.get(field)
+        if old_val != new_val:
+            changes.append(f"{label}: {old_val} → {new_val}")
+            history_entry = {
+                "id": str(uuid.uuid4()),
+                "action": "status_change",
+                "description": f"{label} değiştirildi",
+                "old_value": old_val,
+                "new_value": new_val,
+                "user_id": current_user.id,
+                "user_name": current_user.full_name,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            history_entries.append(history_entry)
+    
+    # Check for other field changes
+    editable_fields = ['customer_name', 'customer_phone', 'customer_email', 'customer_address', 
+                      'tax_number', 'tax_office', 'delivery_method', 'cargo_company', 
+                      'cargo_tracking_code', 'notes', 'order_type']
+    
+    for field in editable_fields:
+        old_val = existing.get(field)
+        new_val = update_data.get(field)
+        if old_val != new_val:
+            changes.append(f"{field}: güncellendi")
+    
+    # Add general edit history if there were changes
+    if changes:
+        history_entry = {
+            "id": str(uuid.uuid4()),
+            "action": "edited",
+            "description": "Sipariş düzenlendi: " + ", ".join(changes[:3]) + ("..." if len(changes) > 3 else ""),
+            "old_value": None,
+            "new_value": None,
+            "user_id": current_user.id,
+            "user_name": current_user.full_name,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        # Only add if not already added a status change
+        if not any(c.startswith(('Genel Durum', 'Fatura', 'İrsaliye', 'Kargo')) for c in changes):
+            history_entries.append(history_entry)
+    
+    update_data['history'] = history_entries
+    
     await db.orders.update_one({"id": order_id}, {"$set": update_data})
     
     updated = await db.orders.find_one({"id": order_id}, {"_id": 0})
@@ -1379,7 +1437,45 @@ async def update_order(order_id: str, order_data: OrderCreate, current_user: Use
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     if isinstance(updated.get('updated_at'), str):
         updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    
+    # Parse history entries
+    if 'history' in updated:
+        for entry in updated['history']:
+            if isinstance(entry.get('created_at'), str):
+                entry['created_at'] = datetime.fromisoformat(entry['created_at'])
+    
     return Order(**updated)
+
+# Sipariş geçmişine not ekleme
+class AddHistoryNoteRequest(BaseModel):
+    note: str
+
+@api_router.post("/orders/{order_id}/add-note")
+async def add_order_note(order_id: str, request: AddHistoryNoteRequest, current_user: User = Depends(get_current_user)):
+    """Add a note to order history"""
+    existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    history_entries = existing.get('history', [])
+    history_entry = {
+        "id": str(uuid.uuid4()),
+        "action": "note_added",
+        "description": request.note,
+        "old_value": None,
+        "new_value": None,
+        "user_id": current_user.id,
+        "user_name": current_user.full_name,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    history_entries.append(history_entry)
+    
+    await db.orders.update_one(
+        {"id": order_id}, 
+        {"$set": {"history": history_entries, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"message": "Not eklendi", "entry": history_entry}
 
 # ==================== ORDER ITEM ENDPOINTS ====================
 
