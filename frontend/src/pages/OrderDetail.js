@@ -234,7 +234,7 @@ const OrderDetail = () => {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-4xl font-bold font-heading tracking-tight text-zinc-900">
-              Sipariş #{order.order_number}
+              Sipariş {order.order_code || `#${order.order_number}`}
             </h1>
             {getStatusBadge(order.general_status, statusOptions)}
           </div>
