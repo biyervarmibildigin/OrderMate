@@ -141,6 +141,22 @@ class DeliveryMethod:
     CARGO = "kargo"
     HAND = "elden"
 
+# Waybill (İrsaliye) Status
+class WaybillStatus:
+    NOT_ISSUED = "kesilmedi"
+    ISSUED = "kesildi"
+
+# Order History Entry
+class OrderHistoryEntry(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    action: str  # status_change, note_added, item_added, item_removed, edited, waybill_issued, invoice_issued
+    description: str
+    old_value: Optional[str] = None
+    new_value: Optional[str] = None
+    user_id: str
+    user_name: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class Order(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -156,6 +172,7 @@ class Order(BaseModel):
     created_by_name: str
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
+    waybill_status: str = WaybillStatus.NOT_ISSUED  # İrsaliye durumu
     cargo_status: str = CargoStatus.NONE
     cargo_company: Optional[str] = None  # Yurtiçi, MNG, Aras, PTT, etc.
     cargo_tracking_code: Optional[str] = None
@@ -163,6 +180,7 @@ class Order(BaseModel):
     whatsapp_content: Optional[str] = None
     attachments: List[str] = []  # file URLs or base64
     notes: Optional[str] = None
+    history: List[OrderHistoryEntry] = []  # Sipariş geçmişi
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
