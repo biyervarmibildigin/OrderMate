@@ -663,7 +663,11 @@ async def update_pdf_template(settings: PDFTemplateUpdate, current_user: User = 
 
 @api_router.get("/orders/{order_id}/pdf")
 async def generate_order_pdf(order_id: str, current_user: User = Depends(get_current_user)):
-    """Generate PDF for order (mainly for teklif)"""
+    """Generate professional PDF quote for order with Turkish character support"""
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import Paragraph, Spacer
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+    
     # Get order
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not order:
@@ -677,112 +681,349 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
     if template_doc:
         if isinstance(template_doc.get('updated_at'), str):
             template_doc['updated_at'] = datetime.fromisoformat(template_doc['updated_at'])
+        # Handle bank_accounts if it's a list of dicts
+        if 'bank_accounts' in template_doc and isinstance(template_doc['bank_accounts'], list):
+            template_doc['bank_accounts'] = [BankAccount(**ba) if isinstance(ba, dict) else ba for ba in template_doc['bank_accounts']]
         template = PDFTemplateSettings(**template_doc)
     else:
         template = PDFTemplateSettings()
+    
+    # Get bank accounts from settings
+    bank_accounts_docs = await db.bank_accounts.find({"is_active": True}, {"_id": 0}).to_list(100)
+    bank_accounts = [BankAccount(**ba) for ba in bank_accounts_docs] if bank_accounts_docs else []
     
     # Create PDF in memory
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     
-    # Title
-    pdf.setFont("Helvetica-Bold", 20)
-    pdf.drawString(2*cm, height - 2*cm, template.title)
+    # ==================== HEADER SECTION ====================
+    y_position = height - 1.5*cm
     
-    # Company Info (right side)
-    pdf.setFont("Helvetica", 9)
-    y_company = height - 2*cm
+    # Draw Logo if exists
+    logo_height = 0
+    if template.logo_base64:
+        try:
+            from reportlab.lib.utils import ImageReader
+            logo_data = base64.b64decode(template.logo_base64)
+            logo_image = ImageReader(io.BytesIO(logo_data))
+            logo_width_px = 120
+            logo_height_px = 60
+            pdf.drawImage(logo_image, 2*cm, y_position - logo_height_px + 15, width=logo_width_px, height=logo_height_px, preserveAspectRatio=True, mask='auto')
+            logo_height = logo_height_px
+        except Exception as e:
+            logger.error(f"Logo render error: {e}")
+    
+    # Company Info (right side - top)
+    pdf.setFont(FONT_NAME_BOLD, 14)
+    company_x = width - 2*cm
+    y_company = height - 1.5*cm
+    
     if template.company_name:
-        pdf.drawRightString(width - 2*cm, y_company, template.company_name)
-        y_company -= 0.4*cm
+        pdf.drawRightString(company_x, y_company, template.company_name)
+        y_company -= 0.5*cm
+    
+    pdf.setFont(FONT_NAME, 9)
     if template.company_address:
-        pdf.drawRightString(width - 2*cm, y_company, template.company_address)
-        y_company -= 0.4*cm
+        # Split address if too long
+        address_lines = template.company_address.split('\n') if '\n' in template.company_address else [template.company_address]
+        for line in address_lines:
+            pdf.drawRightString(company_x, y_company, line.strip())
+            y_company -= 0.4*cm
+    
     if template.company_phone:
-        pdf.drawRightString(width - 2*cm, y_company, f"Tel: {template.company_phone}")
+        pdf.drawRightString(company_x, y_company, f"Tel: {template.company_phone}")
         y_company -= 0.4*cm
+    
     if template.company_email:
-        pdf.drawRightString(width - 2*cm, y_company, template.company_email)
+        pdf.drawRightString(company_x, y_company, f"E-posta: {template.company_email}")
+        y_company -= 0.4*cm
     
-    # Order Info
-    pdf.setFont("Helvetica", 10)
-    y_position = height - 3.5*cm
-    pdf.drawString(2*cm, y_position, f"Sipariş No: #{order['order_number']}")
-    y_position -= 0.5*cm
-    pdf.drawString(2*cm, y_position, f"Tarih: {datetime.fromisoformat(order['created_at']).strftime('%d.%m.%Y')}")
+    if template.company_website:
+        pdf.drawRightString(company_x, y_company, template.company_website)
+        y_company -= 0.4*cm
     
-    # Customer Info
-    if template.show_customer_info:
+    if template.company_tax_office and template.company_tax_number:
+        pdf.drawRightString(company_x, y_company, f"V.D: {template.company_tax_office} / {template.company_tax_number}")
+        y_company -= 0.4*cm
+    
+    # ==================== TITLE SECTION ====================
+    y_position = height - 4.5*cm
+    
+    # Title with underline
+    pdf.setFont(FONT_NAME_BOLD, 18)
+    title_width = pdf.stringWidth(template.title, FONT_NAME_BOLD, 18)
+    title_x = (width - title_width) / 2
+    pdf.drawString(title_x, y_position, template.title)
+    
+    # Underline
+    pdf.setStrokeColor(colors.HexColor("#333333"))
+    pdf.setLineWidth(1)
+    pdf.line(title_x - 10, y_position - 5, title_x + title_width + 10, y_position - 5)
+    
+    # ==================== DOCUMENT INFO ====================
+    y_position -= 1.5*cm
+    
+    # Info box background
+    pdf.setFillColor(colors.HexColor("#f8f9fa"))
+    pdf.rect(2*cm, y_position - 1.2*cm, width - 4*cm, 1.5*cm, fill=True, stroke=False)
+    pdf.setFillColor(colors.black)
+    
+    pdf.setFont(FONT_NAME, 10)
+    created_date = datetime.fromisoformat(order['created_at']).strftime('%d.%m.%Y')
+    validity_date = (datetime.fromisoformat(order['created_at']) + timedelta(days=template.validity_days)).strftime('%d.%m.%Y')
+    
+    pdf.drawString(2.5*cm, y_position - 0.3*cm, f"Teklif No: {order['order_number']}")
+    pdf.drawString(2.5*cm, y_position - 0.8*cm, f"Tarih: {created_date}")
+    pdf.drawRightString(width - 2.5*cm, y_position - 0.3*cm, f"Geçerlilik: {template.validity_days} gün")
+    pdf.drawRightString(width - 2.5*cm, y_position - 0.8*cm, f"Son Geçerlilik: {validity_date}")
+    
+    # ==================== CUSTOMER INFO ====================
+    y_position -= 2.5*cm
+    
+    if template.show_customer_info and order.get('customer_name'):
+        pdf.setFont(FONT_NAME_BOLD, 11)
+        pdf.drawString(2*cm, y_position, "MÜŞTERİ BİLGİLERİ")
+        y_position -= 0.5*cm
+        
+        pdf.setStrokeColor(colors.HexColor("#dee2e6"))
+        pdf.setLineWidth(0.5)
+        pdf.line(2*cm, y_position, width - 2*cm, y_position)
+        y_position -= 0.5*cm
+        
+        pdf.setFont(FONT_NAME, 10)
         if order.get('customer_name'):
-            y_position -= 0.5*cm
-            pdf.drawString(2*cm, y_position, f"Müşteri: {order['customer_name']}")
+            pdf.drawString(2*cm, y_position, f"Firma/Müşteri: {order['customer_name']}")
+            y_position -= 0.45*cm
         
         if order.get('customer_phone'):
-            y_position -= 0.5*cm
             pdf.drawString(2*cm, y_position, f"Telefon: {order['customer_phone']}")
+            y_position -= 0.45*cm
         
         if order.get('customer_email'):
-            y_position -= 0.5*cm
             pdf.drawString(2*cm, y_position, f"E-posta: {order['customer_email']}")
-    
-    # Items table
-    y_position -= 1.5*cm
-    pdf.setFont("Helvetica-Bold", 12)
-    pdf.drawString(2*cm, y_position, "Ürünler:")
-    
-    y_position -= 0.8*cm
-    pdf.setFont("Helvetica", 9)
-    
-    # Table headers
-    pdf.drawString(2*cm, y_position, "Ürün Adı")
-    pdf.drawString(10*cm, y_position, "Adet")
-    
-    if template.show_prices:
-        pdf.drawString(12*cm, y_position, "Birim Fiyat")
-        pdf.drawString(15*cm, y_position, "Toplam")
-    
-    y_position -= 0.3*cm
-    pdf.line(2*cm, y_position, width - 2*cm, y_position)
-    
-    # Table rows and calculate grand total
-    grand_total = 0.0
-    for item in items:
-        y_position -= 0.6*cm
-        if y_position < 3*cm:  # New page if needed
-            pdf.showPage()
-            y_position = height - 3*cm
+            y_position -= 0.45*cm
         
-        pdf.drawString(2*cm, y_position, item['product_name'][:50])
-        pdf.drawString(10*cm, y_position, str(item['quantity']))
+        if order.get('customer_address'):
+            pdf.drawString(2*cm, y_position, f"Adres: {order['customer_address']}")
+            y_position -= 0.45*cm
+        
+        if order.get('tax_office') or order.get('tax_number'):
+            tax_info = []
+            if order.get('tax_office'):
+                tax_info.append(f"V.D: {order['tax_office']}")
+            if order.get('tax_number'):
+                tax_info.append(f"V.No: {order['tax_number']}")
+            pdf.drawString(2*cm, y_position, " / ".join(tax_info))
+            y_position -= 0.45*cm
+    
+    # ==================== ITEMS TABLE ====================
+    y_position -= 1*cm
+    
+    pdf.setFont(FONT_NAME_BOLD, 11)
+    pdf.drawString(2*cm, y_position, "ÜRÜN/HİZMET DETAYLARI")
+    y_position -= 0.5*cm
+    
+    # Table header
+    table_data = []
+    if template.show_prices:
+        headers = ['S.No', 'Ürün/Hizmet Adı', 'Miktar', 'Birim', 'Birim Fiyat', 'Toplam']
+        col_widths = [1*cm, 8*cm, 1.5*cm, 1.5*cm, 2.5*cm, 2.5*cm]
+    else:
+        headers = ['S.No', 'Ürün/Hizmet Adı', 'Miktar', 'Birim', 'Notlar']
+        col_widths = [1*cm, 10*cm, 2*cm, 2*cm, 2*cm]
+    
+    table_data.append(headers)
+    
+    # Table rows
+    grand_total = 0.0
+    for idx, item in enumerate(items, 1):
+        unit_price = item.get('unit_price', 0) or 0
+        quantity = item.get('quantity', 0) or 0
+        total = item.get('total_price', 0) or (quantity * unit_price)
+        grand_total += total
         
         if template.show_prices:
-            pdf.drawString(12*cm, y_position, f"{item.get('unit_price', 0):.2f} TL")
-            total = item.get('total_price', 0) or (item['quantity'] * item.get('unit_price', 0))
-            pdf.drawString(15*cm, y_position, f"{total:.2f} TL")
-            grand_total += total
+            row = [
+                str(idx),
+                item['product_name'][:60],
+                str(quantity),
+                'Adet',
+                f"{unit_price:,.2f} ₺",
+                f"{total:,.2f} ₺"
+            ]
+        else:
+            row = [
+                str(idx),
+                item['product_name'][:60],
+                str(quantity),
+                'Adet',
+                item.get('notes', '')[:20] if item.get('notes') else ''
+            ]
+        table_data.append(row)
     
-    # Grand Total
+    # Create table
+    table = Table(table_data, colWidths=col_widths)
+    
+    table_style = TableStyle([
+        # Header style
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#343a40")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), FONT_NAME_BOLD),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        
+        # Body style
+        ('FONTNAME', (0, 1), (-1, -1), FONT_NAME),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (0, 1), (0, -1), 'CENTER'),  # S.No centered
+        ('ALIGN', (2, 1), (2, -1), 'CENTER'),  # Quantity centered
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'),  # Unit centered
+        ('ALIGN', (-2, 1), (-1, -1), 'RIGHT'),  # Prices right aligned
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        
+        # Grid
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#dee2e6")),
+        
+        # Alternating row colors
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8f9fa")]),
+    ])
+    table.setStyle(table_style)
+    
+    # Calculate table height and draw
+    table_width, table_height = table.wrap(0, 0)
+    
+    # Check if table fits on page
+    if y_position - table_height < 5*cm:
+        pdf.showPage()
+        y_position = height - 2*cm
+    
+    table.drawOn(pdf, 2*cm, y_position - table_height)
+    y_position -= (table_height + 0.5*cm)
+    
+    # ==================== TOTALS SECTION ====================
     if template.show_prices:
-        y_position -= 1*cm
-        pdf.line(12*cm, y_position, width - 2*cm, y_position)
-        y_position -= 0.6*cm
-        pdf.setFont("Helvetica-Bold", 11)
-        pdf.drawString(12*cm, y_position, "TOPLAM:")
-        pdf.drawString(15*cm, y_position, f"{grand_total:.2f} TL")
-    
-    # Notes
-    if template.notes:
+        # Totals box
+        totals_x = width - 7*cm
+        
+        pdf.setFont(FONT_NAME_BOLD, 10)
+        pdf.setFillColor(colors.HexColor("#343a40"))
+        pdf.rect(totals_x, y_position - 1*cm, 5*cm, 1*cm, fill=True, stroke=False)
+        pdf.setFillColor(colors.white)
+        pdf.drawString(totals_x + 0.3*cm, y_position - 0.65*cm, "GENEL TOPLAM:")
+        pdf.drawRightString(totals_x + 4.7*cm, y_position - 0.65*cm, f"{grand_total:,.2f} ₺")
+        pdf.setFillColor(colors.black)
+        
         y_position -= 1.5*cm
+    
+    # ==================== TERMS SECTION ====================
+    if template.payment_terms or template.delivery_terms:
+        y_position -= 0.5*cm
+        
+        if y_position < 6*cm:
+            pdf.showPage()
+            y_position = height - 2*cm
+        
+        pdf.setFont(FONT_NAME_BOLD, 10)
+        pdf.drawString(2*cm, y_position, "ŞARTLAR VE KOŞULLAR")
+        y_position -= 0.4*cm
+        
+        pdf.setStrokeColor(colors.HexColor("#dee2e6"))
+        pdf.line(2*cm, y_position, width - 2*cm, y_position)
+        y_position -= 0.5*cm
+        
+        pdf.setFont(FONT_NAME, 9)
+        
+        if template.payment_terms:
+            pdf.drawString(2*cm, y_position, f"Ödeme Koşulları: {template.payment_terms}")
+            y_position -= 0.45*cm
+        
+        if template.delivery_terms:
+            pdf.drawString(2*cm, y_position, f"Teslimat Koşulları: {template.delivery_terms}")
+            y_position -= 0.45*cm
+    
+    # ==================== BANK ACCOUNTS SECTION ====================
+    if template.show_bank_accounts and bank_accounts:
+        y_position -= 0.8*cm
+        
+        if y_position < 5*cm:
+            pdf.showPage()
+            y_position = height - 2*cm
+        
+        pdf.setFont(FONT_NAME_BOLD, 10)
+        pdf.drawString(2*cm, y_position, "BANKA HESAP BİLGİLERİ")
+        y_position -= 0.4*cm
+        
+        pdf.setStrokeColor(colors.HexColor("#dee2e6"))
+        pdf.line(2*cm, y_position, width - 2*cm, y_position)
+        y_position -= 0.5*cm
+        
+        pdf.setFont(FONT_NAME, 9)
+        
+        for ba in bank_accounts:
+            if y_position < 3*cm:
+                pdf.showPage()
+                y_position = height - 2*cm
+            
+            pdf.setFont(FONT_NAME_BOLD, 9)
+            pdf.drawString(2*cm, y_position, f"{ba.bank_name}")
+            y_position -= 0.4*cm
+            
+            pdf.setFont(FONT_NAME, 9)
+            pdf.drawString(2*cm, y_position, f"Hesap Sahibi: {ba.account_holder}")
+            y_position -= 0.35*cm
+            pdf.drawString(2*cm, y_position, f"IBAN: {ba.iban}")
+            y_position -= 0.35*cm
+            
+            if ba.branch_code or ba.account_number:
+                extra_info = []
+                if ba.branch_code:
+                    extra_info.append(f"Şube: {ba.branch_code}")
+                if ba.account_number:
+                    extra_info.append(f"Hesap No: {ba.account_number}")
+                pdf.drawString(2*cm, y_position, " / ".join(extra_info))
+                y_position -= 0.35*cm
+            
+            y_position -= 0.3*cm
+    
+    # ==================== NOTES SECTION ====================
+    if template.notes:
+        y_position -= 0.5*cm
+        
         if y_position < 4*cm:
             pdf.showPage()
-            y_position = height - 3*cm
-        pdf.setFont("Helvetica-Oblique", 9)
-        pdf.drawString(2*cm, y_position, template.notes[:100])
+            y_position = height - 2*cm
+        
+        pdf.setFont(FONT_NAME_BOLD, 10)
+        pdf.drawString(2*cm, y_position, "NOTLAR")
+        y_position -= 0.4*cm
+        
+        pdf.setStrokeColor(colors.HexColor("#dee2e6"))
+        pdf.line(2*cm, y_position, width - 2*cm, y_position)
+        y_position -= 0.5*cm
+        
+        pdf.setFont(FONT_NAME, 9)
+        # Handle multi-line notes
+        notes_lines = template.notes.split('\n')
+        for line in notes_lines:
+            if y_position < 2.5*cm:
+                pdf.showPage()
+                y_position = height - 2*cm
+            pdf.drawString(2*cm, y_position, line[:100])
+            y_position -= 0.4*cm
     
-    # Footer
-    pdf.setFont("Helvetica-Oblique", 8)
-    pdf.drawString(2*cm, 2*cm, template.footer_text)
+    # ==================== FOOTER ====================
+    pdf.setFont(FONT_NAME, 8)
+    pdf.setFillColor(colors.HexColor("#6c757d"))
+    pdf.drawString(2*cm, 1.5*cm, template.footer_text)
+    pdf.drawRightString(width - 2*cm, 1.5*cm, f"Sayfa 1")
+    
+    # Footer line
+    pdf.setStrokeColor(colors.HexColor("#dee2e6"))
+    pdf.line(2*cm, 1.8*cm, width - 2*cm, 1.8*cm)
     
     pdf.save()
     buffer.seek(0)
@@ -794,6 +1035,90 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
             "Content-Disposition": f"attachment; filename=teklif_{order['order_number']}.pdf"
         }
     )
+
+# ==================== BANK ACCOUNT ENDPOINTS ====================
+
+@api_router.get("/settings/bank-accounts", response_model=List[BankAccount])
+async def get_bank_accounts(current_user: User = Depends(get_current_user)):
+    """Get all bank accounts"""
+    accounts = await db.bank_accounts.find({}, {"_id": 0}).to_list(100)
+    return accounts
+
+@api_router.post("/settings/bank-accounts", response_model=BankAccount)
+async def create_bank_account(account_data: BankAccountCreate, current_user: User = Depends(get_current_user)):
+    """Create a new bank account"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can manage bank accounts")
+    
+    account = BankAccount(**account_data.model_dump())
+    doc = account.model_dump()
+    await db.bank_accounts.insert_one(doc)
+    return account
+
+@api_router.put("/settings/bank-accounts/{account_id}", response_model=BankAccount)
+async def update_bank_account(account_id: str, account_data: BankAccountCreate, current_user: User = Depends(get_current_user)):
+    """Update a bank account"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can manage bank accounts")
+    
+    existing = await db.bank_accounts.find_one({"id": account_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Bank account not found")
+    
+    update_data = account_data.model_dump()
+    await db.bank_accounts.update_one({"id": account_id}, {"$set": update_data})
+    
+    updated = await db.bank_accounts.find_one({"id": account_id}, {"_id": 0})
+    return BankAccount(**updated)
+
+@api_router.delete("/settings/bank-accounts/{account_id}")
+async def delete_bank_account(account_id: str, current_user: User = Depends(get_current_user)):
+    """Delete a bank account"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can manage bank accounts")
+    
+    result = await db.bank_accounts.delete_one({"id": account_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Bank account not found")
+    return {"message": "Bank account deleted successfully"}
+
+# ==================== LOGO UPLOAD ENDPOINT ====================
+
+@api_router.post("/settings/upload-logo")
+async def upload_logo(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
+    """Upload company logo for PDF"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can upload logo")
+    
+    # Validate file type
+    allowed_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp']
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Allowed: PNG, JPEG, GIF, WEBP")
+    
+    # Read and encode to base64
+    contents = await file.read()
+    
+    # Limit file size (max 500KB)
+    if len(contents) > 500 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Max 500KB allowed")
+    
+    logo_base64 = base64.b64encode(contents).decode('utf-8')
+    
+    # Update PDF settings with logo
+    existing = await db.pdf_settings.find_one({"id": "pdf_template_settings"}, {"_id": 0})
+    
+    if existing:
+        await db.pdf_settings.update_one(
+            {"id": "pdf_template_settings"},
+            {"$set": {"logo_base64": logo_base64, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    else:
+        template = PDFTemplateSettings(logo_base64=logo_base64)
+        doc = template.model_dump()
+        doc['updated_at'] = doc['updated_at'].isoformat()
+        await db.pdf_settings.insert_one(doc)
+    
+    return {"message": "Logo uploaded successfully"}
 
 @api_router.post("/products/upload-csv")
 async def upload_products_csv(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
