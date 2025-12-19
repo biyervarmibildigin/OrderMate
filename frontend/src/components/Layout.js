@@ -6,6 +6,7 @@ import {
   Package, 
   ShoppingCart, 
   Users, 
+  Settings as SettingsIcon,
   LogOut,
   Menu
 } from 'lucide-react';
