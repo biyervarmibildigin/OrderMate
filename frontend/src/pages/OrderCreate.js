@@ -38,6 +38,7 @@ const OrderCreate = () => {
     customer_phone: '',
     customer_email: '',
     customer_address: '',
+    tax_id_type: 'vkn', // 'vkn' veya 'tc'
     tax_number: '',
     tax_office: '',
     delivery_method: '',
@@ -46,6 +47,33 @@ const OrderCreate = () => {
     whatsapp_content: '',
     notes: ''
   });
+  const [taxError, setTaxError] = useState('');
+
+  // VKN/TC Validasyon Fonksiyonları
+  const validateVKN = (vkn) => {
+    if (!vkn) return 'VKN zorunludur';
+    if (vkn.length !== 10) return 'VKN 10 karakter olmalıdır';
+    if (!/^\d+$/.test(vkn)) return 'VKN sadece rakam içermelidir';
+    return '';
+  };
+
+  const validateTC = (tc) => {
+    if (!tc) return 'TC Kimlik No zorunludur';
+    if (tc.length !== 11) return 'TC Kimlik No 11 karakter olmalıdır';
+    if (!/^\d+$/.test(tc)) return 'TC Kimlik No sadece rakam içermelidir';
+    if (tc[0] === '0') return 'TC Kimlik No 0 ile başlayamaz';
+    const lastDigit = parseInt(tc[10]);
+    if (lastDigit % 2 !== 0) return 'TC Kimlik No son hanesi çift rakam olmalıdır';
+    return '';
+  };
+
+  const validateTaxNumber = () => {
+    if (formData.tax_id_type === 'vkn') {
+      return validateVKN(formData.tax_number);
+    } else {
+      return validateTC(formData.tax_number);
+    }
+  };
 
   useEffect(() => {
     fetchOrderTypes();
