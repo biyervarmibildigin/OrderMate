@@ -171,6 +171,10 @@ class Order(BaseModel):
     tax_number: Optional[str] = None
     tax_office: Optional[str] = None
     company_name: Optional[str] = None  # VKN'ye kayıtlı firma/kurum adı
+    # Kurumsal siparişler için ayrı adres bilgileri
+    billing_address: Optional[Dict[str, Any]] = None  # Fatura adresi
+    shipping_address: Optional[Dict[str, Any]] = None  # Kargo/Teslimat adresi
+    same_address: bool = True  # Fatura ve teslimat adresi aynı mı?
     created_by: str  # user id
     created_by_name: str
     delivery_method: Optional[str] = None
@@ -191,6 +195,22 @@ class Order(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class ShippingAddress(BaseModel):
+    """Kargo/Teslimat adresi bilgileri"""
+    recipient_name: str  # Alıcı Adı - Zorunlu
+    recipient_phone: str  # Alıcı Telefon - Zorunlu
+    address: str  # Adres - Zorunlu
+    city: Optional[str] = None  # İl
+    district: Optional[str] = None  # İlçe
+    postal_code: Optional[str] = None  # Posta Kodu
+
+class BillingAddress(BaseModel):
+    """Fatura adresi bilgileri"""
+    address: str  # Adres
+    city: Optional[str] = None  # İl
+    district: Optional[str] = None  # İlçe
+    postal_code: Optional[str] = None  # Posta Kodu
+
 class OrderCreate(BaseModel):
     order_type: str
     customer_name: Optional[str] = None
@@ -201,9 +221,9 @@ class OrderCreate(BaseModel):
     tax_number: Optional[str] = None
     tax_office: Optional[str] = None
     company_name: Optional[str] = None  # VKN'ye kayıtlı firma/kurum adı
-    # Adres bilgileri
-    billing_address: Optional[str] = None  # Fatura adresi
-    shipping_address: Optional[str] = None  # Teslimat/Kargo adresi
+    # Kurumsal siparişler için ayrı adres bilgileri
+    billing_address: Optional[BillingAddress] = None  # Fatura adresi
+    shipping_address: Optional[ShippingAddress] = None  # Kargo/Teslimat adresi
     same_address: bool = True  # Fatura ve teslimat adresi aynı mı?
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
