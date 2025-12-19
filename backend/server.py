@@ -178,6 +178,10 @@ class Order(BaseModel):
     cargo_company: Optional[str] = None  # Yurtiçi, MNG, Aras, PTT, etc.
     cargo_tracking_code: Optional[str] = None
     general_status: str = OrderStatus.WAITING_INFO
+    # Ödeme ve Teslimat Durumları
+    pos_payment: bool = False  # POS cihazından çekildi
+    delivered_invoice_only: bool = False  # Teslim edildi sadece fatura
+    online_payment_ref: Optional[str] = None  # Site ödemesi işlem numarası
     whatsapp_content: Optional[str] = None
     attachments: List[str] = []  # file URLs or base64
     notes: Optional[str] = None
