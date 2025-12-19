@@ -201,6 +201,10 @@ class OrderCreate(BaseModel):
     tax_number: Optional[str] = None
     tax_office: Optional[str] = None
     company_name: Optional[str] = None  # VKN'ye kayıtlı firma/kurum adı
+    # Adres bilgileri
+    billing_address: Optional[str] = None  # Fatura adresi
+    shipping_address: Optional[str] = None  # Teslimat/Kargo adresi
+    same_address: bool = True  # Fatura ve teslimat adresi aynı mı?
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
     waybill_status: str = WaybillStatus.NOT_ISSUED
