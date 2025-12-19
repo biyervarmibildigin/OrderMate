@@ -514,36 +514,7 @@ async def get_products(
             product['created_at'] = datetime.fromisoformat(product['created_at'])
     return products
 
-@api_router.get("/products/{product_id}", response_model=Product)
-async def get_product(product_id: str, current_user: User = Depends(get_current_user)):
-    product = await db.products.find_one({"id": product_id}, {"_id": 0})
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    if isinstance(product.get('created_at'), str):
-        product['created_at'] = datetime.fromisoformat(product['created_at'])
-    return Product(**product)
-
-@api_router.put("/products/{product_id}", response_model=Product)
-async def update_product(product_id: str, product_data: ProductCreate, current_user: User = Depends(get_current_user)):
-    existing = await db.products.find_one({"id": product_id}, {"_id": 0})
-    if not existing:
-        raise HTTPException(status_code=404, detail="Product not found")
-    
-    update_data = product_data.model_dump()
-    await db.products.update_one({"id": product_id}, {"$set": update_data})
-    
-    updated = await db.products.find_one({"id": product_id}, {"_id": 0})
-    if isinstance(updated.get('created_at'), str):
-        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
-    return Product(**updated)
-
-@api_router.delete("/products/{product_id}")
-async def delete_product(product_id: str, current_user: User = Depends(get_current_user)):
-    result = await db.products.delete_one({"id": product_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return {"message": "Product deleted successfully"}
-
+# IMPORTANT: Static routes MUST come before dynamic {product_id} routes
 class BulkDeleteRequest(BaseModel):
     ids: List[str]
 
@@ -575,6 +546,37 @@ async def delete_all_products(current_user: User = Depends(get_current_user)):
         "message": f"Tüm ürünler silindi ({result.deleted_count} adet)",
         "deleted_count": result.deleted_count
     }
+
+# Dynamic routes with {product_id} parameter - MUST come after static routes
+@api_router.get("/products/{product_id}", response_model=Product)
+async def get_product(product_id: str, current_user: User = Depends(get_current_user)):
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if isinstance(product.get('created_at'), str):
+        product['created_at'] = datetime.fromisoformat(product['created_at'])
+    return Product(**product)
+
+@api_router.put("/products/{product_id}", response_model=Product)
+async def update_product(product_id: str, product_data: ProductCreate, current_user: User = Depends(get_current_user)):
+    existing = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    update_data = product_data.model_dump()
+    await db.products.update_one({"id": product_id}, {"$set": update_data})
+    
+    updated = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return Product(**updated)
+
+@api_router.delete("/products/{product_id}")
+async def delete_product(product_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.products.delete_one({"id": product_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"message": "Product deleted successfully"}
 
 # ==================== SETTINGS / ORDER TYPES ====================
 
