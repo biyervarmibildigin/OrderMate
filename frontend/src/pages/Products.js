@@ -117,6 +117,20 @@ const Products = () => {
     }
   };
 
+  const handleDeleteProduct = async (productId, productName) => {
+    if (!window.confirm(`"${productName}" ürününü silmek istediğinizden emin misiniz?`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/products/${productId}`);
+      toast.success('Ürün silindi');
+      fetchProducts();
+    } catch (error) {
+      toast.error('Silme başarısız: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
