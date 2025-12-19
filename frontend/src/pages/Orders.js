@@ -324,13 +324,13 @@ const Orders = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="text-lg font-bold font-mono text-zinc-900">
-                        #{order.order_number}
+                        {order.order_code || `#${order.order_number}`}
                       </span>
                       {getOrderTypeBadge(order.order_type)}
                       {getStatusBadge(order.general_status)}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-zinc-600">
-                      <span>{order.customer_name || 'Müşteri belirtilmemiş'}</span>
+                      <span>{order.customer_name || order.company_name || 'Müşteri belirtilmemiş'}</span>
                       <span>•</span>
                       <span>{new Date(order.created_at).toLocaleDateString('tr-TR')}</span>
                       <span>•</span>
