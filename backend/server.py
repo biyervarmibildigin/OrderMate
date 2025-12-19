@@ -301,6 +301,61 @@ async def get_users(current_user: User = Depends(get_current_user)):
             user['created_at'] = datetime.fromisoformat(user['created_at'])
     return users
 
+@api_router.put("/users/{user_id}", response_model=User)
+async def update_user(user_id: str, user_data: UserCreate, current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can update users")
+    
+    existing = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_data = {
+        "username": user_data.username,
+        "email": user_data.email,
+        "full_name": user_data.full_name,
+        "role": user_data.role
+    }
+    
+    # Update password if provided
+    if user_data.password:
+        update_data['password'] = hash_password(user_data.password)
+    
+    await db.users.update_one({"id": user_id}, {"$set": update_data})
+    
+    updated = await db.users.find_one({"id": user_id}, {"_id": 0, "password": 0})
+    if isinstance(updated['created_at'], str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return User(**updated)
+
+@api_router.patch("/users/{user_id}/toggle-active")
+async def toggle_user_active(user_id: str, current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can toggle user status")
+    
+    existing = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    new_status = not existing.get('is_active', True)
+    await db.users.update_one({"id": user_id}, {"$set": {"is_active": new_status}})
+    
+    return {"message": f"User {'activated' if new_status else 'deactivated'}", "is_active": new_status}
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can delete users")
+    
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User deleted successfully"}
+
 # ==================== PRODUCT ENDPOINTS ====================
 
 @api_router.post("/products", response_model=Product)
