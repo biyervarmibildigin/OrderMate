@@ -235,6 +235,36 @@ class OrderTypeCreate(BaseModel):
     is_active: bool = True
     order: int = 0
 
+# PDF Template Settings
+class PDFTemplateSettings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: "pdf_template_settings")
+    title: str = "TEKLİF"
+    company_name: str = "OrderMate"
+    company_address: Optional[str] = None
+    company_phone: Optional[str] = None
+    company_email: Optional[str] = None
+    logo_text: Optional[str] = None
+    header_color: str = "#000000"
+    show_prices: bool = True
+    show_customer_info: bool = True
+    footer_text: str = "OrderMate - Sipariş Takip Sistemi"
+    notes: Optional[str] = None
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PDFTemplateUpdate(BaseModel):
+    title: Optional[str] = "TEKLİF"
+    company_name: Optional[str] = "OrderMate"
+    company_address: Optional[str] = None
+    company_phone: Optional[str] = None
+    company_email: Optional[str] = None
+    logo_text: Optional[str] = None
+    header_color: Optional[str] = "#000000"
+    show_prices: Optional[bool] = True
+    show_customer_info: Optional[bool] = True
+    footer_text: Optional[str] = "OrderMate - Sipariş Takip Sistemi"
+    notes: Optional[str] = None
+
 # ==================== AUTH UTILITIES ====================
 
 def hash_password(password: str) -> str:
