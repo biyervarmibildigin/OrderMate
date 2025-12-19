@@ -397,6 +397,20 @@ async def get_product(product_id: str, current_user: User = Depends(get_current_
         product['created_at'] = datetime.fromisoformat(product['created_at'])
     return Product(**product)
 
+@api_router.put("/products/{product_id}", response_model=Product)
+async def update_product(product_id: str, product_data: ProductCreate, current_user: User = Depends(get_current_user)):
+    existing = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    update_data = product_data.model_dump()
+    await db.products.update_one({"id": product_id}, {"$set": update_data})
+    
+    updated = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return Product(**updated)
+
 @api_router.post("/products/upload-csv")
 async def upload_products_csv(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
     # Allow all authenticated users to upload products
