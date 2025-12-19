@@ -358,12 +358,19 @@ const OrderCreate = () => {
             <div className="space-y-4 pt-4 border-t border-zinc-200">
               <Label>Ürün Ekle</Label>
               <div className="relative">
-                <Input
-                  placeholder="Ürün adı veya T kodu ile ara..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  data-testid="product-search-input"
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="Ürün adı veya T kodu ile ara... (en az 2 karakter)"
+                    value={searchTerm}
+                    onChange={(e) => handleSearchInput(e.target.value)}
+                    data-testid="product-search-input"
+                  />
+                  {searching && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Loader className="h-4 w-4 animate-spin text-zinc-400" />
+                    </div>
+                  )}
+                </div>
                 
                 {searchResults.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg max-h-60 overflow-auto">
@@ -375,16 +382,16 @@ const OrderCreate = () => {
                       >
                         <div className="font-medium text-sm">{product.product_name}</div>
                         <div className="text-xs text-zinc-500 mt-1">
-                          Kod: {product.web_service_code} • Stok: {product.stock}
+                          Kod: {product.web_service_code} • Marka: {product.brand || '-'} • Stok: {product.stock}
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                {searchTerm && searchResults.length === 0 && (
+                {searchTerm.length >= 2 && !searching && searchResults.length === 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg p-4">
-                    <p className="text-sm text-zinc-600 mb-3">Ürün bulunamadı</p>
+                    <p className="text-sm text-zinc-600 mb-3">"{searchTerm}" için ürün bulunamadı</p>
                     <Button
                       type="button"
                       variant="outline"
