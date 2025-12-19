@@ -1,0 +1,58 @@
+{
+  "summary": {
+    "total_tests": 8,
+    "passed_tests": 8,
+    "success_rate": 1.0,
+    "timestamp": "2025-12-19T12:40:12.408132"
+  },
+  "detailed_results": [
+    {
+      "test": "Admin authentication",
+      "success": true,
+      "details": "Successfully authenticated",
+      "timestamp": "2025-12-19T12:40:11.625702"
+    },
+    {
+      "test": "GET bank accounts",
+      "success": true,
+      "details": "Retrieved 1 bank accounts",
+      "timestamp": "2025-12-19T12:40:11.668148"
+    },
+    {
+      "test": "POST bank account (Create)",
+      "success": true,
+      "details": "Created bank account ID: 361d84fb-058c-4ddc-a4b9-613093844b3a",
+      "timestamp": "2025-12-19T12:40:11.706110"
+    },
+    {
+      "test": "PUT bank account (Update)",
+      "success": true,
+      "details": "Updated bank account 361d84fb-058c-4ddc-a4b9-613093844b3a",
+      "timestamp": "2025-12-19T12:40:11.750400"
+    },
+    {
+      "test": "POST logo upload",
+      "success": true,
+      "details": "Logo uploaded successfully",
+      "timestamp": "2025-12-19T12:40:11.788321"
+    },
+    {
+      "test": "GET PDF template settings",
+      "success": true,
+      "details": "Retrieved template with title: F\u0130YAT TEKL\u0130F\u0130",
+      "timestamp": "2025-12-19T12:40:11.866890"
+    },
+    {
+      "test": "PUT PDF template with Turkish chars",
+      "success": true,
+      "details": "Updated template with Turkish characters",
+      "timestamp": "2025-12-19T12:40:11.910765"
+    },
+    {
+      "test": "Generate PDF with Turkish chars",
+      "success": true,
+      "details": "Status: 200, Content type appears to be PDF",
+      "timestamp": "2025-12-19T12:40:12.368263"
+    }
+  ]
+}
