@@ -160,7 +160,8 @@ class OrderHistoryEntry(BaseModel):
 class Order(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    order_number: int
+    order_number: int  # Sayısal numara (dahili)
+    order_code: str = ""  # Görüntülenen kod (TK-001, SR-001, KC-001, KP-001)
     order_type: str
     customer_name: Optional[str] = None
     customer_phone: Optional[str] = None
