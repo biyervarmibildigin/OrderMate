@@ -588,22 +588,35 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
     
     # Table headers
     pdf.drawString(2*cm, y_position, "Ürün Adı")
-    pdf.drawString(12*cm, y_position, "Adet")
-    pdf.drawString(15*cm, y_position, "Durum")
+    pdf.drawString(10*cm, y_position, "Adet")
+    pdf.drawString(12*cm, y_position, "Birim Fiyat")
+    pdf.drawString(15*cm, y_position, "Toplam")
     
     y_position -= 0.3*cm
     pdf.line(2*cm, y_position, width - 2*cm, y_position)
     
-    # Table rows
+    # Table rows and calculate grand total
+    grand_total = 0.0
     for item in items:
         y_position -= 0.6*cm
         if y_position < 3*cm:  # New page if needed
             pdf.showPage()
             y_position = height - 3*cm
         
-        pdf.drawString(2*cm, y_position, item['product_name'][:60])
-        pdf.drawString(12*cm, y_position, str(item['quantity']))
-        pdf.drawString(15*cm, y_position, item['item_status'])
+        pdf.drawString(2*cm, y_position, item['product_name'][:50])
+        pdf.drawString(10*cm, y_position, str(item['quantity']))
+        pdf.drawString(12*cm, y_position, f"{item.get('unit_price', 0):.2f} TL")
+        total = item.get('total_price', 0) or (item['quantity'] * item.get('unit_price', 0))
+        pdf.drawString(15*cm, y_position, f"{total:.2f} TL")
+        grand_total += total
+    
+    # Grand Total
+    y_position -= 1*cm
+    pdf.line(12*cm, y_position, width - 2*cm, y_position)
+    y_position -= 0.6*cm
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawString(12*cm, y_position, "TOPLAM:")
+    pdf.drawString(15*cm, y_position, f"{grand_total:.2f} TL")
     
     # Footer
     y_position -= 2*cm
