@@ -436,6 +436,59 @@ async def delete_product(product_id: str, current_user: User = Depends(get_curre
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product deleted successfully"}
 
+# ==================== SETTINGS / ORDER TYPES ====================
+
+@api_router.get("/settings/order-types", response_model=List[OrderTypeModel])
+async def get_order_types(current_user: User = Depends(get_current_user)):
+    order_types = await db.order_types.find({}, {"_id": 0}).sort("order", 1).to_list(100)
+    for ot in order_types:
+        if isinstance(ot.get('created_at'), str):
+            ot['created_at'] = datetime.fromisoformat(ot['created_at'])
+    return order_types
+
+@api_router.post("/settings/order-types", response_model=OrderTypeModel)
+async def create_order_type(order_type_data: OrderTypeCreate, current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can manage order types")
+    
+    # Check if code already exists
+    existing = await db.order_types.find_one({"code": order_type_data.code}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Order type code already exists")
+    
+    order_type = OrderTypeModel(**order_type_data.model_dump())
+    doc = order_type.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.order_types.insert_one(doc)
+    return order_type
+
+@api_router.put("/settings/order-types/{order_type_id}", response_model=OrderTypeModel)
+async def update_order_type(order_type_id: str, order_type_data: OrderTypeCreate, current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can manage order types")
+    
+    existing = await db.order_types.find_one({"id": order_type_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Order type not found")
+    
+    update_data = order_type_data.model_dump()
+    await db.order_types.update_one({"id": order_type_id}, {"$set": update_data})
+    
+    updated = await db.order_types.find_one({"id": order_type_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return OrderTypeModel(**updated)
+
+@api_router.delete("/settings/order-types/{order_type_id}")
+async def delete_order_type(order_type_id: str, current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can manage order types")
+    
+    result = await db.order_types.delete_one({"id": order_type_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Order type not found")
+    return {"message": "Order type deleted successfully"}
+
 @api_router.post("/products/upload-csv")
 async def upload_products_csv(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
     # Allow all authenticated users to upload products
