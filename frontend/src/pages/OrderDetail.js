@@ -282,7 +282,17 @@ const OrderDetail = () => {
             >
               <div className="flex-1">
                 <p className="font-semibold text-zinc-900">{item.product_name}</p>
-                <p className="text-sm text-zinc-500">Adet: {item.quantity}</p>
+                <div className="flex gap-4 text-sm text-zinc-600 mt-1">
+                  <span>Adet: {item.quantity}</span>
+                  {item.unit_price > 0 && (
+                    <>
+                      <span>•</span>
+                      <span>Birim: {item.unit_price.toFixed(2)} TL</span>
+                      <span>•</span>
+                      <span className="font-semibold">Toplam: {item.total_price.toFixed(2)} TL</span>
+                    </>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <select
@@ -309,6 +319,20 @@ const OrderDetail = () => {
               </div>
             </div>
           ))}
+          
+          {/* Grand Total */}
+          {items.length > 0 && items.some(item => item.unit_price > 0) && (
+            <div className="pt-4 border-t border-zinc-200">
+              <div className="flex justify-end">
+                <div className="text-right">
+                  <p className="text-sm text-zinc-600">Genel Toplam</p>
+                  <p className="text-2xl font-bold text-zinc-900">
+                    {items.reduce((sum, item) => sum + (item.total_price || 0), 0).toFixed(2)} TL
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Add New Item */}
