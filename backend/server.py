@@ -1311,7 +1311,9 @@ async def get_orders(
     order_type: Optional[str] = None,
     status: Optional[str] = None,
     invoice_status: Optional[str] = None,
+    waybill_status: Optional[str] = None,
     cargo_status: Optional[str] = None,
+    search: Optional[str] = None,
     limit: int = 100,
     skip: int = 0,
     current_user: User = Depends(get_current_user)
@@ -1333,8 +1335,16 @@ async def get_orders(
         query['general_status'] = status
     if invoice_status:
         query['invoice_status'] = invoice_status
+    if waybill_status:
+        query['waybill_status'] = waybill_status
     if cargo_status:
         query['cargo_status'] = cargo_status
+    if search:
+        query['$or'] = [
+            {"customer_name": {"$regex": search, "$options": "i"}},
+            {"customer_phone": {"$regex": search, "$options": "i"}},
+            {"order_number": {"$regex": search, "$options": "i"}}
+        ]
     
     orders = await db.orders.find(query, {"_id": 0}).sort("order_number", -1).skip(skip).limit(limit).to_list(limit)
     for order in orders:
