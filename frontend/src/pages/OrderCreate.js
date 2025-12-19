@@ -467,6 +467,19 @@ const OrderCreate = () => {
                   />
                 </div>
               </div>
+              
+              {/* VKN seçildiğinde ve numara girildiğinde Firma Adı */}
+              {formData.tax_id_type === 'vkn' && formData.tax_number.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-zinc-200">
+                  <Label>Firma / Kurum Adı</Label>
+                  <Input
+                    value={formData.company_name}
+                    onChange={(e) => handleChange('company_name', e.target.value)}
+                    placeholder="VKN'ye kayıtlı firma adı"
+                    className="font-medium"
+                  />
+                </div>
+              )}
             </div>
           )}
 
