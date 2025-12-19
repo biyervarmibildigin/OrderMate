@@ -363,15 +363,26 @@ const Products = () => {
                   </p>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => handleOpenEditDialog(product)}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Düzenle
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleOpenEditDialog(product)}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Düzenle
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteProduct(product.id, product.product_name)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    data-testid={`delete-product-${product.id}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}
