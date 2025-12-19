@@ -44,6 +44,27 @@ const Settings = () => {
     }
   };
 
+  const fetchPdfTemplate = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/settings/pdf-template`);
+      setPdfTemplate(response.data);
+    } catch (error) {
+      console.error('PDF template fetch failed:', error);
+    }
+  };
+
+  const handleUpdatePdfTemplate = async (field, value) => {
+    const updated = { ...pdfTemplate, [field]: value };
+    setPdfTemplate(updated);
+    
+    try {
+      await axios.put(`${API_URL}/settings/pdf-template`, updated);
+      toast.success('PDF şablonu güncellendi');
+    } catch (error) {
+      toast.error('Güncelleme başarısız');
+    }
+  };
+
   const handleOpenDialog = (orderType = null) => {
     if (orderType) {
       setEditingType(orderType);
