@@ -179,17 +179,34 @@ const OrderDetail = () => {
         </div>
         {/* PDF Download for Teklif */}
         {order.order_type === 'teklif' && (
-          <a
-            href={`${API_URL}/orders/${order.id}/pdf`}
-            target="_blank"
-            rel="noopener noreferrer"
-            download
+          <Button 
+            variant="outline" 
+            size="lg"
+            onClick={async () => {
+              try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/orders/${order.id}/pdf`, {
+                  headers: {
+                    'Authorization': `Bearer ${token}`
+                  }
+                });
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `teklif_${order.order_number}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+              } catch (error) {
+                console.error('PDF download failed:', error);
+              }
+            }}
           >
-            <Button variant="outline" size="lg">
-              <FileDown className="mr-2 h-4 w-4" />
-              Teklif PDF İndir
-            </Button>
-          </a>
+            <FileDown className="mr-2 h-4 w-4" />
+            Teklif PDF İndir
+          </Button>
         )}
       </div>
 
