@@ -1314,13 +1314,14 @@ async def upload_products_csv(file: UploadFile = File(...), current_user: User =
 
 # ==================== ORDER ENDPOINTS ====================
 
-# Sipariş türüne göre prefix ve sayaç
-ORDER_TYPE_PREFIXES = {
-    "teklif": "TK",
-    "showroom_satis": "SR",
-    "kurumsal_cari": "KC",
-    "kurumsal_pesin": "KP",
-    "eksik_bilgili": "EB"
+# Kullanıcı rolüne göre prefix
+USER_ROLE_PREFIXES = {
+    "admin": "AD",
+    "showroom": "SH",
+    "corporate_sales": "KS",
+    "warehouse": "DP",
+    "supply_finance": "TF",
+    "accounting": "MH"
 }
 
 async def get_next_order_number() -> int:
@@ -1332,9 +1333,9 @@ async def get_next_order_number() -> int:
     )
     return (result['order_number'] if result else 0) + 1
 
-async def get_next_order_code(order_type: str) -> str:
-    """Sipariş türüne göre benzersiz kod oluştur (TK-001, SR-001, KC-001, KP-001)"""
-    prefix = ORDER_TYPE_PREFIXES.get(order_type, "SP")
+async def get_next_order_code(user_role: str) -> str:
+    """Kullanıcı rolüne göre benzersiz sipariş kodu oluştur (AD-001, SH-001, KS-001)"""
+    prefix = USER_ROLE_PREFIXES.get(user_role, "SP")
     
     # Bu prefix ile en yüksek numaralı siparişi bul
     result = await db.orders.find_one(
@@ -1357,9 +1358,9 @@ async def get_next_order_code(order_type: str) -> str:
 
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
-    # Sipariş türü kullanıcı tarafından seçildi, otomatik değiştirme yok
+    # Sipariş numarası kullanıcı rolüne göre oluşturuluyor
     order_number = await get_next_order_number()
-    order_code = await get_next_order_code(order_data.order_type)
+    order_code = await get_next_order_code(current_user.role)
     
     order = Order(
         order_number=order_number,
