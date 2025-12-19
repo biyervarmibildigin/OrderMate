@@ -1562,6 +1562,28 @@ async def add_order_note(order_id: str, request: AddHistoryNoteRequest, current_
     
     return {"message": "Not eklendi", "entry": history_entry}
 
+@api_router.delete("/orders/{order_id}")
+async def delete_order(order_id: str, current_user: User = Depends(get_current_user)):
+    """Delete an order and its items"""
+    existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    # Sadece admin veya siparişi oluşturan kişi silebilir
+    if current_user.role != UserRole.ADMIN and existing.get('created_by') != current_user.id:
+        raise HTTPException(status_code=403, detail="Bu siparişi silme yetkiniz yok")
+    
+    # Sipariş kalemlerini sil
+    await db.order_items.delete_many({"order_id": order_id})
+    
+    # Siparişi sil
+    result = await db.orders.delete_one({"id": order_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    return {"message": f"Sipariş #{existing.get('order_code', existing.get('order_number'))} silindi"}
+
 # ==================== ORDER ITEM ENDPOINTS ====================
 
 @api_router.post("/order-items", response_model=OrderItem)
