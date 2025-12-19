@@ -136,6 +136,25 @@ const OrderDetail = () => {
     return labels[status] || status;
   };
 
+  const getCargoTrackingUrl = (company, trackingCode) => {
+    if (!company || !trackingCode) return '#';
+    
+    const urls = {
+      'aras': `https://www.araskargo.com.tr/tr/cargo-tracking?code=${trackingCode}`,
+      'yurtici': `https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=${trackingCode}`,
+      'mng': `https://www.mngkargo.com.tr/shipmentquery?q=${trackingCode}`,
+      'ups': `https://www.ups.com/track?tracknum=${trackingCode}`,
+      'dhl': `https://www.dhl.com/tr-tr/home/tracking.html?tracking-id=${trackingCode}`,
+      'fedex': `https://www.fedex.com/fedextrack/?trknbr=${trackingCode}`,
+      'ptt': `https://gonderitakip.ptt.gov.tr/Track/Verify?barcode=${trackingCode}`,
+      'sürat': `https://www.suratkargo.com.tr/kargo-takip?code=${trackingCode}`,
+      'horoz': `https://www.horozlojistik.com/tr/kargo-takip?code=${trackingCode}`
+    };
+    
+    const normalizedCompany = company.toLowerCase().replace(/\s+/g, '');
+    return urls[normalizedCompany] || `https://www.google.com/search?q=${encodeURIComponent(company + ' kargo takip ' + trackingCode)}`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
