@@ -329,6 +329,24 @@ const OrderDetail = () => {
                   </div>
                 </div>
               )}
+              {/* Ödeme ve Teslimat Durumları */}
+              <div className="p-3 bg-blue-50 rounded-lg space-y-3">
+                <h4 className="text-sm font-semibold text-zinc-700">Ödeme ve Teslimat</h4>
+                <div className="flex flex-wrap gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={editData.pos_payment || false} onChange={(e) => setEditData({...editData, pos_payment: e.target.checked})} className="h-4 w-4" />
+                    <span className="text-sm">POS Cihazından Çekildi</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={editData.delivered_invoice_only || false} onChange={(e) => setEditData({...editData, delivered_invoice_only: e.target.checked})} className="h-4 w-4" />
+                    <span className="text-sm">Teslim Edildi Sadece Fatura</span>
+                  </label>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Site Ödemesi İşlem No</Label>
+                  <Input value={editData.online_payment_ref || ''} onChange={(e) => setEditData({...editData, online_payment_ref: e.target.value.toUpperCase()})} placeholder="CRxxxxxx" className="max-w-xs font-mono" />
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>Notlar</Label>
                 <Textarea value={editData.notes || ''} onChange={(e) => setEditData({...editData, notes: e.target.value})} rows={2} />
