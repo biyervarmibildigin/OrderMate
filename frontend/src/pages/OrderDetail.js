@@ -600,6 +600,35 @@ const OrderDetail = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Order Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Siparişi Sil
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-zinc-600">
+              <strong>{order.order_code || `#${order.order_number}`}</strong> numaralı siparişi silmek istediğinizden emin misiniz?
+            </p>
+            <p className="text-sm text-zinc-500">
+              Bu işlem geri alınamaz. Sipariş ve tüm kalemleri kalıcı olarak silinecektir.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+                İptal
+              </Button>
+              <Button onClick={handleDeleteOrder} disabled={deleting} className="bg-red-600 hover:bg-red-700">
+                {deleting ? <Loader className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                {deleting ? 'Siliniyor...' : 'Evet, Sil'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
