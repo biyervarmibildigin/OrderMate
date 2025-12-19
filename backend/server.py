@@ -495,6 +495,129 @@ async def delete_order_type(order_type_id: str, current_user: User = Depends(get
         raise HTTPException(status_code=404, detail="Order type not found")
     return {"message": "Order type deleted successfully"}
 
+# ==================== MANUAL PRODUCT CREATION ====================
+
+async def get_next_kodsuz_code() -> str:
+    """Generate next KodsuzA#### code"""
+    # Find the highest kodsuz code
+    result = await db.products.find(
+        {"web_service_code": {"$regex": "^KodsuzA"}},
+        {"_id": 0, "web_service_code": 1}
+    ).sort("web_service_code", -1).limit(1).to_list(1)
+    
+    if result:
+        last_code = result[0]['web_service_code']
+        # Extract number from KodsuzA0001
+        number = int(last_code.replace('KodsuzA', ''))
+        next_number = number + 1
+    else:
+        next_number = 1
+    
+    return f"KodsuzA{next_number:04d}"
+
+@api_router.post("/products/create-manual")
+async def create_manual_product(product_name: str, current_user: User = Depends(get_current_user)):
+    """Create a manual product with auto-generated KodsuzA code"""
+    kodsuz_code = await get_next_kodsuz_code()
+    
+    product = Product(
+        product_name=product_name,
+        web_service_code=kodsuz_code,
+        stock=0,
+        stock_unit="Adet",
+        is_active=True
+    )
+    
+    doc = product.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.products.insert_one(doc)
+    
+    return product
+
+# ==================== PDF GENERATION ====================
+
+@api_router.get("/orders/{order_id}/pdf")
+async def generate_order_pdf(order_id: str, current_user: User = Depends(get_current_user)):
+    """Generate PDF for order (mainly for teklif)"""
+    # Get order
+    order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    # Get order items
+    items = await db.order_items.find({"order_id": order_id}, {"_id": 0}).to_list(1000)
+    
+    # Create PDF in memory
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    
+    # Title
+    pdf.setFont("Helvetica-Bold", 20)
+    pdf.drawString(2*cm, height - 2*cm, "TEKLİF")
+    
+    # Order Info
+    pdf.setFont("Helvetica", 10)
+    y_position = height - 3*cm
+    pdf.drawString(2*cm, y_position, f"Sipariş No: #{order['order_number']}")
+    y_position -= 0.5*cm
+    pdf.drawString(2*cm, y_position, f"Tarih: {datetime.fromisoformat(order['created_at']).strftime('%d.%m.%Y')}")
+    
+    if order.get('customer_name'):
+        y_position -= 0.5*cm
+        pdf.drawString(2*cm, y_position, f"Müşteri: {order['customer_name']}")
+    
+    if order.get('customer_phone'):
+        y_position -= 0.5*cm
+        pdf.drawString(2*cm, y_position, f"Telefon: {order['customer_phone']}")
+    
+    # Items table
+    y_position -= 1.5*cm
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(2*cm, y_position, "Ürünler:")
+    
+    y_position -= 0.8*cm
+    pdf.setFont("Helvetica", 9)
+    
+    # Table headers
+    pdf.drawString(2*cm, y_position, "Ürün Adı")
+    pdf.drawString(12*cm, y_position, "Adet")
+    pdf.drawString(15*cm, y_position, "Durum")
+    
+    y_position -= 0.3*cm
+    pdf.line(2*cm, y_position, width - 2*cm, y_position)
+    
+    # Table rows
+    for item in items:
+        y_position -= 0.6*cm
+        if y_position < 3*cm:  # New page if needed
+            pdf.showPage()
+            y_position = height - 3*cm
+        
+        pdf.drawString(2*cm, y_position, item['product_name'][:60])
+        pdf.drawString(12*cm, y_position, str(item['quantity']))
+        pdf.drawString(15*cm, y_position, item['item_status'])
+    
+    # Footer
+    y_position -= 2*cm
+    if y_position < 3*cm:
+        pdf.showPage()
+        y_position = height - 3*cm
+    
+    pdf.setFont("Helvetica-Oblique", 8)
+    pdf.drawString(2*cm, 2*cm, "OrderMate - Sipariş Takip Sistemi")
+    
+    pdf.save()
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=teklif_{order['order_number']}.pdf"
+        }
+    )
+
 @api_router.post("/products/upload-csv")
 async def upload_products_csv(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
     # Allow all authenticated users to upload products
