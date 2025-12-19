@@ -451,6 +451,50 @@ const OrderCreate = () => {
               </div>
             </div>
 
+            {/* Ödeme ve Teslimat Durumu */}
+            <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="font-semibold text-zinc-900">Ödeme ve Teslimat Durumu</h3>
+              
+              <div className="flex flex-wrap gap-6">
+                {/* POS Cihazından Çekildi */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.pos_payment}
+                    onChange={(e) => handleChange('pos_payment', e.target.checked)}
+                    className="h-4 w-4 rounded border-zinc-300"
+                  />
+                  <span className="text-sm font-medium">POS Cihazından Çekildi</span>
+                </label>
+
+                {/* Teslim Edildi Sadece Fatura */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.delivered_invoice_only}
+                    onChange={(e) => handleChange('delivered_invoice_only', e.target.checked)}
+                    className="h-4 w-4 rounded border-zinc-300"
+                  />
+                  <span className="text-sm font-medium">Teslim Edildi Sadece Fatura</span>
+                </label>
+              </div>
+
+              {/* Site Ödemesi İşlem Numarası */}
+              <div className="space-y-2">
+                <Label htmlFor="online_payment_ref">
+                  Site Ödemesi İşlem Numarası
+                  <span className="text-xs text-zinc-500 ml-2">(İşlem numaranızı not ediniz)</span>
+                </Label>
+                <Input
+                  id="online_payment_ref"
+                  value={formData.online_payment_ref}
+                  onChange={(e) => handleChange('online_payment_ref', e.target.value.toUpperCase())}
+                  placeholder="CRxxxxxx"
+                  className="max-w-xs font-mono"
+                />
+              </div>
+            </div>
+
             {/* Product Selection */}
             <div className="space-y-4 pt-4 border-t border-zinc-200">
               <Label>Ürün Ekle</Label>
