@@ -78,6 +78,22 @@ const OrderCreate = () => {
     tax_number: '',
     tax_office: '',
     company_name: '', // VKN'ye ait firma/kurum adı
+    // Kurumsal siparişler için adres bilgileri
+    same_address: true, // Fatura ve teslimat adresi aynı mı?
+    billing_address: {
+      address: '',
+      city: '',
+      district: '',
+      postal_code: ''
+    },
+    shipping_address: {
+      recipient_name: '',
+      recipient_phone: '',
+      address: '',
+      city: '',
+      district: '',
+      postal_code: ''
+    },
     delivery_method: '',
     cargo_company: '',
     cargo_tracking_code: '',
