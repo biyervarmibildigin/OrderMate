@@ -138,6 +138,8 @@ class Order(BaseModel):
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
     cargo_status: str = CargoStatus.NONE
+    cargo_company: Optional[str] = None  # Yurtiçi, MNG, Aras, PTT, etc.
+    cargo_tracking_code: Optional[str] = None
     general_status: str = OrderStatus.WAITING_INFO
     whatsapp_content: Optional[str] = None
     attachments: List[str] = []  # file URLs or base64
