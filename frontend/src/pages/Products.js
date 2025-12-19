@@ -79,7 +79,8 @@ const Products = () => {
     );
   }
 
-  const canUpload = ['admin', 'warehouse', 'finance'].includes(user?.role);
+  // Allow all users to upload CSV
+  const canUpload = true;
 
   return (
     <div className="space-y-6">
