@@ -411,6 +411,13 @@ async def update_product(product_id: str, product_data: ProductCreate, current_u
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     return Product(**updated)
 
+@api_router.delete("/products/{product_id}")
+async def delete_product(product_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.products.delete_one({"id": product_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"message": "Product deleted successfully"}
+
 @api_router.post("/products/upload-csv")
 async def upload_products_csv(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
     # Allow all authenticated users to upload products
