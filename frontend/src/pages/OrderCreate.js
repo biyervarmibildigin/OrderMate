@@ -106,7 +106,7 @@ const OrderCreate = () => {
       );
       toast.success(`"${response.data.product_name}" ürünü oluşturuldu (${response.data.web_service_code})`);
       
-      setSelectedProducts([...selectedProducts, { ...response.data, quantity: 1 }]);
+      setSelectedProducts([...selectedProducts, { ...response.data, quantity: 1, unit_price: 0, total_price: 0 }]);
       setSearchTerm('');
       setSearchResults([]);
       fetchProducts();
