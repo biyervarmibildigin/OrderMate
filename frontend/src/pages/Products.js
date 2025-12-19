@@ -113,7 +113,7 @@ const Products = () => {
                   data-testid="csv-upload-button"
                 >
                   <Upload className="mr-2 h-4 w-4" />
-                  {uploading ? 'Yüklen iyor...' : 'CSV Yükle'}
+                  {uploading ? 'Yükleniyor...' : 'CSV Yükle'}
                 </Button>
               </label>
             </>
