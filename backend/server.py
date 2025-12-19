@@ -1314,6 +1314,15 @@ async def upload_products_csv(file: UploadFile = File(...), current_user: User =
 
 # ==================== ORDER ENDPOINTS ====================
 
+# Sipariş türüne göre prefix ve sayaç
+ORDER_TYPE_PREFIXES = {
+    "teklif": "TK",
+    "showroom_satis": "SR",
+    "kurumsal_cari": "KC",
+    "kurumsal_pesin": "KP",
+    "eksik_bilgili": "EB"
+}
+
 async def get_next_order_number() -> int:
     # Get the highest order number
     result = await db.orders.find_one(
@@ -1323,6 +1332,29 @@ async def get_next_order_number() -> int:
     )
     return (result['order_number'] if result else 0) + 1
 
+async def get_next_order_code(order_type: str) -> str:
+    """Sipariş türüne göre benzersiz kod oluştur (TK-001, SR-001, KC-001, KP-001)"""
+    prefix = ORDER_TYPE_PREFIXES.get(order_type, "SP")
+    
+    # Bu prefix ile en yüksek numaralı siparişi bul
+    result = await db.orders.find_one(
+        {"order_code": {"$regex": f"^{prefix}-"}},
+        {"_id": 0, "order_code": 1},
+        sort=[("order_code", -1)]
+    )
+    
+    if result and result.get('order_code'):
+        # Mevcut koddan sayıyı çıkar
+        try:
+            current_num = int(result['order_code'].split('-')[1])
+            next_num = current_num + 1
+        except (IndexError, ValueError):
+            next_num = 1
+    else:
+        next_num = 1
+    
+    return f"{prefix}-{next_num:03d}"
+
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
     # Auto-assign order type as INCOMPLETE if missing delivery info
@@ -1330,8 +1362,11 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
         order_data.order_type = OrderType.INCOMPLETE
     
     order_number = await get_next_order_number()
+    order_code = await get_next_order_code(order_data.order_type)
+    
     order = Order(
         order_number=order_number,
+        order_code=order_code,
         created_by=current_user.id,
         created_by_name=current_user.full_name,
         **order_data.model_dump()
