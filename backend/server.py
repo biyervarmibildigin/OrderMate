@@ -169,6 +169,7 @@ class Order(BaseModel):
     tax_id_type: str = "vkn"  # 'vkn' veya 'tc'
     tax_number: Optional[str] = None
     tax_office: Optional[str] = None
+    company_name: Optional[str] = None  # VKN'ye kayıtlı firma/kurum adı
     created_by: str  # user id
     created_by_name: str
     delivery_method: Optional[str] = None
