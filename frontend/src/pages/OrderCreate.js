@@ -101,7 +101,8 @@ const OrderCreate = () => {
 
     try {
       const response = await axios.post(
-        `${API_URL}/products/create-manual?product_name=${encodeURIComponent(searchTerm)}`
+        `${API_URL}/products/create-manual`,
+        { product_name: searchTerm }
       );
       toast.success(`"${response.data.product_name}" ürünü oluşturuldu (${response.data.web_service_code})`);
       
