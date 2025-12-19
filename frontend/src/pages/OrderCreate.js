@@ -179,6 +179,16 @@ const OrderCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // VKN/TC Validasyonu
+    const taxValidationError = validateTaxNumber();
+    if (taxValidationError) {
+      setTaxError(taxValidationError);
+      toast.error(taxValidationError);
+      return;
+    }
+    setTaxError('');
+    
     setLoading(true);
 
     try {
