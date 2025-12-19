@@ -515,13 +515,16 @@ async def get_next_kodsuz_code() -> str:
     
     return f"KodsuzA{next_number:04d}"
 
-@api_router.post("/products/create-manual")
-async def create_manual_product(product_name: str, current_user: User = Depends(get_current_user)):
+class ManualProductCreate(BaseModel):
+    product_name: str
+
+@api_router.post("/products/create-manual", response_model=Product)
+async def create_manual_product(data: ManualProductCreate, current_user: User = Depends(get_current_user)):
     """Create a manual product with auto-generated KodsuzA code"""
     kodsuz_code = await get_next_kodsuz_code()
     
     product = Product(
-        product_name=product_name,
+        product_name=data.product_name,
         web_service_code=kodsuz_code,
         stock=0,
         stock_unit="Adet",
