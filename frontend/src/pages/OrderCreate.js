@@ -91,7 +91,7 @@ const OrderCreate = () => {
       return;
     }
 
-    setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+    setSelectedProducts([...selectedProducts, { ...product, quantity: 1, unit_price: 0, total_price: 0 }]);
     setSearchTerm('');
     setSearchResults([]);
   };
