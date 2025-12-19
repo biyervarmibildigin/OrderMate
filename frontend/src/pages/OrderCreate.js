@@ -44,6 +44,10 @@ const OrderCreate = () => {
     delivery_method: '',
     cargo_company: '',
     cargo_tracking_code: '',
+    // Ödeme ve Teslimat Durumları
+    pos_payment: false,        // POS cihazından çekildi
+    delivered_invoice_only: false, // Teslim edildi sadece fatura
+    online_payment_ref: '',    // Site ödemesi işlem numarası (CRxxxxxx)
     whatsapp_content: '',
     notes: ''
   });
