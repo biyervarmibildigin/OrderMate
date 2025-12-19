@@ -39,6 +39,7 @@ function App() {
                     <Route path="/products" element={<Products />} />
                     <Route path="/products/new" element={<ProductCreate />} />
                     <Route path="/users" element={<Users />} />
+                    <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </Layout>
               </PrivateRoute>
