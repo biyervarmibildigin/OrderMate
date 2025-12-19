@@ -619,6 +619,116 @@ const OrderCreate = () => {
             </div>
           )}
 
+          {/* Kurumsal Siparişler İçin Adres Bilgileri */}
+          {isCorporateOrder && (
+            <div className="space-y-6">
+              {/* Fatura Adresi */}
+              <div className="space-y-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                <h3 className="font-semibold text-zinc-900 flex items-center gap-2">
+                  <span className="bg-amber-200 text-amber-800 px-2 py-0.5 rounded text-xs">FATURA</span>
+                  Fatura Adresi
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2 space-y-2">
+                    <Label>Adres</Label>
+                    <Textarea
+                      value={formData.billing_address?.address || ''}
+                      onChange={(e) => handleAddressChange('billing_address', 'address', e.target.value)}
+                      placeholder="Fatura adresi (Sokak, Cadde, No, Bina...)"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>İl</Label>
+                    <Input
+                      value={formData.billing_address?.city || ''}
+                      onChange={(e) => handleAddressChange('billing_address', 'city', e.target.value)}
+                      placeholder="İl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>İlçe</Label>
+                    <Input
+                      value={formData.billing_address?.district || ''}
+                      onChange={(e) => handleAddressChange('billing_address', 'district', e.target.value)}
+                      placeholder="İlçe"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Aynı Adres Checkbox */}
+              <div className="flex items-center gap-3 p-3 bg-zinc-100 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="same_address"
+                  checked={formData.same_address}
+                  onChange={(e) => handleChange('same_address', e.target.checked)}
+                  className="h-5 w-5 rounded border-zinc-300"
+                />
+                <label htmlFor="same_address" className="text-sm font-medium cursor-pointer">
+                  Kargo/Teslimat adresi fatura adresi ile aynı
+                </label>
+              </div>
+
+              {/* Kargo/Teslimat Adresi - Sadece farklı adres seçilmişse göster */}
+              {!formData.same_address && (
+                <div className="space-y-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                  <h3 className="font-semibold text-zinc-900 flex items-center gap-2">
+                    <span className="bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded text-xs">KARGO</span>
+                    Kargo/Teslimat Adresi
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Alıcı Adı <span className="text-red-500">*</span></Label>
+                      <Input
+                        value={formData.shipping_address?.recipient_name || ''}
+                        onChange={(e) => handleAddressChange('shipping_address', 'recipient_name', e.target.value)}
+                        placeholder="Teslim alacak kişinin adı soyadı"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Alıcı Telefon <span className="text-red-500">*</span></Label>
+                      <Input
+                        value={formData.shipping_address?.recipient_phone || ''}
+                        onChange={(e) => handleAddressChange('shipping_address', 'recipient_phone', e.target.value)}
+                        placeholder="05XX XXX XX XX"
+                        required
+                      />
+                    </div>
+                    <div className="md:col-span-2 space-y-2">
+                      <Label>Teslimat Adresi <span className="text-red-500">*</span></Label>
+                      <Textarea
+                        value={formData.shipping_address?.address || ''}
+                        onChange={(e) => handleAddressChange('shipping_address', 'address', e.target.value)}
+                        placeholder="Kargo teslimat adresi (Sokak, Cadde, No, Bina...)"
+                        rows={2}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>İl</Label>
+                      <Input
+                        value={formData.shipping_address?.city || ''}
+                        onChange={(e) => handleAddressChange('shipping_address', 'city', e.target.value)}
+                        placeholder="İl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>İlçe</Label>
+                      <Input
+                        value={formData.shipping_address?.district || ''}
+                        onChange={(e) => handleAddressChange('shipping_address', 'district', e.target.value)}
+                        placeholder="İlçe"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Ürün Ekleme */}
           {(currentConfig.fields?.includes('products')) && (
             <div className="space-y-4">
