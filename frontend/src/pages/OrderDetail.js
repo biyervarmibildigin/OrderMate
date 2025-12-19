@@ -343,7 +343,7 @@ const OrderDetail = () => {
         <div className="pt-4 border-t border-zinc-200">
           <h3 className="font-semibold mb-3">Yeni Kalem Ekle</h3>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-            <div className="md:col-span-5">
+            <div className="md:col-span-4">
               <Input
                 placeholder="Ürün adı"
                 value={newItem.product_name}
@@ -356,11 +356,29 @@ const OrderDetail = () => {
                 type="number"
                 placeholder="Adet"
                 value={newItem.quantity}
-                onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
+                onChange={(e) => {
+                  const quantity = parseInt(e.target.value) || 1;
+                  const total = quantity * newItem.unit_price;
+                  setNewItem({ ...newItem, quantity, total_price: total });
+                }}
                 data-testid="new-item-quantity"
               />
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="Birim Fiyat"
+                value={newItem.unit_price}
+                onChange={(e) => {
+                  const unit_price = parseFloat(e.target.value) || 0;
+                  const total = newItem.quantity * unit_price;
+                  setNewItem({ ...newItem, unit_price, total_price: total });
+                }}
+                data-testid="new-item-unit-price"
+              />
+            </div>
+            <div className="md:col-span-2">
               <select
                 value={newItem.item_status}
                 onChange={(e) => setNewItem({ ...newItem, item_status: e.target.value })}
