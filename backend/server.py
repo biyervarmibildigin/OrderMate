@@ -573,6 +573,46 @@ async def create_manual_product(data: ManualProductCreate, current_user: User = 
 
 # ==================== PDF GENERATION ====================
 
+@api_router.get("/settings/pdf-template", response_model=PDFTemplateSettings)
+async def get_pdf_template(current_user: User = Depends(get_current_user)):
+    """Get PDF template settings"""
+    template = await db.pdf_settings.find_one({"id": "pdf_template_settings"}, {"_id": 0})
+    if not template:
+        # Return default settings
+        return PDFTemplateSettings()
+    
+    if isinstance(template.get('updated_at'), str):
+        template['updated_at'] = datetime.fromisoformat(template['updated_at'])
+    return PDFTemplateSettings(**template)
+
+@api_router.put("/settings/pdf-template", response_model=PDFTemplateSettings)
+async def update_pdf_template(settings: PDFTemplateUpdate, current_user: User = Depends(get_current_user)):
+    """Update PDF template settings"""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Only admin can update PDF template")
+    
+    # Check if exists
+    existing = await db.pdf_settings.find_one({"id": "pdf_template_settings"}, {"_id": 0})
+    
+    update_data = settings.model_dump(exclude_none=True)
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    if existing:
+        await db.pdf_settings.update_one(
+            {"id": "pdf_template_settings"},
+            {"$set": update_data}
+        )
+    else:
+        template = PDFTemplateSettings(**update_data)
+        doc = template.model_dump()
+        doc['updated_at'] = doc['updated_at'].isoformat()
+        await db.pdf_settings.insert_one(doc)
+    
+    updated = await db.pdf_settings.find_one({"id": "pdf_template_settings"}, {"_id": 0})
+    if isinstance(updated.get('updated_at'), str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    return PDFTemplateSettings(**updated)
+
 @api_router.get("/orders/{order_id}/pdf")
 async def generate_order_pdf(order_id: str, current_user: User = Depends(get_current_user)):
     """Generate PDF for order (mainly for teklif)"""
@@ -584,6 +624,15 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
     # Get order items
     items = await db.order_items.find({"order_id": order_id}, {"_id": 0}).to_list(1000)
     
+    # Get PDF template settings
+    template_doc = await db.pdf_settings.find_one({"id": "pdf_template_settings"}, {"_id": 0})
+    if template_doc:
+        if isinstance(template_doc.get('updated_at'), str):
+            template_doc['updated_at'] = datetime.fromisoformat(template_doc['updated_at'])
+        template = PDFTemplateSettings(**template_doc)
+    else:
+        template = PDFTemplateSettings()
+    
     # Create PDF in memory
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=A4)
@@ -591,22 +640,43 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
     
     # Title
     pdf.setFont("Helvetica-Bold", 20)
-    pdf.drawString(2*cm, height - 2*cm, "TEKLİF")
+    pdf.drawString(2*cm, height - 2*cm, template.title)
+    
+    # Company Info (right side)
+    pdf.setFont("Helvetica", 9)
+    y_company = height - 2*cm
+    if template.company_name:
+        pdf.drawRightString(width - 2*cm, y_company, template.company_name)
+        y_company -= 0.4*cm
+    if template.company_address:
+        pdf.drawRightString(width - 2*cm, y_company, template.company_address)
+        y_company -= 0.4*cm
+    if template.company_phone:
+        pdf.drawRightString(width - 2*cm, y_company, f"Tel: {template.company_phone}")
+        y_company -= 0.4*cm
+    if template.company_email:
+        pdf.drawRightString(width - 2*cm, y_company, template.company_email)
     
     # Order Info
     pdf.setFont("Helvetica", 10)
-    y_position = height - 3*cm
+    y_position = height - 3.5*cm
     pdf.drawString(2*cm, y_position, f"Sipariş No: #{order['order_number']}")
     y_position -= 0.5*cm
     pdf.drawString(2*cm, y_position, f"Tarih: {datetime.fromisoformat(order['created_at']).strftime('%d.%m.%Y')}")
     
-    if order.get('customer_name'):
-        y_position -= 0.5*cm
-        pdf.drawString(2*cm, y_position, f"Müşteri: {order['customer_name']}")
-    
-    if order.get('customer_phone'):
-        y_position -= 0.5*cm
-        pdf.drawString(2*cm, y_position, f"Telefon: {order['customer_phone']}")
+    # Customer Info
+    if template.show_customer_info:
+        if order.get('customer_name'):
+            y_position -= 0.5*cm
+            pdf.drawString(2*cm, y_position, f"Müşteri: {order['customer_name']}")
+        
+        if order.get('customer_phone'):
+            y_position -= 0.5*cm
+            pdf.drawString(2*cm, y_position, f"Telefon: {order['customer_phone']}")
+        
+        if order.get('customer_email'):
+            y_position -= 0.5*cm
+            pdf.drawString(2*cm, y_position, f"E-posta: {order['customer_email']}")
     
     # Items table
     y_position -= 1.5*cm
@@ -619,8 +689,10 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
     # Table headers
     pdf.drawString(2*cm, y_position, "Ürün Adı")
     pdf.drawString(10*cm, y_position, "Adet")
-    pdf.drawString(12*cm, y_position, "Birim Fiyat")
-    pdf.drawString(15*cm, y_position, "Toplam")
+    
+    if template.show_prices:
+        pdf.drawString(12*cm, y_position, "Birim Fiyat")
+        pdf.drawString(15*cm, y_position, "Toplam")
     
     y_position -= 0.3*cm
     pdf.line(2*cm, y_position, width - 2*cm, y_position)
@@ -635,27 +707,34 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
         
         pdf.drawString(2*cm, y_position, item['product_name'][:50])
         pdf.drawString(10*cm, y_position, str(item['quantity']))
-        pdf.drawString(12*cm, y_position, f"{item.get('unit_price', 0):.2f} TL")
-        total = item.get('total_price', 0) or (item['quantity'] * item.get('unit_price', 0))
-        pdf.drawString(15*cm, y_position, f"{total:.2f} TL")
-        grand_total += total
+        
+        if template.show_prices:
+            pdf.drawString(12*cm, y_position, f"{item.get('unit_price', 0):.2f} TL")
+            total = item.get('total_price', 0) or (item['quantity'] * item.get('unit_price', 0))
+            pdf.drawString(15*cm, y_position, f"{total:.2f} TL")
+            grand_total += total
     
     # Grand Total
-    y_position -= 1*cm
-    pdf.line(12*cm, y_position, width - 2*cm, y_position)
-    y_position -= 0.6*cm
-    pdf.setFont("Helvetica-Bold", 11)
-    pdf.drawString(12*cm, y_position, "TOPLAM:")
-    pdf.drawString(15*cm, y_position, f"{grand_total:.2f} TL")
+    if template.show_prices:
+        y_position -= 1*cm
+        pdf.line(12*cm, y_position, width - 2*cm, y_position)
+        y_position -= 0.6*cm
+        pdf.setFont("Helvetica-Bold", 11)
+        pdf.drawString(12*cm, y_position, "TOPLAM:")
+        pdf.drawString(15*cm, y_position, f"{grand_total:.2f} TL")
+    
+    # Notes
+    if template.notes:
+        y_position -= 1.5*cm
+        if y_position < 4*cm:
+            pdf.showPage()
+            y_position = height - 3*cm
+        pdf.setFont("Helvetica-Oblique", 9)
+        pdf.drawString(2*cm, y_position, template.notes[:100])
     
     # Footer
-    y_position -= 2*cm
-    if y_position < 3*cm:
-        pdf.showPage()
-        y_position = height - 3*cm
-    
     pdf.setFont("Helvetica-Oblique", 8)
-    pdf.drawString(2*cm, 2*cm, "OrderMate - Sipariş Takip Sistemi")
+    pdf.drawString(2*cm, 2*cm, template.footer_text)
     
     pdf.save()
     buffer.seek(0)
