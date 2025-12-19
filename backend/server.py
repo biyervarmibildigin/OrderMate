@@ -194,9 +194,11 @@ class OrderCreate(BaseModel):
     tax_office: Optional[str] = None
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
+    waybill_status: str = WaybillStatus.NOT_ISSUED
     cargo_status: str = CargoStatus.NONE
     cargo_company: Optional[str] = None
     cargo_tracking_code: Optional[str] = None
+    general_status: str = OrderStatus.WAITING_INFO
     whatsapp_content: Optional[str] = None
     notes: Optional[str] = None
 
