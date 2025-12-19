@@ -207,6 +207,24 @@ class OrderWithItems(BaseModel):
     order: Order
     items: List[OrderItem] = []
 
+# Settings Models
+class OrderTypeModel(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    code: str
+    description: Optional[str] = None
+    is_active: bool = True
+    order: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class OrderTypeCreate(BaseModel):
+    name: str
+    code: str
+    description: Optional[str] = None
+    is_active: bool = True
+    order: int = 0
+
 # ==================== AUTH UTILITIES ====================
 
 def hash_password(password: str) -> str:
