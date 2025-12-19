@@ -70,6 +70,11 @@ const Layout = ({ children }) => {
     navigation.push({ name: 'Kullanıcılar', href: '/users', icon: Users });
   }
 
+  // Add Settings menu for admin only
+  if (user?.role === 'admin') {
+    navigation.push({ name: 'Ayarlar', href: '/settings', icon: SettingsIcon });
+  }
+
   return (
     <div className="flex h-screen bg-zinc-50">
       {/* Sidebar */}
