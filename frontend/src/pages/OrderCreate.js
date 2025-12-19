@@ -77,6 +77,7 @@ const OrderCreate = () => {
     tax_id_type: 'vkn',
     tax_number: '',
     tax_office: '',
+    company_name: '', // VKN'ye ait firma/kurum adı
     delivery_method: '',
     cargo_company: '',
     cargo_tracking_code: '',
