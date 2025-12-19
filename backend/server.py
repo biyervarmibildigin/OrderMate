@@ -190,6 +190,7 @@ class OrderCreate(BaseModel):
     customer_phone: Optional[str] = None
     customer_email: Optional[str] = None
     customer_address: Optional[str] = None
+    tax_id_type: str = "vkn"  # 'vkn' veya 'tc'
     tax_number: Optional[str] = None
     tax_office: Optional[str] = None
     delivery_method: Optional[str] = None
@@ -201,6 +202,31 @@ class OrderCreate(BaseModel):
     general_status: str = OrderStatus.WAITING_INFO
     whatsapp_content: Optional[str] = None
     notes: Optional[str] = None
+    
+    @model_validator(mode='after')
+    def validate_tax_number(self):
+        tax_number = self.tax_number
+        tax_id_type = self.tax_id_type
+        
+        if not tax_number:
+            raise ValueError('VKN veya TC Kimlik No zorunludur')
+        
+        # Sadece rakam kontrolü
+        if not tax_number.isdigit():
+            raise ValueError('VKN/TC sadece rakam içermelidir')
+        
+        if tax_id_type == 'vkn':
+            if len(tax_number) != 10:
+                raise ValueError('VKN 10 karakter olmalıdır')
+        elif tax_id_type == 'tc':
+            if len(tax_number) != 11:
+                raise ValueError('TC Kimlik No 11 karakter olmalıdır')
+            if tax_number[0] == '0':
+                raise ValueError('TC Kimlik No 0 ile başlayamaz')
+            if int(tax_number[10]) % 2 != 0:
+                raise ValueError('TC Kimlik No son hanesi çift rakam olmalıdır')
+        
+        return self
 
 class ItemStatus:
     TO_BE_CONFIRMED = "netlesecek"
