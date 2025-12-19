@@ -166,6 +166,7 @@ class Order(BaseModel):
     customer_phone: Optional[str] = None
     customer_email: Optional[str] = None
     customer_address: Optional[str] = None
+    tax_id_type: str = "vkn"  # 'vkn' veya 'tc'
     tax_number: Optional[str] = None
     tax_office: Optional[str] = None
     created_by: str  # user id
