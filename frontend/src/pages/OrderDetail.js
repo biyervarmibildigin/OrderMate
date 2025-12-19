@@ -393,6 +393,51 @@ const OrderDetail = () => {
                   <div><span className="text-zinc-500 text-sm">Vergi No</span><p className="font-medium">{order.tax_number || '-'}</p></div>
                 </div>
               )}
+
+              {/* Kurumsal Sipariş Adres Bilgileri */}
+              {order.order_type === 'cari_kurumsal' && (order.billing_address || order.shipping_address) && (
+                <div className="space-y-3 mt-4">
+                  {/* Fatura Adresi */}
+                  {order.billing_address && order.billing_address.address && (
+                    <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                      <span className="text-amber-800 text-xs font-semibold">FATURA ADRESİ</span>
+                      <p className="font-medium text-sm mt-1">{order.billing_address.address}</p>
+                      {(order.billing_address.district || order.billing_address.city) && (
+                        <p className="text-sm text-zinc-600">
+                          {[order.billing_address.district, order.billing_address.city].filter(Boolean).join(' / ')}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Kargo/Teslimat Adresi */}
+                  {order.shipping_address && order.shipping_address.address && !order.same_address && (
+                    <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                      <span className="text-emerald-800 text-xs font-semibold">KARGO/TESLİMAT ADRESİ</span>
+                      {order.shipping_address.recipient_name && (
+                        <p className="font-semibold text-sm mt-1">Alıcı: {order.shipping_address.recipient_name}</p>
+                      )}
+                      {order.shipping_address.recipient_phone && (
+                        <p className="text-sm text-zinc-600">Tel: {order.shipping_address.recipient_phone}</p>
+                      )}
+                      <p className="font-medium text-sm mt-1">{order.shipping_address.address}</p>
+                      {(order.shipping_address.district || order.shipping_address.city) && (
+                        <p className="text-sm text-zinc-600">
+                          {[order.shipping_address.district, order.shipping_address.city].filter(Boolean).join(' / ')}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Aynı Adres Durumu */}
+                  {order.same_address && (
+                    <div className="text-xs text-zinc-500 italic">
+                      * Kargo adresi fatura adresi ile aynı
+                    </div>
+                  )}
+                </div>
+              )}
+
               {order.cargo_tracking_code && (
                 <div>
                   <span className="text-zinc-500 text-sm">Kargo Takip</span>
