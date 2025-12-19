@@ -9,6 +9,7 @@ import OrderCreate from './pages/OrderCreate';
 import Products from './pages/Products';
 import ProductCreate from './pages/ProductCreate';
 import Users from './pages/Users';
+import Settings from './pages/Settings';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
