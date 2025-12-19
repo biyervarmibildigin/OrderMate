@@ -382,6 +382,23 @@ const OrderDetail = () => {
                   </p>
                 </div>
               )}
+              {/* Ödeme ve Teslimat Durumları Görüntüleme */}
+              {(order.pos_payment || order.delivered_invoice_only || order.online_payment_ref) && (
+                <div className="p-3 bg-blue-50 rounded-lg space-y-2">
+                  <span className="text-zinc-500 text-sm font-medium">Ödeme ve Teslimat</span>
+                  <div className="flex flex-wrap gap-3">
+                    {order.pos_payment && (
+                      <Badge className="bg-green-100 text-green-800">✓ POS Cihazından Çekildi</Badge>
+                    )}
+                    {order.delivered_invoice_only && (
+                      <Badge className="bg-amber-100 text-amber-800">✓ Teslim Edildi Sadece Fatura</Badge>
+                    )}
+                    {order.online_payment_ref && (
+                      <Badge className="bg-blue-100 text-blue-800 font-mono">İşlem No: {order.online_payment_ref}</Badge>
+                    )}
+                  </div>
+                </div>
+              )}
               {order.notes && (
                 <div><span className="text-zinc-500 text-sm">Notlar</span><p className="font-medium">{order.notes}</p></div>
               )}
