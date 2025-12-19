@@ -101,3 +101,110 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "PDF generation with Turkish character support and professional layout. Settings page for company info, logo upload, and bank account management."
+
+backend:
+  - task: "PDF Generation with Turkish Characters"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Implemented DejaVuSans font for Turkish characters. PDF now properly renders İ, ş, ğ, ü, ö, ç characters. Tested with pypdf extraction and all Turkish characters display correctly."
+
+  - task: "Bank Accounts CRUD API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Added GET/POST/PUT/DELETE endpoints for bank accounts at /api/settings/bank-accounts. Bank accounts are shown in PDF."
+
+  - task: "Logo Upload API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Added /api/settings/upload-logo endpoint. Logo stored as base64 in pdf_settings collection and rendered in PDF header."
+
+  - task: "PDF Template Settings with Extended Fields"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Extended PDFTemplateSettings model with company_tax_number, company_tax_office, company_website, validity_days, payment_terms, delivery_terms, show_bank_accounts fields."
+
+frontend:
+  - task: "Settings Page with Tabs"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Settings.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Refactored Settings page with 3 tabs: Firma & PDF, Banka Hesapları, Sipariş Türleri. All tabs working correctly."
+
+  - task: "Bank Account Management UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Settings.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Bank accounts list, add, edit, delete dialog implemented and working."
+
+  - task: "Logo Upload UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Settings.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: true
+        - agent: "main"
+        - comment: "Logo upload with preview, file type validation, and remove button implemented."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "PDF Generation with Turkish Characters"
+    - "Bank Accounts CRUD API"
+    - "Settings Page with Tabs"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+    - message: "Implemented PDF generation with Turkish font support, bank accounts management, logo upload, and extended PDF settings. All features tested via curl and screenshot. Ready for comprehensive testing."
