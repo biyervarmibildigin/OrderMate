@@ -23,8 +23,10 @@ const OrderDetail = () => {
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({});
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [newNote, setNewNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [newItem, setNewItem] = useState({
     product_name: '',
     product_id: '',
