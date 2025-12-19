@@ -59,29 +59,24 @@ const OrderCreate = () => {
   };
 
   const fetchProducts = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/products?limit=1000`);
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-    }
+    // Initial load not needed - we search from backend
   };
 
-  const handleSearch = (value) => {
+  const handleSearch = async (value) => {
     setSearchTerm(value);
-    if (!value.trim()) {
+    if (!value.trim() || value.length < 2) {
       setSearchResults([]);
       return;
     }
 
-    const searchLower = value.toLowerCase();
-    const results = products.filter(p => 
-      p.product_name.toLowerCase().includes(searchLower) ||
-      p.web_service_code?.toLowerCase().includes(searchLower) ||
-      p.barcode?.toLowerCase().includes(searchLower)
-    ).slice(0, 10);
-
-    setSearchResults(results);
+    try {
+      // Search from backend - searches ALL products
+      const response = await axios.get(`${API_URL}/products?search=${encodeURIComponent(value)}&limit=15`);
+      setSearchResults(response.data);
+    } catch (error) {
+      console.error('Product search failed:', error);
+      setSearchResults([]);
+    }
   };
 
   const handleSelectProduct = (product) => {
