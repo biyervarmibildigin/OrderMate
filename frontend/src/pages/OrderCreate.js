@@ -235,7 +235,8 @@ const OrderCreate = () => {
 
   const currentConfig = ORDER_TYPE_CONFIG[formData.order_type] || {};
   const isTaxRequired = currentConfig.fields?.includes('tax_required');
-  const isCorporateOrder = formData.order_type === 'cari_kurumsal';
+  // Kurumsal siparişleri tespit et (kurumsal_cari, kurumsal_pesin)
+  const isCorporateOrder = formData.order_type?.startsWith('kurumsal');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
