@@ -130,6 +130,20 @@ const OrderDetail = () => {
     }
   };
 
+  const handleDeleteOrder = async () => {
+    setDeleting(true);
+    try {
+      await axios.delete(`${API_URL}/orders/${id}`);
+      toast.success('Sipariş silindi');
+      navigate('/orders');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Sipariş silinemedi');
+      setDeleteDialogOpen(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const handleUpdateItemStatus = async (itemId, newStatus) => {
     try {
       const item = items.find(i => i.id === itemId);
