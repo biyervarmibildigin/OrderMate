@@ -235,6 +235,7 @@ const OrderCreate = () => {
 
   const currentConfig = ORDER_TYPE_CONFIG[formData.order_type] || {};
   const isTaxRequired = currentConfig.fields?.includes('tax_required');
+  const isCorporateOrder = formData.order_type === 'cari_kurumsal';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -251,6 +252,23 @@ const OrderCreate = () => {
       }
     }
     setTaxError('');
+
+    // Kurumsal sipariş için kargo adresi zorunlu alanları kontrol et
+    if (isCorporateOrder && !formData.same_address) {
+      const { shipping_address } = formData;
+      if (!shipping_address.recipient_name?.trim()) {
+        toast.error('Kargo için Alıcı Adı zorunludur');
+        return;
+      }
+      if (!shipping_address.recipient_phone?.trim()) {
+        toast.error('Kargo için Alıcı Telefonu zorunludur');
+        return;
+      }
+      if (!shipping_address.address?.trim()) {
+        toast.error('Kargo için Teslimat Adresi zorunludur');
+        return;
+      }
+    }
     
     if (selectedProducts.length === 0) {
       toast.error('En az bir ürün eklemelisiniz');
@@ -259,7 +277,24 @@ const OrderCreate = () => {
     
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/orders`, formData);
+      // Kurumsal sipariş değilse veya aynı adres ise, adres bilgilerini null yap
+      const orderData = { ...formData };
+      if (!isCorporateOrder) {
+        orderData.billing_address = null;
+        orderData.shipping_address = null;
+      } else if (formData.same_address) {
+        // Aynı adres seçilmişse, shipping_address'i billing_address'den oluştur
+        orderData.shipping_address = {
+          recipient_name: formData.customer_name || '',
+          recipient_phone: formData.customer_phone || '',
+          address: formData.billing_address?.address || formData.customer_address || '',
+          city: formData.billing_address?.city || '',
+          district: formData.billing_address?.district || '',
+          postal_code: formData.billing_address?.postal_code || ''
+        };
+      }
+
+      const response = await axios.post(`${API_URL}/orders`, orderData);
       const orderId = response.data.id;
       
       for (const product of selectedProducts) {
