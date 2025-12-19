@@ -122,6 +122,14 @@ const OrderCreate = () => {
   const handleUpdateQuantity = (index, quantity) => {
     const updated = [...selectedProducts];
     updated[index].quantity = Math.max(1, parseInt(quantity) || 1);
+    updated[index].total_price = updated[index].quantity * updated[index].unit_price;
+    setSelectedProducts(updated);
+  };
+
+  const handleUpdatePrice = (index, price) => {
+    const updated = [...selectedProducts];
+    updated[index].unit_price = Math.max(0, parseFloat(price) || 0);
+    updated[index].total_price = updated[index].quantity * updated[index].unit_price;
     setSelectedProducts(updated);
   };
 
