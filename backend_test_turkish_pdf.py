@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class TurkishPDFTester:
-    def __init__(self, base_url="https://whatsales.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://ordersuite-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.admin_token = None
         self.tests_run = 0
