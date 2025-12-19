@@ -16,8 +16,9 @@ const OrderCreate = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [orderTypes, setOrderTypes] = useState([]);
   const [formData, setFormData] = useState({
-    order_type: user?.role === 'showroom' ? 'showroom_satis' : 'cari_kurumsal',
+    order_type: '',
     customer_name: '',
     customer_phone: '',
     customer_email: '',
@@ -30,6 +31,28 @@ const OrderCreate = () => {
     whatsapp_content: '',
     notes: ''
   });
+
+  useEffect(() => {
+    fetchOrderTypes();
+  }, []);
+
+  const fetchOrderTypes = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/settings/order-types`);
+      const activeTypes = response.data.filter(t => t.is_active);
+      setOrderTypes(activeTypes);
+      
+      // Set default order type
+      if (activeTypes.length > 0) {
+        const defaultType = user?.role === 'showroom' 
+          ? activeTypes.find(t => t.code === 'showroom_satis') 
+          : activeTypes[0];
+        setFormData(prev => ({ ...prev, order_type: defaultType?.code || activeTypes[0].code }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch order types:', error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
