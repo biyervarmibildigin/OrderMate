@@ -395,7 +395,7 @@ const OrderDetail = () => {
               )}
 
               {/* Kurumsal Sipariş Adres Bilgileri */}
-              {order.order_type === 'cari_kurumsal' && (order.billing_address || order.shipping_address) && (
+              {order.order_type?.startsWith('kurumsal') && (order.billing_address || order.shipping_address) && (
                 <div className="space-y-3 mt-4">
                   {/* Fatura Adresi */}
                   {order.billing_address && order.billing_address.address && (
