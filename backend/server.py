@@ -205,6 +205,8 @@ class OrderItemCreate(BaseModel):
     product_id: Optional[str] = None
     product_name: str
     quantity: int
+    unit_price: float = 0.0
+    total_price: float = 0.0
     item_type: str = ItemType.CATALOG
     item_status: str = ItemStatus.TO_BE_CONFIRMED
     notes: Optional[str] = None
