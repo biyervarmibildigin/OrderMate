@@ -366,21 +366,76 @@ const OrderCreate = () => {
               </div>
             )}
 
-            {/* Tax Info */}
-            {formData.order_type === 'kurumsal_cari' && (
+            {/* Tax Info - Zorunlu */}
+            <div className="space-y-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200">
+              <h3 className="font-semibold text-zinc-900">VKN / TC Kimlik No *</h3>
+              
+              {/* VKN/TC Seçimi */}
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="tax_id_type"
+                    value="vkn"
+                    checked={formData.tax_id_type === 'vkn'}
+                    onChange={(e) => {
+                      handleChange('tax_id_type', e.target.value);
+                      handleChange('tax_number', '');
+                      setTaxError('');
+                    }}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm">VKN (Kurumsal - 10 hane)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="tax_id_type"
+                    value="tc"
+                    checked={formData.tax_id_type === 'tc'}
+                    onChange={(e) => {
+                      handleChange('tax_id_type', e.target.value);
+                      handleChange('tax_number', '');
+                      setTaxError('');
+                    }}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm">TC Kimlik No (Bireysel - 11 hane)</span>
+                </label>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="tax_number">Vergi Kimlik No</Label>
+                  <Label htmlFor="tax_number">
+                    {formData.tax_id_type === 'vkn' ? 'Vergi Kimlik No (VKN) *' : 'TC Kimlik No *'}
+                  </Label>
                   <Input
                     id="tax_number"
                     value={formData.tax_number}
-                    onChange={(e) => handleChange('tax_number', e.target.value)}
-                    placeholder="XXXXXXXXXXX"
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Sadece rakam
+                      const maxLength = formData.tax_id_type === 'vkn' ? 10 : 11;
+                      handleChange('tax_number', value.slice(0, maxLength));
+                      setTaxError('');
+                    }}
+                    placeholder={formData.tax_id_type === 'vkn' ? '10 haneli VKN' : '11 haneli TC No'}
+                    className={taxError ? 'border-red-500' : ''}
                     data-testid="tax-number-input"
                   />
+                  {taxError && (
+                    <p className="text-xs text-red-600">{taxError}</p>
+                  )}
+                  <p className="text-xs text-zinc-500">
+                    {formData.tax_id_type === 'vkn' 
+                      ? `${formData.tax_number.length}/10 karakter`
+                      : `${formData.tax_number.length}/11 karakter ${formData.tax_number.length === 11 ? (parseInt(formData.tax_number[10]) % 2 === 0 ? '✓' : '(son hane çift olmalı!)') : ''}`
+                    }
+                  </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tax_office">Vergi Dairesi</Label>
+                  <Label htmlFor="tax_office">
+                    {formData.tax_id_type === 'vkn' ? 'Vergi Dairesi *' : 'Vergi Dairesi (Opsiyonel)'}
+                  </Label>
                   <Input
                     id="tax_office"
                     value={formData.tax_office}
@@ -390,7 +445,7 @@ const OrderCreate = () => {
                   />
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Product Selection */}
             <div className="space-y-4 pt-4 border-t border-zinc-200">
