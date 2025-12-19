@@ -25,6 +25,8 @@ const OrderCreate = () => {
     tax_number: '',
     tax_office: '',
     delivery_method: '',
+    cargo_company: '',
+    cargo_tracking_code: '',
     whatsapp_content: '',
     notes: ''
   });
