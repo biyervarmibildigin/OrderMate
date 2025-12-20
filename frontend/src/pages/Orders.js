@@ -73,8 +73,10 @@ const Orders = () => {
       invoice_status: '',
       waybill_status: '',
       cargo_status: '',
-      order_type: ''
+      order_type: '',
+      item_status: ''
     });
+    setSearchParams({});
   };
 
   const activeFilterCount = Object.values(filters).filter(v => v).length;
