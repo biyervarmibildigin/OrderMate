@@ -223,10 +223,19 @@ const OrderDetail = () => {
 
     try {
       // order.id kullan (gerçek UUID), URL'deki id değil (order_code olabilir)
-      const response = await axios.post(`${API_URL}/order-items`, {
-        ...newItem,
-        order_id: order.id
-      });
+      const itemData = {
+        order_id: order.id,
+        product_name: newItem.product_name,
+        product_id: newItem.product_id || null,
+        quantity: newItem.quantity || 1,
+        unit_price: newItem.unit_price || 0,
+        total_price: newItem.total_price || 0,
+        item_type: newItem.item_type || 'manuel_urun',
+        item_status: newItem.item_status || 'netlesecek'
+      };
+      
+      console.log('Adding item:', itemData);
+      const response = await axios.post(`${API_URL}/order-items`, itemData);
       setItems([...items, response.data]);
       setNewItem({
         product_name: '',
@@ -241,7 +250,16 @@ const OrderDetail = () => {
       toast.success('Kalem eklendi');
       fetchOrderDetail(); // Geçmişi güncellemek için
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || (typeof error.response?.data === 'string' ? error.response.data : error.message);
+      console.error('Add item error:', error.response?.data);
+      const errorDetail = error.response?.data?.detail;
+      let errorMsg = 'Bilinmeyen hata';
+      if (typeof errorDetail === 'string') {
+        errorMsg = errorDetail;
+      } else if (Array.isArray(errorDetail)) {
+        errorMsg = errorDetail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+      } else if (errorDetail) {
+        errorMsg = JSON.stringify(errorDetail);
+      }
       toast.error('Kalem eklenemedi: ' + errorMsg);
     }
   };
