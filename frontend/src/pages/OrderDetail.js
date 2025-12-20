@@ -404,11 +404,17 @@ const OrderDetail = () => {
                     <input type="checkbox" checked={editData.delivered_invoice_only || false} onChange={(e) => setEditData({...editData, delivered_invoice_only: e.target.checked})} className="h-4 w-4" />
                     <span className="text-sm">Teslim Edildi Sadece Fatura</span>
                   </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={editData.site_payment || false} onChange={(e) => setEditData({...editData, site_payment: e.target.checked})} className="h-4 w-4" />
+                    <span className="text-sm">Siteden Ödeme Yapıldı</span>
+                  </label>
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Site Ödemesi İşlem No</Label>
-                  <Input value={editData.online_payment_ref || ''} onChange={(e) => setEditData({...editData, online_payment_ref: e.target.value.toUpperCase()})} placeholder="CRxxxxxx" className="max-w-xs font-mono" />
-                </div>
+                {editData.site_payment && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">Site Ödemesi İşlem No</Label>
+                    <Input value={editData.online_payment_ref || ''} onChange={(e) => setEditData({...editData, online_payment_ref: e.target.value.toUpperCase()})} placeholder="CRxxxxxx" className="max-w-xs font-mono" />
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Notlar</Label>
