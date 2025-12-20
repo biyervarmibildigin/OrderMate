@@ -1008,6 +1008,37 @@ const OrderDetail = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* File Preview Dialog */}
+      <Dialog open={previewDialog.open} onOpenChange={(open) => setPreviewDialog({ ...previewDialog, open })}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Önizleme: {previewDialog.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center p-4 bg-zinc-50 rounded-lg max-h-[70vh] overflow-auto">
+            {previewDialog.type?.startsWith('image/') ? (
+              <img 
+                src={previewDialog.url} 
+                alt={previewDialog.name} 
+                className="max-w-full max-h-[60vh] object-contain rounded"
+              />
+            ) : (
+              <p className="text-zinc-500">Bu dosya türü önizlenemez.</p>
+            )}
+          </div>
+          <div className="flex justify-end gap-2">
+            <a href={previewDialog.url} download={previewDialog.name}>
+              <Button variant="outline">
+                <FileDown className="h-4 w-4 mr-2" />
+                İndir
+              </Button>
+            </a>
+            <Button onClick={() => setPreviewDialog({ open: false, url: '', type: '', name: '' })}>
+              Kapat
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
