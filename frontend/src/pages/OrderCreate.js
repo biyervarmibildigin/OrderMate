@@ -352,7 +352,37 @@ const OrderCreate = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(ORDER_TYPE_CONFIG).map(([code, config]) => {
+          {/* Önce API'den gelen sipariş türlerini göster */}
+          {orderTypes.map((orderType) => {
+            // Statik config varsa onu kullan, yoksa default değerler
+            const staticConfig = ORDER_TYPE_CONFIG[orderType.code] || {};
+            const Icon = staticConfig.icon || FileText;
+            const color = staticConfig.color || 'bg-zinc-100 text-zinc-800 border-zinc-300';
+            
+            return (
+              <Card
+                key={orderType.code}
+                className={`p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-2 ${
+                  formData.order_type === orderType.code ? 'border-zinc-900' : 'border-zinc-200 hover:border-zinc-400'
+                }`}
+                onClick={() => handleSelectOrderType(orderType.code)}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-lg ${color}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-zinc-900">{orderType.name}</h3>
+                    <p className="text-sm text-zinc-500 mt-1">{orderType.description || staticConfig.description || ''}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-zinc-400" />
+                </div>
+              </Card>
+            );
+          })}
+          
+          {/* Eğer API'den hiç sipariş türü gelmediyse, statik config'den göster */}
+          {orderTypes.length === 0 && Object.entries(ORDER_TYPE_CONFIG).map(([code, config]) => {
             const Icon = config.icon;
             return (
               <Card
