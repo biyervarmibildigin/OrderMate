@@ -423,17 +423,15 @@ const OrderCreate = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>E-posta {formData.order_type === 'showroom_satis' && <span className="text-red-500">*</span>}</Label>
+                  <Label>E-posta <span className="text-red-500">*</span></Label>
                   <Input
                     value={formData.customer_email}
                     onChange={(e) => handleChange('customer_email', e.target.value)}
                     placeholder="ornek@email.com"
                     type="email"
-                    required={formData.order_type === 'showroom_satis'}
+                    required
                   />
-                  {formData.order_type === 'showroom_satis' && (
-                    <p className="text-xs text-zinc-500">Showroom satışlarında e-posta zorunludur</p>
-                  )}
+                  <p className="text-xs text-zinc-500">Fatura e-posta ile gönderileceği için zorunludur</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Adres</Label>
