@@ -592,7 +592,8 @@ const OrderCreate = () => {
                   >
                     <option value="">Seçiniz</option>
                     <option value="kargo">Kargo</option>
-                    <option value="elden">Elden Teslim</option>
+                    <option value="showroom_teslim">Showroom Teslim</option>
+                    <option value="depo_teslim">Depo Teslim</option>
                     <option value="kurye">Kurye</option>
                   </select>
                 </div>
@@ -616,6 +617,62 @@ const OrderCreate = () => {
                     </div>
                   </>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Kargo Adresi - Kargo seçildiğinde tüm sipariş türlerinde göster */}
+          {formData.delivery_method === 'kargo' && !isCorporateOrder && (
+            <div className="space-y-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+              <h3 className="font-semibold text-zinc-900 flex items-center gap-2">
+                <span className="bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded text-xs">KARGO</span>
+                Kargo Teslimat Adresi
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Alıcı Adı *</Label>
+                  <Input
+                    value={formData.shipping_address?.recipient_name || ''}
+                    onChange={(e) => handleAddressChange('shipping_address', 'recipient_name', e.target.value)}
+                    placeholder="Teslim alacak kişinin adı soyadı"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Alıcı Telefon *</Label>
+                  <Input
+                    value={formData.shipping_address?.recipient_phone || ''}
+                    onChange={(e) => handleAddressChange('shipping_address', 'recipient_phone', e.target.value)}
+                    placeholder="05XX XXX XX XX"
+                    required
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <Label>Teslimat Adresi *</Label>
+                  <Textarea
+                    value={formData.shipping_address?.address || ''}
+                    onChange={(e) => handleAddressChange('shipping_address', 'address', e.target.value)}
+                    placeholder="Kargo teslimat adresi (Sokak, Cadde, No, Bina...)"
+                    rows={2}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>İl</Label>
+                  <Input
+                    value={formData.shipping_address?.city || ''}
+                    onChange={(e) => handleAddressChange('shipping_address', 'city', e.target.value)}
+                    placeholder="İl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>İlçe</Label>
+                  <Input
+                    value={formData.shipping_address?.district || ''}
+                    onChange={(e) => handleAddressChange('shipping_address', 'district', e.target.value)}
+                    placeholder="İlçe"
+                  />
+                </div>
               </div>
             </div>
           )}
