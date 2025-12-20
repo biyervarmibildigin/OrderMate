@@ -1366,27 +1366,36 @@ def get_user_prefix(full_name: str) -> str:
     return prefix
 
 async def get_next_order_code(user_id: str, full_name: str) -> str:
-    """Kullanıcı bazlı benzersiz sipariş kodu oluştur (FK-001, AY-001)"""
+    """Kullanıcı bazlı benzersiz sipariş kodu oluştur
+    Format: KAggaayy000001
+    KA = Kullanıcı Adı kısaltması (2 harf)
+    gg = gün, aa = ay, yy = yıl
+    000001 = 6 haneli sıra numarası
+    Örnek: SÇ201226000001
+    """
     prefix = get_user_prefix(full_name)
+    now = datetime.now(timezone.utc)
+    date_str = now.strftime("%d%m%y")  # ggaayy formatı
     
-    # Bu kullanıcının (user_id) son sipariş numarasını bul
+    # Bu kullanıcının bugünkü son sipariş numarasını bul
+    today_prefix = f"{prefix}{date_str}"
     result = await db.orders.find_one(
-        {"created_by": user_id},
+        {"order_code": {"$regex": f"^{today_prefix}"}},
         {"_id": 0, "order_code": 1},
-        sort=[("order_number", -1)]
+        sort=[("order_code", -1)]
     )
     
     if result and result.get('order_code'):
-        # Mevcut koddan sayıyı çıkar
+        # Mevcut koddan sıra numarasını çıkar (son 6 hane)
         try:
-            current_num = int(result['order_code'].split('-')[1])
+            current_num = int(result['order_code'][-6:])
             next_num = current_num + 1
         except (IndexError, ValueError):
             next_num = 1
     else:
         next_num = 1
     
-    return f"{prefix}-{next_num:03d}"
+    return f"{prefix}{date_str}{next_num:06d}"
 
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
