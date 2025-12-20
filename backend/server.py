@@ -1390,9 +1390,9 @@ async def get_next_order_code(user_id: str, full_name: str) -> str:
 
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
-    # Sipariş numarası kullanıcı rolüne göre oluşturuluyor
+    # Sipariş numarası kullanıcı bazlı oluşturuluyor (Ad Soyaddan kısaltma)
     order_number = await get_next_order_number()
-    order_code = await get_next_order_code(current_user.role)
+    order_code = await get_next_order_code(current_user.id, current_user.full_name)
     
     order = Order(
         order_number=order_number,
