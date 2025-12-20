@@ -229,6 +229,7 @@ class OrderCreate(BaseModel):
     same_address: bool = True  # Fatura ve teslimat adresi aynı mı?
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
+    invoice_number: Optional[str] = None  # Fatura No
     waybill_status: str = WaybillStatus.NOT_ISSUED
     cargo_status: str = CargoStatus.NONE
     cargo_company: Optional[str] = None
@@ -237,17 +238,26 @@ class OrderCreate(BaseModel):
     # Ödeme ve Teslimat Durumları
     pos_payment: bool = False  # POS cihazından çekildi
     delivered_invoice_only: bool = False  # Teslim edildi sadece fatura
+    site_payment: bool = False  # Siteden ödeme yapıldı
     online_payment_ref: Optional[str] = None  # Site ödemesi işlem numarası (CRxxxxxx)
     whatsapp_content: Optional[str] = None
     notes: Optional[str] = None
     
     @model_validator(mode='after')
-    def validate_tax_number(self):
+    def validate_tax_and_email(self):
         tax_number = self.tax_number
         tax_id_type = self.tax_id_type
+        order_type = self.order_type
+        
+        # Showroom satış için E-posta ve VKN/TC zorunlu
+        if order_type == 'showroom_satis':
+            if not self.customer_email:
+                raise ValueError('E-posta adresi zorunludur')
+            if not tax_number:
+                raise ValueError('VKN veya TC Kimlik No zorunludur')
         
         if not tax_number:
-            raise ValueError('VKN veya TC Kimlik No zorunludur')
+            return self  # Diğer sipariş türleri için VKN/TC zorunlu değil
         
         # Sadece rakam kontrolü
         if not tax_number.isdigit():
@@ -256,6 +266,9 @@ class OrderCreate(BaseModel):
         if tax_id_type == 'vkn':
             if len(tax_number) != 10:
                 raise ValueError('VKN 10 karakter olmalıdır')
+            # VKN dolu ise firma unvanı gerekli
+            if not self.company_name:
+                raise ValueError('VKN girildiğinde Firma Unvanı zorunludur')
         elif tax_id_type == 'tc':
             if len(tax_number) != 11:
                 raise ValueError('TC Kimlik No 11 karakter olmalıdır')
