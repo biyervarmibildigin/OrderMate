@@ -593,9 +593,29 @@ const OrderDetail = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  {order.invoice_number && order.invoice_status === 'kesildi' && (
-                    <span className="text-xs font-mono text-zinc-600 bg-zinc-200 px-2 py-1 rounded">#{order.invoice_number}</span>
-                  )}
+                  {order.invoice_number && order.invoice_status === 'kesildi' && (() => {
+                    // Sipariş tarihinden 7 gün geçip geçmediğini kontrol et
+                    const orderDate = new Date(order.created_at);
+                    const now = new Date();
+                    const daysDiff = Math.floor((now - orderDate) / (1000 * 60 * 60 * 24));
+                    const canQuery = daysDiff >= 7;
+                    
+                    return canQuery ? (
+                      <a 
+                        href="https://ebelgesorgulama.elogo.com.tr/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-xs font-mono text-blue-600 bg-blue-100 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                        title="e-Logo Fatura Sorgulama"
+                      >
+                        #{order.invoice_number} ↗
+                      </a>
+                    ) : (
+                      <span className="text-xs font-mono text-zinc-600 bg-zinc-200 px-2 py-1 rounded" title={`Sorgulamak için ${7 - daysDiff} gün bekleyin`}>
+                        #{order.invoice_number}
+                      </span>
+                    );
+                  })()}
                   {getStatusBadge(order.invoice_status, invoiceStatusOptions)}
                 </div>
               )}
