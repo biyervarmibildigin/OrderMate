@@ -842,6 +842,78 @@ const OrderDetail = () => {
         </div>
       </Card>
 
+      {/* Attachments - Showroom Satış hariç tüm sipariş türlerinde */}
+      {order.order_type !== 'showroom_satis' && (
+        <Card className="p-6 border-zinc-200">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold font-heading text-zinc-900 flex items-center gap-2">
+              <File className="h-5 w-5" />
+              Ekler
+            </h2>
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="mr-2 h-4 w-4" />
+                )}
+                Dosya Ekle
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {(!order.attachments || order.attachments.length === 0) ? (
+              <p className="text-zinc-500 text-sm text-center py-4">Henüz dosya eklenmemiş.</p>
+            ) : (
+              order.attachments.map((attachment, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg hover:bg-zinc-100 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded ${attachment.type?.startsWith('image/') ? 'bg-blue-100 text-blue-600' : 'bg-zinc-200 text-zinc-600'}`}>
+                      {getFileIcon(attachment.type)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-zinc-900">{attachment.name}</p>
+                      <p className="text-xs text-zinc-500">
+                        {(attachment.size / 1024).toFixed(1)} KB • {new Date(attachment.uploadedAt).toLocaleDateString('tr-TR')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {attachment.type?.startsWith('image/') && (
+                      <Button variant="ghost" size="sm" onClick={() => openPreview(attachment)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <a href={attachment.data} download={attachment.name}>
+                      <Button variant="ghost" size="sm">
+                        <FileDown className="h-4 w-4" />
+                      </Button>
+                    </a>
+                    <Button variant="ghost" size="sm" onClick={() => handleDeleteAttachment(idx)} className="text-red-600 hover:text-red-700">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
+      )}
+
       {/* Order History */}
       <Card className="p-6 border-zinc-200">
         <div className="flex items-center justify-between mb-4">
