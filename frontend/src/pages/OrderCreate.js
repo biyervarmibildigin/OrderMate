@@ -426,7 +426,7 @@ const OrderCreate = () => {
             <h1 className="text-4xl font-bold font-heading tracking-tight text-zinc-900">
               Yeni Sipariş
             </h1>
-            <Badge className={currentConfig.color}>{currentConfig.label}</Badge>
+            <Badge className={currentConfig.color || 'bg-zinc-100 text-zinc-800'}>{currentOrderTypeName}</Badge>
           </div>
           <p className="text-sm text-zinc-600 mt-1">Sipariş bilgilerini doldurun</p>
         </div>
