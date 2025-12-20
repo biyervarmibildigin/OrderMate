@@ -1540,6 +1540,62 @@ async def update_order(order_id: str, order_data: OrderCreate, current_user: Use
             }
             history_entries.append(history_entry)
     
+    # Check for invoice number change
+    old_invoice_num = existing.get('invoice_number')
+    new_invoice_num = update_data.get('invoice_number')
+    if old_invoice_num != new_invoice_num and new_invoice_num:
+        history_entry = {
+            "id": str(uuid.uuid4()),
+            "action": "invoice_number",
+            "description": f"Fatura No eklendi: {new_invoice_num}",
+            "old_value": old_invoice_num,
+            "new_value": new_invoice_num,
+            "user_id": current_user.id,
+            "user_name": current_user.full_name,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        history_entries.append(history_entry)
+    
+    # Check for payment changes
+    payment_fields = {
+        'pos_payment': 'POS Cihazından Çekildi',
+        'delivered_invoice_only': 'Teslim Edildi Sadece Fatura',
+        'site_payment': 'Siteden Ödeme Yapıldı'
+    }
+    
+    for field, label in payment_fields.items():
+        old_val = existing.get(field, False)
+        new_val = update_data.get(field, False)
+        if old_val != new_val:
+            status = "işaretlendi" if new_val else "kaldırıldı"
+            history_entry = {
+                "id": str(uuid.uuid4()),
+                "action": "payment_change",
+                "description": f"Ödeme Durumu: {label} {status}",
+                "old_value": str(old_val),
+                "new_value": str(new_val),
+                "user_id": current_user.id,
+                "user_name": current_user.full_name,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            history_entries.append(history_entry)
+    
+    # Check for online payment ref change
+    old_ref = existing.get('online_payment_ref')
+    new_ref = update_data.get('online_payment_ref')
+    if old_ref != new_ref and new_ref:
+        history_entry = {
+            "id": str(uuid.uuid4()),
+            "action": "payment_ref",
+            "description": f"Site Ödemesi İşlem No: {new_ref}",
+            "old_value": old_ref,
+            "new_value": new_ref,
+            "user_id": current_user.id,
+            "user_name": current_user.full_name,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        history_entries.append(history_entry)
+    
     # Check for other field changes
     editable_fields = ['customer_name', 'customer_phone', 'customer_email', 'customer_address', 
                       'tax_number', 'tax_office', 'delivery_method', 'cargo_company', 
