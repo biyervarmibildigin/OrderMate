@@ -465,8 +465,8 @@ const OrderCreate = () => {
                 </label>
               </div>
               
-              {/* Şahıs firması notu */}
-              {formData.tax_id_type === 'tc' && (
+              {/* Şahıs firması notu - VKN seçildiğinde göster */}
+              {formData.tax_id_type === 'vkn' && (
                 <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
                   💡 Şahıs firması ise TC Kimlik No bölümünü kullanınız
                 </p>
