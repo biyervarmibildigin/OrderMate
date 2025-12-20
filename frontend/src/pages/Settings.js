@@ -140,6 +140,17 @@ const Settings = () => {
     }
   };
 
+  // Sipariş formu için kullanılabilir alanlar
+  const AVAILABLE_FIELDS = [
+    { code: 'customer', label: 'Müşteri Bilgileri', description: 'Ad, Telefon, E-posta, Adres' },
+    { code: 'tax_required', label: 'VKN/TC Kimlik No (Zorunlu)', description: 'Vergi veya kimlik numarası zorunlu' },
+    { code: 'tax', label: 'VKN/TC Kimlik No (Opsiyonel)', description: 'Vergi veya kimlik numarası isteğe bağlı' },
+    { code: 'payment', label: 'Ödeme Durumu', description: 'POS, Teslim Edildi, Site Ödemesi' },
+    { code: 'delivery', label: 'Teslimat Bilgileri', description: 'Teslimat şekli, kargo bilgileri' },
+    { code: 'products', label: 'Ürünler', description: 'Sipariş kalemleri, ürün ekleme' },
+    { code: 'notes', label: 'Notlar', description: 'Sipariş notları alanı' },
+  ];
+
   // Order Type Handlers
   const handleOpenDialog = (orderType = null) => {
     if (orderType) {
@@ -149,7 +160,8 @@ const Settings = () => {
         code: orderType.code,
         description: orderType.description || '',
         is_active: orderType.is_active,
-        order: orderType.order
+        order: orderType.order,
+        fields: orderType.fields || ['customer', 'tax', 'payment', 'delivery', 'products', 'notes']
       });
     } else {
       setEditingType(null);
@@ -158,10 +170,34 @@ const Settings = () => {
         code: '',
         description: '',
         is_active: true,
-        order: orderTypes.length + 1
+        order: orderTypes.length + 1,
+        fields: ['customer', 'tax', 'payment', 'delivery', 'products', 'notes']
       });
     }
     setDialogOpen(true);
+  };
+
+  const handleFieldToggle = (fieldCode) => {
+    const currentFields = formData.fields || [];
+    if (currentFields.includes(fieldCode)) {
+      // Kaldır (tax_required ve tax birlikte olamaz)
+      setFormData({
+        ...formData,
+        fields: currentFields.filter(f => f !== fieldCode)
+      });
+    } else {
+      // Ekle (tax_required seçilirse tax'ı kaldır, veya tersi)
+      let newFields = [...currentFields, fieldCode];
+      if (fieldCode === 'tax_required') {
+        newFields = newFields.filter(f => f !== 'tax');
+      } else if (fieldCode === 'tax') {
+        newFields = newFields.filter(f => f !== 'tax_required');
+      }
+      setFormData({
+        ...formData,
+        fields: newFields
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
