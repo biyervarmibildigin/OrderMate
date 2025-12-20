@@ -54,8 +54,27 @@ const OrderDetail = () => {
 
   useEffect(() => {
     fetchOrderDetail();
-    fetchProducts();
   }, [id]);
+
+  // Ürün arama effect'i
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (!debouncedProductSearch || debouncedProductSearch.length < 2) {
+        setProductSearchResults([]);
+        return;
+      }
+      setSearchingProducts(true);
+      try {
+        const response = await axios.get(`${API_URL}/products/search?q=${encodeURIComponent(debouncedProductSearch)}&limit=20`);
+        setProductSearchResults(response.data);
+      } catch (error) {
+        console.error('Product search failed:', error);
+      } finally {
+        setSearchingProducts(false);
+      }
+    };
+    searchProducts();
+  }, [debouncedProductSearch]);
 
   const fetchOrderDetail = async () => {
     try {
@@ -71,13 +90,18 @@ const OrderDetail = () => {
     }
   };
 
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/products?limit=100`);
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Products fetch failed:', error);
-    }
+  // Ürün seçildiğinde
+  const handleSelectProductForItem = (product) => {
+    setNewItem({
+      ...newItem,
+      product_name: product.name,
+      product_id: product.product_id,
+      unit_price: product.price || 0,
+      total_price: (product.price || 0) * newItem.quantity,
+      item_type: 'katalog_urunu'
+    });
+    setProductSearchTerm('');
+    setProductSearchResults([]);
   };
 
   const handleSaveOrder = async () => {
