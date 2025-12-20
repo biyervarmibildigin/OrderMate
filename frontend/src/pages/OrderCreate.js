@@ -99,6 +99,7 @@ const OrderCreate = () => {
     cargo_tracking_code: '',
     pos_payment: false,
     delivered_invoice_only: false,
+    site_payment: false, // Siteden ödeme yapıldı
     online_payment_ref: '',
     whatsapp_content: '',
     notes: ''
