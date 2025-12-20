@@ -572,11 +572,26 @@ const OrderDetail = () => {
             <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg">
               <span className="text-sm font-medium text-zinc-600">Fatura Durumu</span>
               {editMode ? (
-                <select className="h-9 px-3 rounded-md border border-zinc-300 text-sm" value={editData.invoice_status} onChange={(e) => setEditData({...editData, invoice_status: e.target.value})}>
-                  {invoiceStatusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                <div className="flex items-center gap-2">
+                  <select className="h-9 px-3 rounded-md border border-zinc-300 text-sm" value={editData.invoice_status} onChange={(e) => setEditData({...editData, invoice_status: e.target.value})}>
+                    {invoiceStatusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                  {editData.invoice_status === 'kesildi' && (
+                    <Input
+                      value={editData.invoice_number || ''}
+                      onChange={(e) => setEditData({...editData, invoice_number: e.target.value})}
+                      placeholder="Fatura No"
+                      className="h-9 w-32 text-sm font-mono"
+                    />
+                  )}
+                </div>
               ) : (
-                getStatusBadge(order.invoice_status, invoiceStatusOptions)
+                <div className="flex items-center gap-2">
+                  {order.invoice_number && order.invoice_status === 'kesildi' && (
+                    <span className="text-xs font-mono text-zinc-600 bg-zinc-200 px-2 py-1 rounded">#{order.invoice_number}</span>
+                  )}
+                  {getStatusBadge(order.invoice_status, invoiceStatusOptions)}
+                </div>
               )}
             </div>
 
