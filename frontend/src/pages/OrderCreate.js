@@ -318,13 +318,14 @@ const OrderCreate = () => {
 
       const response = await axios.post(`${API_URL}/orders`, orderData);
       const orderId = response.data.id;
+      const orderCode = response.data.order_code;
       
       for (const product of selectedProducts) {
         await axios.post(`${API_URL}/order-items`, { ...product, order_id: orderId });
       }
       
       toast.success('Sipariş oluşturuldu');
-      navigate(`/orders/${orderId}`);
+      navigate(`/orders/${orderCode || orderId}`);
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Sipariş oluşturulamadı');
     } finally {
