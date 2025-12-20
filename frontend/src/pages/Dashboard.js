@@ -64,7 +64,8 @@ const Dashboard = () => {
       icon: ShoppingCart,
       color: 'text-zinc-600',
       bgColor: 'bg-zinc-100',
-      show: true
+      show: true,
+      filterUrl: '/orders'
     },
     {
       title: 'Bilgi Bekleyen',
@@ -72,7 +73,8 @@ const Dashboard = () => {
       icon: Clock,
       color: 'text-amber-600',
       bgColor: 'bg-amber-100',
-      show: true
+      show: true,
+      filterUrl: '/orders?general_status=bilgi_bekliyor'
     },
     {
       title: 'İşlemde',
@@ -80,7 +82,8 @@ const Dashboard = () => {
       icon: Loader,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
-      show: true
+      show: true,
+      filterUrl: '/orders?general_status=islemde'
     },
     {
       title: 'Hazır',
@@ -88,7 +91,8 @@ const Dashboard = () => {
       icon: CheckCircle,
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-100',
-      show: true
+      show: true,
+      filterUrl: '/orders?general_status=hazir'
     },
     {
       title: 'Fatura Bekleyen',
@@ -96,7 +100,8 @@ const Dashboard = () => {
       icon: FileText,
       color: 'text-pink-600',
       bgColor: 'bg-pink-100',
-      show: ['accounting', 'finance', 'admin'].includes(user?.role)
+      show: ['accounting', 'finance', 'admin'].includes(user?.role),
+      filterUrl: '/orders?invoice_status=kesilmedi'
     },
     {
       title: 'Temin Edilecek',
@@ -104,7 +109,8 @@ const Dashboard = () => {
       icon: Package,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
-      show: ['warehouse', 'finance', 'admin'].includes(user?.role)
+      show: ['warehouse', 'finance', 'admin'].includes(user?.role),
+      filterUrl: '/orders?item_status=temin_edilecek'
     },
   ];
 
