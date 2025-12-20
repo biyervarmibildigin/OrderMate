@@ -1662,8 +1662,11 @@ async def add_order_note(order_id: str, request: AddHistoryNoteRequest, current_
     """Add a note to order history"""
     existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not existing:
+        existing = await db.orders.find_one({"order_code": order_id}, {"_id": 0})
+    if not existing:
         raise HTTPException(status_code=404, detail="Order not found")
     
+    actual_id = existing.get('id')
     history_entries = existing.get('history', [])
     history_entry = {
         "id": str(uuid.uuid4()),
@@ -1678,7 +1681,7 @@ async def add_order_note(order_id: str, request: AddHistoryNoteRequest, current_
     history_entries.append(history_entry)
     
     await db.orders.update_one(
-        {"id": order_id}, 
+        {"id": actual_id}, 
         {"$set": {"history": history_entries, "updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     
@@ -1689,17 +1692,21 @@ async def delete_order(order_id: str, current_user: User = Depends(get_current_u
     """Delete an order and its items"""
     existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not existing:
+        existing = await db.orders.find_one({"order_code": order_id}, {"_id": 0})
+    if not existing:
         raise HTTPException(status_code=404, detail="Order not found")
+    
+    actual_id = existing.get('id')
     
     # Sadece admin veya siparişi oluşturan kişi silebilir
     if current_user.role != UserRole.ADMIN and existing.get('created_by') != current_user.id:
         raise HTTPException(status_code=403, detail="Bu siparişi silme yetkiniz yok")
     
     # Sipariş kalemlerini sil
-    await db.order_items.delete_many({"order_id": order_id})
+    await db.order_items.delete_many({"order_id": actual_id})
     
     # Siparişi sil
-    result = await db.orders.delete_one({"id": order_id})
+    result = await db.orders.delete_one({"id": actual_id})
     
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Order not found")
