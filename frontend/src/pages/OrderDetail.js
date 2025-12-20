@@ -51,6 +51,10 @@ const OrderDetail = () => {
     item_type: 'katalog_urunu',
     item_status: 'netlesecek'
   });
+  // Dosya yükleme state'leri
+  const [uploading, setUploading] = useState(false);
+  const [previewDialog, setPreviewDialog] = useState({ open: false, url: '', type: '' });
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchOrderDetail();
