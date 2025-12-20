@@ -652,12 +652,76 @@ const OrderDetail = () => {
         {/* Add New Item */}
         <div className="mt-6 pt-4 border-t border-zinc-200">
           <h3 className="text-sm font-semibold text-zinc-700 mb-3">Yeni Kalem Ekle</h3>
+          
+          {/* Ürün Arama */}
+          <div className="mb-4 relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <Input 
+                placeholder="Ürün ara (en az 2 karakter)..." 
+                value={productSearchTerm} 
+                onChange={(e) => setProductSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+              {searchingProducts && <Loader className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-zinc-400" />}
+            </div>
+            
+            {/* Arama Sonuçları */}
+            {productSearchResults.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {productSearchResults.map((product) => (
+                  <div 
+                    key={product.product_id}
+                    onClick={() => handleSelectProductForItem(product)}
+                    className="p-3 hover:bg-zinc-50 cursor-pointer border-b border-zinc-100 last:border-0"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-sm">{product.name}</p>
+                        <p className="text-xs text-zinc-500">{product.brand} • {product.web_service_code}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-emerald-600">{product.price?.toFixed(2) || '0.00'} TL</p>
+                        <p className="text-xs text-zinc-400">Stok: {product.stock || 0}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Manuel Ürün Girişi */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-            <Input placeholder="Ürün adı" value={newItem.product_name} onChange={(e) => setNewItem({...newItem, product_name: e.target.value})} className="md:col-span-2" />
-            <Input type="number" placeholder="Adet" value={newItem.quantity} onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 0, total_price: (parseInt(e.target.value) || 0) * newItem.unit_price})} />
-            <Input type="number" placeholder="Birim Fiyat" value={newItem.unit_price} onChange={(e) => setNewItem({...newItem, unit_price: parseFloat(e.target.value) || 0, total_price: newItem.quantity * (parseFloat(e.target.value) || 0)})} />
+            <Input 
+              placeholder="Ürün adı (aramadan seç veya manuel yaz)" 
+              value={newItem.product_name} 
+              onChange={(e) => setNewItem({...newItem, product_name: e.target.value, item_type: 'manuel_urun'})} 
+              className="md:col-span-2" 
+            />
+            <Input 
+              type="number" 
+              placeholder="Adet" 
+              value={newItem.quantity} 
+              onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 0, total_price: (parseInt(e.target.value) || 0) * newItem.unit_price})} 
+            />
+            <Input 
+              type="number" 
+              placeholder="Birim Fiyat" 
+              step="0.01"
+              value={newItem.unit_price} 
+              onChange={(e) => setNewItem({...newItem, unit_price: parseFloat(e.target.value) || 0, total_price: newItem.quantity * (parseFloat(e.target.value) || 0)})} 
+            />
             <Button onClick={handleAddItem}><Plus className="mr-2 h-4 w-4" />Ekle</Button>
           </div>
+          {newItem.product_name && (
+            <p className="text-xs text-zinc-500 mt-2">
+              Ürün: <span className="font-medium">{newItem.product_name}</span> | 
+              Toplam: <span className="font-semibold text-emerald-600">{newItem.total_price.toFixed(2)} TL</span>
+              {newItem.item_type === 'katalog_urunu' && <Badge className="ml-2 bg-blue-100 text-blue-800 text-xs">Katalog</Badge>}
+              {newItem.item_type === 'manuel_urun' && <Badge className="ml-2 bg-amber-100 text-amber-800 text-xs">Manuel</Badge>}
+            </p>
+          )}
         </div>
       </Card>
 
