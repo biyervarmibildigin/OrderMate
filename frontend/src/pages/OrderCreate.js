@@ -235,6 +235,10 @@ const OrderCreate = () => {
   };
 
   const currentConfig = ORDER_TYPE_CONFIG[formData.order_type] || {};
+  // Dinamik sipariş türü bilgisi
+  const currentOrderType = orderTypes.find(t => t.code === formData.order_type);
+  const currentOrderTypeName = currentOrderType?.name || currentConfig.label || formData.order_type;
+  
   const isTaxRequired = currentConfig.fields?.includes('tax_required');
   // Kurumsal siparişleri tespit et (kurumsal_cari, kurumsal_pesin)
   const isCorporateOrder = formData.order_type?.startsWith('kurumsal');
