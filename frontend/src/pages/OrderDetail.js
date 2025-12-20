@@ -195,7 +195,18 @@ const OrderDetail = () => {
       setEditMode(false);
       fetchOrderDetail();
     } catch (error) {
-      toast.error('Güncelleme başarısız: ' + (error.response?.data?.detail || error.message));
+      const errorDetail = error.response?.data?.detail;
+      let errorMsg = 'Bilinmeyen hata';
+      if (typeof errorDetail === 'string') {
+        errorMsg = errorDetail;
+      } else if (Array.isArray(errorDetail)) {
+        errorMsg = errorDetail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+      } else if (errorDetail) {
+        errorMsg = JSON.stringify(errorDetail);
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      toast.error('Güncelleme başarısız: ' + errorMsg);
     } finally {
       setSaving(false);
     }
