@@ -234,9 +234,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Orders search by product name/order code and new cargo statuses"
-    - "Order detail update error messaging (Genel Durum güncelleme)"
-  stuck_tasks: []
+    - "Order Detail Cargo Status Options - CRITICAL ISSUE FOUND"
+  stuck_tasks:
+    - "Order Detail Cargo Status Options"
   test_all: false
   test_priority: "high_first"
 
@@ -245,3 +245,5 @@ agent_communication:
     - message: "Implemented PDF generation with Turkish font support, bank accounts management, logo upload, and extended PDF settings. All features tested via curl and screenshot. Ready for comprehensive testing."
     - agent: "testing"
     - message: "Starting comprehensive testing of Orders page search functionality and OrderDetail cargo status options and error messaging. Will test: 1) Login with admin/admin123, 2) Search by order code and product name, 3) New cargo status options, 4) Order status update error handling."
+    - agent: "testing"
+    - message: "TESTING COMPLETED. CRITICAL ISSUE FOUND: Cargo status dropdown in OrderDetail edit mode shows delivery method options instead of cargo status options. Search functionality works perfectly. Error messaging works correctly. Need main agent to fix cargo status dropdown to show proper options: ['Yok', 'Kargo Hazırlanıyor', 'Kargo Hazırlandı', 'Paketlendi', 'Gönderime Hazır', 'Kargoda', 'Teslim Edildi']."
