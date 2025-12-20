@@ -321,7 +321,9 @@ const OrderDetail = () => {
                   <select className="w-full h-10 px-3 rounded-md border border-zinc-300" value={editData.delivery_method || ''} onChange={(e) => setEditData({...editData, delivery_method: e.target.value})}>
                     <option value="">Seçiniz</option>
                     <option value="kargo">Kargo</option>
-                    <option value="elden">Elden Teslim</option>
+                    <option value="showroom_teslim">Showroom Teslim</option>
+                    <option value="depo_teslim">Depo Teslim</option>
+                    <option value="kurye">Kurye</option>
                   </select>
                 </div>
               </div>
