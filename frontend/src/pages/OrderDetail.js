@@ -224,17 +224,16 @@ const OrderDetail = () => {
     try {
       // order.id kullan (gerçek UUID), URL'deki id değil (order_code olabilir)
       const itemData = {
-        order_id: order.id,
-        product_name: newItem.product_name,
-        product_id: newItem.product_id || null,
-        quantity: newItem.quantity || 1,
-        unit_price: newItem.unit_price || 0,
-        total_price: newItem.total_price || 0,
-        item_type: newItem.item_type || 'manuel_urun',
-        item_status: newItem.item_status || 'netlesecek'
+        order_id: String(order.id),
+        product_name: String(newItem.product_name),
+        product_id: newItem.product_id ? String(newItem.product_id) : null,
+        quantity: parseInt(newItem.quantity) || 1,
+        unit_price: parseFloat(newItem.unit_price) || 0,
+        total_price: parseFloat(newItem.total_price) || 0,
+        item_type: String(newItem.item_type || 'manuel_urun'),
+        item_status: String(newItem.item_status || 'netlesecek')
       };
       
-      console.log('Adding item:', itemData);
       const response = await axios.post(`${API_URL}/order-items`, itemData);
       setItems([...items, response.data]);
       setNewItem({
@@ -246,9 +245,8 @@ const OrderDetail = () => {
         item_type: 'katalog_urunu',
         item_status: 'netlesecek'
       });
-      // Sipariş geçmişine kalem eklendi bilgisi ekle
       toast.success('Kalem eklendi');
-      fetchOrderDetail(); // Geçmişi güncellemek için
+      fetchOrderDetail();
     } catch (error) {
       console.error('Add item error:', error.response?.data);
       const errorDetail = error.response?.data?.detail;
