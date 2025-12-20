@@ -249,6 +249,7 @@ const OrderDetail = () => {
       await axios.delete(`${API_URL}/order-items/${itemId}`);
       setItems(items.filter(item => item.id !== itemId));
       toast.success('Kalem silindi');
+      fetchOrderDetail(); // Geçmişi güncellemek için
     } catch (error) {
       toast.error('Kalem silinemedi');
     }
@@ -257,7 +258,7 @@ const OrderDetail = () => {
   const handleDeleteOrder = async () => {
     setDeleting(true);
     try {
-      await axios.delete(`${API_URL}/orders/${id}`);
+      await axios.delete(`${API_URL}/orders/${order.id}`);
       toast.success('Sipariş silindi');
       navigate('/orders');
     } catch (error) {
