@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/card';
@@ -9,9 +9,19 @@ import { Badge } from '../components/ui/badge';
 import { Textarea } from '../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Loader, FileDown, Edit, History, MessageSquarePlus, Save, X, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader, FileDown, Edit, History, MessageSquarePlus, Save, X, AlertTriangle, Search } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+
+// Debounce hook
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -27,6 +37,11 @@ const OrderDetail = () => {
   const [newNote, setNewNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Ürün arama state'leri
+  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [productSearchResults, setProductSearchResults] = useState([]);
+  const [searchingProducts, setSearchingProducts] = useState(false);
+  const debouncedProductSearch = useDebounce(productSearchTerm, 300);
   const [newItem, setNewItem] = useState({
     product_name: '',
     product_id: '',
