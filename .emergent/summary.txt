@@ -5,84 +5,101 @@ The user requested a standalone web application to track retail and wholesale or
 - **User Management:** Role-based access control (Showroom, Corporate Sales, Warehouse, etc.) with JWT authentication.
 - **Product Management:** Full CRUD for products, including a 14,000+ product CSV import, search, list/grid views, and bulk deletion.
 - **Order Management:**
-    - A dynamic, multi-step order creation form that changes based on the selected Order Type (e.g., Retail, Corporate).
-    - VKN/TCKN (Turkish tax/ID) validation with conditional fields (e.g., a Company Name field for VKN).
-    - Product search across the entire catalog during order entry.
+    - A dynamic, multi-step order creation form that changes based on the selected Order Type. Order Types are manageable from a settings page, including which form fields are visible for each type.
+    - VKN/TCKN validation with conditional fields (e.g., a Company Name field for VKN).
+    - Product search across the entire catalog during order entry and editing.
     - Separate statuses for , , , and .
-    - Detailed order history log for all status changes and notes.
+    - Detailed order history log for all status changes, notes, and payment updates.
     - Ability to edit and delete existing orders.
-    - Role-based order code prefixes (e.g.,  for Admin,  for Showroom).
-    - Advanced filtering on the order list page.
-    - Additional fields for payment/delivery tracking (POS payment, online payment reference).
-- **PDF Generation:** Generation of professional-looking PDF quotes with correct Turkish character rendering, a custom layout, and configurable company logo and bank details.
-- **Settings:** A page to manage application settings like Order Types and PDF content.
+    - User-based order code generation (e.g.,  for a user named Showroom Çalışanı on Dec 25, 2025).
+    - Advanced filtering on the order list page, integrated with a clickable dashboard.
+    - Separate billing and shipping addresses for corporate orders.
+    - File attachment capabilities for non-showroom orders.
+- **PDF Generation:** Generation of professional-looking PDF quotes.
+- **Settings:** A page to manage application settings like Order Types (including which form fields they display) and PDF content.
+- **URL Structure:** Order detail pages should use the human-readable  in the URL instead of a UUID.
 
 **User's preferred language**: Turkish. The next agent MUST respond in Turkish.
 
 **what currently exists?**
-A full-stack FastAPI/React/MongoDB application has been built. It includes JWT authentication and a comprehensive set of features: full CRUD for Users, Products, and Orders. Product management supports bulk CSV import, bulk deletion, and robust search. The order system is highly advanced, featuring a dynamic creation form based on order type, VKN/TCKN validation, order editing, status management, a detailed history log, order deletion, and advanced filtering. The PDF generation feature has been fixed to support Turkish characters and a professional layout, with company details managed from a settings page.
+A comprehensive full-stack FastAPI/React/MongoDB application that fulfills almost all product requirements. It features JWT authentication, full CRUD for Users and Products, and a highly advanced, dynamic Order Management system. The system now supports user-based order code generation, separate billing/shipping addresses, file attachments, and a settings-driven form builder for different order types. The UI has been iteratively improved based on user feedback, including clickable dashboard cards and enhanced form validation. The URL structure now uses user-friendly order codes.
 
 **Last working item**:
-- **Last item agent was working:** The agent was implementing user-requested features for corporate orders. The latest request is to have separate billing and shipping addresses for corporate-type orders. The agent has just acknowledged the request. Immediately prior to this, the agent was working on changing order code prefixes to be based on the creator's role (e.g.,  for Admin). This feature is partially implemented.
-- **Status:** NOT STARTED (for the new address feature). The role-based prefix feature is IN PROGRESS.
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** both. The backend needs new fields in the Order model and updates to the creation/update endpoints. The frontend requires significant changes to  and  to add the new address forms. The frontend testing agent would be ideal after implementation.
-- **User Testing Done:** N
+- **Last item agent was working:** The user requested a comprehensive, beginner-friendly deployment/installation guide for the entire system. The agent acknowledged the request and was about to start creating the documentation.
+- **Status:** NOT STARTED
+- **Agent Testing Done:** N/A
+- **Which testing method agent to use?** N/A (This is a documentation task. The agent should create a markdown file, e.g., ).
+- **User Testing Done:** N/A
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** Implement separate billing and shipping addresses for corporate orders. (P0)
-- **Issue 2:** Complete and verify role-based order code prefixes. (P1)
+- **Issue 1:** The user reports that the Yeni Kalem Ekle (Add New Item) functionality in the order edit view is still not working correctly. This is a recurring issue. (P0 - HIGH)
+- **Issue 2:** Create a comprehensive, beginner-friendly deployment/installation guide. (P1 - MEDIUM)
 
 **Issues Detail:**
 - **Issue 1:**
-    - **Attempted fixes:** None. This is a new request.
+    - **Description:** On the Order Detail page, when in edit mode, the Yeni Kalem Ekle feature fails to add a selected product to the order items list. The user has reported this multiple times.
+    - **Attempted fixes:** The previous agent implemented several fixes:
+        1. Added a  endpoint.
+        2. Corrected the frontend to use  instead of .
+        3. Fixed a 422 validation error by ensuring all data sent to the  endpoint is correctly formatted (e.g., converting values to strings).
+        4. The agent's final test (screenshot #526) appeared successful, showing the item added to the list with a Kalem eklendi toast message. However, the user reported the issue again immediately after.
     - **Next debug checklist:**
-        1. In , modify the  and  Pydantic models to include  and  fields. These could be objects or individual fields (e.g., , , etc.).
-        2. In , when a Kurumsal (Corporate) order type is selected, conditionally render two separate address forms: one for billing and one for shipping.
-        3. Add a Use same address for shipping checkbox for user convenience.
-        4. Update the  function to send both addresses to the backend.
-        5. In , update the UI to display both billing and shipping addresses clearly.
-    - **Why fix this issue and what will be achieved with the fix?** To meet the user's requirement for handling corporate clients who often have different locations for invoicing and delivery.
-    - **Status:** NOT STARTED
-    - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Both
+        1.  **Reproduce:** Follow the exact user flow: navigate to an existing order's detail page, click Siparişi Düzenle (Edit Order), search for a product in the Yeni Kalem Ekle section, select it, fill in quantity/price, and click Ekle (Add).
+        2.  **Inspect:** Open the browser's developer tools. Check the **Console** for any errors and the **Network** tab to inspect the payload sent to  and the server's response. The previous error message was Input should be a valid string, which points to a data type mismatch in the payload.
+        3.  **Review Code:**
+            - In , double-check the  function. Verify the exact structure of the  object being sent.
+            - In , review the  endpoint and the  Pydantic model. Ensure all expected fields are present and their data types match what the frontend is sending.
+    - **Why fix this issue and what will be achieved with the fix?** This is a critical bug in a core feature (order editing) and a recurring source of user frustration. Fixing it will make the order management system fully functional.
+    - **Status:** USER VERIFICATION PENDING
+    - **Is recurring issue?** Y
+    - **Should Test frontend/backend/both after fix?** Both. Use  to test the backend endpoint directly, and then use the screenshot tool to verify the end-to-end flow on the frontend.
     - **Blocked on other issue:** None.
 
 - **Issue 2:**
-    - **Attempted fixes:** The agent updated  to generate an order prefix based on the user's role. It was tested for the  role (), which worked. However, the test for a  user was interrupted.
+    - **Description:** Create a detailed, beginner-friendly setup and deployment guide.
+    - **Attempted fixes:** None. This is a new task.
     - **Next debug checklist:**
-        1. In , review the  function to ensure prefixes are defined for all user roles (e.g., , , ).
-        2. Create test users for each relevant role.
-        3. Log in as each user and create an order.
-        4. Verify that the generated  has the correct role-specific prefix.
-    - **Why fix this issue and what will be achieved with the fix?** To fulfill the user's request for easily identifying which department or user created an order by its code.
-    - **Status:** IN PROGRESS
+        1. Create a new file: .
+        2. Outline the main sections: Prerequisites (Node.js, Python, MongoDB), Backend Setup (), Frontend Setup (yarn install v1.22.22
+[1/4] Resolving packages...
+success Already up-to-date.
+Done in 0.02s.), Environment Configuration ( files), and Running the Application (backend                          RUNNING   pid 28, uptime 0:00:06
+code-server                      STOPPED   Not started
+frontend                         RUNNING   pid 194, uptime 0:00:01
+mongodb                          RUNNING   pid 31, uptime 0:00:06
+nginx-code-proxy                 RUNNING   pid 27, uptime 0:00:06
+supervisor> ).
+        3. Write clear, step-by-step instructions for each section.
+    - **Why fix this issue and what will be achieved with the fix?** To provide the user with the requested documentation for setting up the project independently.
+    - **Status:** NOT STARTED
     - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Backend
+    - **Should Test frontend/backend/both after fix?** N/A
     - **Blocked on other issue:** None.
 
 **In progress Task List**:
 None.
 
 **Upcoming and Future Tasks**
-None. All known user requests are captured in the pending issue list.
+- No explicit future tasks have been defined. The agent should focus on resolving the pending issues and then ask the user for the next steps.
 
 **Completed work in this session**
-- **PDF Generation Overhaul:** Fixed Turkish character encoding and redesigned the layout to match a professional template. Added settings for a dynamic company logo and bank accounts.
-- **CSV Product Import Fix:** Corrected the CSV parsing logic to handle semicolon delimiters and BOM characters, successfully importing over 14,000 products.
-- **Order Management Enhancements:**
-    - Implemented robust order editing and a detailed order history log.
-    - Added separate, filterable statuses for , , , and .
-    - Implemented a backend-powered product search in the order form to handle the large product catalog.
-    - Added comprehensive filtering to the main orders list page.
-    - Implemented VKN/TCKN validation with conditional fields.
-    - Created a dynamic order form that changes based on the selected order type (e.g., Retail vs. Corporate).
-    - Added a manual Company Name field for corporate orders.
-    - Implemented order deletion.
-- **Product Management:** Implemented bulk product deletion and fixed a critical route-ordering bug related to it.
+- **User-Based Order Codes:** Implemented a new order code format:  (e.g., ).
+- **Dynamic Order Type Forms:** The Settings page now allows users to select which form sections (Customer Info, Tax Info, Products, etc.) are visible for each Order Type. The New Order page dynamically renders the form based on these settings.
+- **URL Structure Revamp:** Changed all order-related URLs to use the human-readable  instead of the internal UUID (e.g., ).
+- **File Attachments Feature:** Implemented UI and backend logic for uploading, viewing, and deleting file attachments on the Order Detail page (for non-showroom orders).
+- **Major UI/UX Enhancements:**
+    - Dashboard cards are now clickable, leading to a pre-filtered order list.
+    - Updated form labels (e.g., Müşteri Adı -> Sipariş Veren / Yetkili Adı).
+    - Revised delivery options (Elden Teslim -> Showroom Teslim / Depo Teslim).
+    - Added conditional logic for Fatura No and Site Ödemesi İşlem Numarası fields.
+- **Critical Bug Fixes:**
+    - **Yeni Kalem Ekle Search:** Fixed product search functionality within the Order Detail page.
+    - **Order List Loading:** Resolved a backend validation bug that caused the main order list to show 0 orders incorrectly.
+- **Branding:** Removed the Made with Emergent badge from the footer.
+- **Validation Improvements:** Made email a mandatory field for all orders and refined the conditional logic for VKN/TCKN fields.
 
 **Earlier issues found/mentioned but not fixed**
-None.
+- The recurring Yeni Kalem Ekle issue, as detailed in the pending issue list, is the primary unresolved problem.
 
 **Known issue recurrence from previous fork**
 N/A
@@ -91,48 +108,45 @@ N/A
 
 
 **Key Technical Concepts**
-- **Backend:** FastAPI, Pydantic (with ), MongoDB (), JWT, Passlib, ReportLab.
-- **Frontend:** React (Hooks), React Router, Context API, TailwindCSS, Shadcn/UI, Debounce.
-- **Architecture:** Monolithic API backend with a SPA frontend.
+- **Backend:** FastAPI, Pydantic, MongoDB (), JWT, Passlib, ReportLab.
+- **Frontend:** React (Hooks), React Router, Context API, TailwindCSS, Shadcn/UI, Axios, .
+- **Architecture:** Monolithic API backend with a SPA frontend. The code is becoming increasingly complex within single files.
 
 **key DB schema**
 - **users**: 
 - **products**: 
 - **orders**: 
-- **bank_accounts**: 
-- **pdf_settings**: 
+- **order_types**: 
 
 **changes in tech stack**
 None.
 
 **All files of reference**
-- : Contains all backend logic. Key functions to check are , , and the / Pydantic models.
-- : The complex, multi-step order creation form. Will need modification for the address fields.
-- : Displays order details. Will need modification to show new addresses and the role-based order code.
-- : The main order list with filtering.
-- : Product management page with bulk actions.
+- : All backend logic resides here. Key areas of recent change include the  function, the , , and  models, and all endpoints that identify an order (now accept ).
+- : Extremely complex component for viewing and editing orders. Contains the logic for the recurring Yeni Kalem Ekle bug.
+- : Dynamic form for creating new orders. Logic was updated to fetch order types and their field configurations from the API.
+- : Contains the UI for managing Order Types, including the new feature for selecting visible form fields.
+- : Main router configuration, updated to use  in routes.
+- : Main order list, updated to use  for links and apply filters from URL parameters.
 
 **Areas that need refactoring**:
--  is a very large monolith. Splitting it into , , and  would significantly improve maintainability.
--  is also becoming very large and complex due to the dynamic, multi-step logic. It could be broken down into smaller sub-components.
+- : This file is now critically oversized (>1800 lines). It urgently needs to be broken down into a standard FastAPI project structure (e.g., separate directories for , , /).
+-  & : These components are extremely large and manage a significant amount of state and complex conditional rendering. They should be broken down into smaller, more manageable sub-components.
 
 **key api endpoints**
--  (GET, POST)
--  (GET, PUT, DELETE)
--  (POST)
--  (DELETE)
--  (POST)
--  (GET, POST, DELETE)
--  (GET, POST)
+- : (GET, PUT, DELETE) Accepts both UUID and .
+- : (GET) Searches products by name.
+- : (POST) Adds a new item to an existing order. This is related to the recurring bug.
+- : (GET, POST) Manages dynamic order types.
 
 **Critical Info for New Agent**
-- The immediate priority is the user's latest request: adding separate billing and shipping addresses for corporate orders (Issue #1).
-- After that, you must complete the implementation and testing of role-based order prefixes (Issue #2).
-- The user is highly engaged and provides frequent, incremental requests. Expect to work in a tight feedback loop.
-- The backend  and frontend  files are very large. Be careful when modifying them.
+- **Priority 1:** You MUST definitively fix the recurring Yeni Kalem Ekle bug (Issue #1). The user is losing patience with it. Be extremely thorough in your testing before claiming it's resolved.
+- **Priority 2:** After fixing the bug, create the deployment guide as requested by the user (Issue #2).
+- The codebase is fragile due to large monolithic files. Be very careful when making changes and test thoroughly. Refactoring is needed but should only be done if the user approves a specific task for it.
+- Continue to communicate in **Turkish**.
 
 **documents and test_reports created in this job**
--  (From the successful PDF generation test)
+- 
 
 **Last 10 User Messages and any pending HUMAN messages**
 - 
@@ -147,20 +161,21 @@ None.
 - 
 
 **Project Health Check:**
-- **Broken:** None. All implemented features are working.
+- **Broken:** The Yeni Kalem Ekle feature is considered broken from the user's perspective, despite the agent's tests showing it as fixed. This is the highest priority bug.
 - **Mocked:** None.
 
 **3rd Party Integrations**
 None.
 
 **Testing status**
-- **Testing agent used after significant changes:** YES (for the PDF generation feature).
+- **Testing agent used after significant changes:** YES
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None.
-- **Known regressions:** None.
+- **Known regressions:** The Yeni Kalem Ekle bug appears to be a regression or a recurring issue that has not been fully resolved.
 
 **Credentials to test flow:**
-Default users are created in . Use  /  for full access. New users for other roles may need to be created for testing Issue #2.
+- **Admin:**  /  (The agent also mentioned  in its thoughts, so try both if one fails).
+- **Showroom:** A user named  exists. The password is likely  or a simple default. New test users for each role can be created if needed.
 
 **What agent forgot to execute**
-The agent did not complete the testing for the role-based order prefix feature. It was tested for the 'admin' role but not for other roles like 'showroom', 'corporate_sales', etc., before the user provided a new, higher-priority task.</analysis>
+The agent did not forget a specific task but failed to definitively resolve the recurring Yeni Kalem Ekle bug to the user's satisfaction. Despite multiple attempts and successful internal tests, the user still reports the feature as broken, indicating a deeper, unaddressed issue or an edge case the agent missed.</analysis>
