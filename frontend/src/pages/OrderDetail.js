@@ -145,7 +145,7 @@ const OrderDetail = () => {
     }
 
     try {
-      await axios.put(`${API_URL}/orders/${id}`, { ...editData, attachments: newAttachments });
+      await axios.put(`${API_URL}/orders/${order.id}`, { ...editData, attachments: newAttachments });
       toast.success('Dosyalar yüklendi');
       fetchOrderDetail();
     } catch (error) {
@@ -162,7 +162,7 @@ const OrderDetail = () => {
     newAttachments.splice(index, 1);
     
     try {
-      await axios.put(`${API_URL}/orders/${id}`, { ...editData, attachments: newAttachments });
+      await axios.put(`${API_URL}/orders/${order.id}`, { ...editData, attachments: newAttachments });
       toast.success('Dosya silindi');
       fetchOrderDetail();
     } catch (error) {
