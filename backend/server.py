@@ -241,6 +241,7 @@ class OrderCreate(BaseModel):
     site_payment: bool = False  # Siteden ödeme yapıldı
     online_payment_ref: Optional[str] = None  # Site ödemesi işlem numarası (CRxxxxxx)
     whatsapp_content: Optional[str] = None
+    attachments: List[Dict[str, Any]] = []  # Dosya ekleri
     notes: Optional[str] = None
     
     @model_validator(mode='after')
