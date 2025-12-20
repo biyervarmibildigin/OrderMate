@@ -379,12 +379,18 @@ const OrderDetail = () => {
           ) : (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
-                <div><span className="text-zinc-500 text-sm">Müşteri</span><p className="font-medium">{order.customer_name || '-'}</p></div>
+                <div><span className="text-zinc-500 text-sm">Sipariş Veren / Yetkili</span><p className="font-medium">{order.customer_name || '-'}</p></div>
                 <div><span className="text-zinc-500 text-sm">Telefon</span><p className="font-medium">{order.customer_phone || '-'}</p></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div><span className="text-zinc-500 text-sm">E-posta</span><p className="font-medium">{order.customer_email || '-'}</p></div>
-                <div><span className="text-zinc-500 text-sm">Teslimat</span><p className="font-medium capitalize">{order.delivery_method || '-'}</p></div>
+                <div><span className="text-zinc-500 text-sm">Teslimat</span><p className="font-medium">{
+                  order.delivery_method === 'kargo' ? 'Kargo' :
+                  order.delivery_method === 'showroom_teslim' ? 'Showroom Teslim' :
+                  order.delivery_method === 'depo_teslim' ? 'Depo Teslim' :
+                  order.delivery_method === 'kurye' ? 'Kurye' :
+                  order.delivery_method || '-'
+                }</p></div>
               </div>
               {order.customer_address && (
                 <div><span className="text-zinc-500 text-sm">Adres</span><p className="font-medium">{order.customer_address}</p></div>
@@ -393,6 +399,25 @@ const OrderDetail = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div><span className="text-zinc-500 text-sm">Vergi Dairesi</span><p className="font-medium">{order.tax_office || '-'}</p></div>
                   <div><span className="text-zinc-500 text-sm">Vergi No</span><p className="font-medium">{order.tax_number || '-'}</p></div>
+                </div>
+              )}
+
+              {/* Kargo Adresi - Tüm Siparişler İçin (Kargo seçilmişse) */}
+              {order.delivery_method === 'kargo' && order.shipping_address && order.shipping_address.address && !order.order_type?.startsWith('kurumsal') && (
+                <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 mt-3">
+                  <span className="text-emerald-800 text-xs font-semibold">KARGO TESLİMAT ADRESİ</span>
+                  {order.shipping_address.recipient_name && (
+                    <p className="font-semibold text-sm mt-1">Alıcı: {order.shipping_address.recipient_name}</p>
+                  )}
+                  {order.shipping_address.recipient_phone && (
+                    <p className="text-sm text-zinc-600">Tel: {order.shipping_address.recipient_phone}</p>
+                  )}
+                  <p className="font-medium text-sm mt-1">{order.shipping_address.address}</p>
+                  {(order.shipping_address.district || order.shipping_address.city) && (
+                    <p className="text-sm text-zinc-600">
+                      {[order.shipping_address.district, order.shipping_address.city].filter(Boolean).join(' / ')}
+                    </p>
+                  )}
                 </div>
               )}
 
