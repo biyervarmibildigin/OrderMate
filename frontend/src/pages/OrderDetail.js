@@ -108,6 +108,84 @@ const OrderDetail = () => {
     setProductSearchResults([]);
   };
 
+  // Dosya yükleme
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    const newAttachments = [...(order.attachments || [])];
+
+    for (const file of files) {
+      // Max 10MB
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`${file.name} 10MB'dan büyük, atlandı`);
+        continue;
+      }
+
+      try {
+        // Base64'e çevir
+        const reader = new FileReader();
+        const base64 = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        newAttachments.push({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: base64,
+          uploadedAt: new Date().toISOString()
+        });
+      } catch (err) {
+        toast.error(`${file.name} yüklenemedi`);
+      }
+    }
+
+    try {
+      await axios.put(`${API_URL}/orders/${id}`, { ...editData, attachments: newAttachments });
+      toast.success('Dosyalar yüklendi');
+      fetchOrderDetail();
+    } catch (error) {
+      toast.error('Dosya yüklenemedi');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Dosya silme
+  const handleDeleteAttachment = async (index) => {
+    const newAttachments = [...(order.attachments || [])];
+    newAttachments.splice(index, 1);
+    
+    try {
+      await axios.put(`${API_URL}/orders/${id}`, { ...editData, attachments: newAttachments });
+      toast.success('Dosya silindi');
+      fetchOrderDetail();
+    } catch (error) {
+      toast.error('Dosya silinemedi');
+    }
+  };
+
+  // Dosya türüne göre ikon
+  const getFileIcon = (type) => {
+    if (type?.startsWith('image/')) return <Image className="h-4 w-4" />;
+    return <File className="h-4 w-4" />;
+  };
+
+  // Dosya önizleme
+  const openPreview = (attachment) => {
+    setPreviewDialog({
+      open: true,
+      url: attachment.data,
+      type: attachment.type,
+      name: attachment.name
+    });
+  };
+
   const handleSaveOrder = async () => {
     setSaving(true);
     try {
