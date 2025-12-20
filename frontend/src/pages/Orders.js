@@ -240,7 +240,10 @@ const Orders = () => {
               >
                 <option value="">Tümü</option>
                 <option value="yok">Yok</option>
-                <option value="hazirlaniyor">Hazırlanıyor</option>
+                <option value="hazirlaniyor">Kargo Hazırlanıyor</option>
+                <option value="kargo_hazirlandi">Kargo Hazırlandı</option>
+                <option value="paketlendi">Paketlendi</option>
+                <option value="gonderime_hazir">Gönderime Hazır</option>
                 <option value="kargoda">Kargoda</option>
                 <option value="teslim">Teslim Edildi</option>
               </select>
