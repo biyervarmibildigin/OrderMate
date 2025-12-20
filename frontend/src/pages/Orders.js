@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -12,17 +12,36 @@ const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const Orders = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    status: '',
-    invoice_status: '',
-    waybill_status: '',
-    cargo_status: '',
-    order_type: ''
+    status: searchParams.get('general_status') || '',
+    invoice_status: searchParams.get('invoice_status') || '',
+    waybill_status: searchParams.get('waybill_status') || '',
+    cargo_status: searchParams.get('cargo_status') || '',
+    order_type: searchParams.get('order_type') || '',
+    item_status: searchParams.get('item_status') || ''
   });
+
+  // URL parametreleri değiştiğinde filtreleri güncelle
+  useEffect(() => {
+    const newFilters = {
+      status: searchParams.get('general_status') || '',
+      invoice_status: searchParams.get('invoice_status') || '',
+      waybill_status: searchParams.get('waybill_status') || '',
+      cargo_status: searchParams.get('cargo_status') || '',
+      order_type: searchParams.get('order_type') || '',
+      item_status: searchParams.get('item_status') || ''
+    };
+    setFilters(newFilters);
+    // URL'de filtre varsa filtre panelini aç
+    if (Object.values(newFilters).some(v => v)) {
+      setShowFilters(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchOrders();
