@@ -161,7 +161,7 @@ class Order(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     order_number: int  # Sayısal numara (dahili)
-    order_code: str = ""  # Görüntülenen kod (TK-001, SR-001, KC-001, KP-001)
+    order_code: str = ""  # Görüntülenen kod (SÇ201226000001)
     order_type: str
     customer_name: Optional[str] = None
     customer_phone: Optional[str] = None
@@ -179,6 +179,7 @@ class Order(BaseModel):
     created_by_name: str
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
+    invoice_number: Optional[str] = None  # Fatura No (Fatura kesildi ise)
     waybill_status: str = WaybillStatus.NOT_ISSUED  # İrsaliye durumu
     cargo_status: str = CargoStatus.NONE
     cargo_company: Optional[str] = None  # Yurtiçi, MNG, Aras, PTT, etc.
@@ -187,6 +188,7 @@ class Order(BaseModel):
     # Ödeme ve Teslimat Durumları
     pos_payment: bool = False  # POS cihazından çekildi
     delivered_invoice_only: bool = False  # Teslim edildi sadece fatura
+    site_payment: bool = False  # Siteden ödeme yapıldı
     online_payment_ref: Optional[str] = None  # Site ödemesi işlem numarası
     whatsapp_content: Optional[str] = None
     attachments: List[str] = []  # file URLs or base64
