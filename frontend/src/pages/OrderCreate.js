@@ -37,7 +37,7 @@ const ORDER_TYPE_CONFIG = {
     icon: ShoppingBag,
     color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
     description: 'Mağazadan perakende satış',
-    fields: ['customer', 'tax_optional', 'payment', 'delivery', 'products', 'notes']
+    fields: ['customer', 'tax_required', 'payment', 'delivery', 'products', 'notes']
   },
   kurumsal_cari: {
     label: 'Kurumsal / Cari Hesap',
