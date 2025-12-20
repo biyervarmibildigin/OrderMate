@@ -198,11 +198,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "PDF Generation with Turkish Characters"
-    - "Bank Accounts CRUD API"
-    - "Settings Page with Tabs"
+    - "Orders search by product name/order code and new cargo statuses"
+    - "Order detail update error messaging (Genel Durum güncelleme)"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
