@@ -254,6 +254,23 @@ const OrderCreate = () => {
     }
     setTaxError('');
 
+    // Kargo seçilmişse ve kurumsal değilse, kargo adresi zorunlu alanlarını kontrol et
+    if (formData.delivery_method === 'kargo' && !isCorporateOrder) {
+      const { shipping_address } = formData;
+      if (!shipping_address.recipient_name?.trim()) {
+        toast.error('Kargo için Alıcı Adı zorunludur');
+        return;
+      }
+      if (!shipping_address.recipient_phone?.trim()) {
+        toast.error('Kargo için Alıcı Telefonu zorunludur');
+        return;
+      }
+      if (!shipping_address.address?.trim()) {
+        toast.error('Kargo için Teslimat Adresi zorunludur');
+        return;
+      }
+    }
+
     // Kurumsal sipariş için kargo adresi zorunlu alanları kontrol et
     if (isCorporateOrder && !formData.same_address) {
       const { shipping_address } = formData;
@@ -278,11 +295,14 @@ const OrderCreate = () => {
     
     setLoading(true);
     try {
-      // Kurumsal sipariş değilse veya aynı adres ise, adres bilgilerini null yap
+      // Kurumsal sipariş değilse, billing_address null yap
       const orderData = { ...formData };
       if (!isCorporateOrder) {
         orderData.billing_address = null;
-        orderData.shipping_address = null;
+        // Kargo değilse shipping_address de null
+        if (formData.delivery_method !== 'kargo') {
+          orderData.shipping_address = null;
+        }
       } else if (formData.same_address) {
         // Aynı adres seçilmişse, shipping_address'i billing_address'den oluştur
         orderData.shipping_address = {
