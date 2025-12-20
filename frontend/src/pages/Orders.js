@@ -56,6 +56,7 @@ const Orders = () => {
       if (filters.waybill_status) params.append('waybill_status', filters.waybill_status);
       if (filters.cargo_status) params.append('cargo_status', filters.cargo_status);
       if (filters.order_type) params.append('order_type', filters.order_type);
+      if (searchTerm) params.append('search', searchTerm.trim());
       
       const url = `${API_URL}/orders${params.toString() ? '?' + params.toString() : ''}`;
       const response = await axios.get(url);
