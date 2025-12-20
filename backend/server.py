@@ -1338,16 +1338,6 @@ async def upload_products_csv(file: UploadFile = File(...), current_user: User =
 
 # ==================== ORDER ENDPOINTS ====================
 
-# Kullanıcı rolüne göre prefix
-USER_ROLE_PREFIXES = {
-    "admin": "AD",
-    "showroom": "SH",
-    "corporate_sales": "KS",
-    "warehouse": "DP",
-    "supply_finance": "TF",
-    "accounting": "MH"
-}
-
 async def get_next_order_number() -> int:
     # Get the highest order number
     result = await db.orders.find_one(
@@ -1357,15 +1347,33 @@ async def get_next_order_number() -> int:
     )
     return (result['order_number'] if result else 0) + 1
 
-async def get_next_order_code(user_role: str) -> str:
-    """Kullanıcı rolüne göre benzersiz sipariş kodu oluştur (AD-001, SH-001, KS-001)"""
-    prefix = USER_ROLE_PREFIXES.get(user_role, "SP")
+def get_user_prefix(full_name: str) -> str:
+    """Kullanıcı ad soyadından kısaltma oluştur (Furkan Kaya -> FK)"""
+    if not full_name:
+        return "XX"
     
-    # Bu prefix ile en yüksek numaralı siparişi bul
+    # Ad ve soyadı ayır
+    parts = full_name.strip().split()
+    if len(parts) >= 2:
+        # İlk ad ve soyadın ilk harfleri
+        prefix = (parts[0][0] + parts[-1][0]).upper()
+    elif len(parts) == 1:
+        # Sadece bir kelime varsa ilk 2 harf
+        prefix = parts[0][:2].upper()
+    else:
+        prefix = "XX"
+    
+    return prefix
+
+async def get_next_order_code(user_id: str, full_name: str) -> str:
+    """Kullanıcı bazlı benzersiz sipariş kodu oluştur (FK-001, AY-001)"""
+    prefix = get_user_prefix(full_name)
+    
+    # Bu kullanıcının (user_id) son sipariş numarasını bul
     result = await db.orders.find_one(
-        {"order_code": {"$regex": f"^{prefix}-"}},
+        {"created_by": user_id},
         {"_id": 0, "order_code": 1},
-        sort=[("order_code", -1)]
+        sort=[("order_number", -1)]
     )
     
     if result and result.get('order_code'):
