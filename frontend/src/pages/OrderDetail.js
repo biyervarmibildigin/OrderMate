@@ -241,7 +241,8 @@ const OrderDetail = () => {
       toast.success('Kalem eklendi');
       fetchOrderDetail(); // Geçmişi güncellemek için
     } catch (error) {
-      toast.error('Kalem eklenemedi: ' + (error.response?.data?.detail || error.message));
+      const errorMsg = error.response?.data?.detail || (typeof error.response?.data === 'string' ? error.response.data : error.message);
+      toast.error('Kalem eklenemedi: ' + errorMsg);
     }
   };
 
