@@ -339,7 +339,7 @@ const Orders = () => {
           </Card>
         ) : (
           filteredOrders.map((order) => (
-            <Link key={order.id} to={`/orders/${order.id}`}>
+            <Link key={order.id} to={`/orders/${order.order_code || order.id}`}>
               <Card className="p-6 hover:shadow-md transition-all duration-200 border-zinc-200 hover:-translate-y-0.5">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
