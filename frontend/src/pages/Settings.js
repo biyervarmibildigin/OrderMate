@@ -809,6 +809,34 @@ const Settings = () => {
               <Label htmlFor="is_active">Aktif</Label>
             </div>
 
+            {/* Form Alanları Seçimi */}
+            <div className="space-y-3 pt-2 border-t border-zinc-200">
+              <Label className="text-sm font-semibold">Sipariş Formunda Gösterilecek Alanlar</Label>
+              <div className="grid grid-cols-1 gap-2">
+                {AVAILABLE_FIELDS.map((field) => (
+                  <label 
+                    key={field.code} 
+                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      formData.fields?.includes(field.code) 
+                        ? 'bg-blue-50 border-blue-300' 
+                        : 'bg-zinc-50 border-zinc-200 hover:bg-zinc-100'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.fields?.includes(field.code) || false}
+                      onChange={() => handleFieldToggle(field.code)}
+                      className="h-4 w-4 mt-0.5 rounded border-zinc-300"
+                    />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-zinc-900">{field.label}</span>
+                      <p className="text-xs text-zinc-500">{field.description}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
             <div className="flex justify-end gap-3 pt-4">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 İptal
