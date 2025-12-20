@@ -221,9 +221,10 @@ const OrderDetail = () => {
     }
 
     try {
+      // order.id kullan (gerçek UUID), URL'deki id değil (order_code olabilir)
       const response = await axios.post(`${API_URL}/order-items`, {
         ...newItem,
-        order_id: id
+        order_id: order.id
       });
       setItems([...items, response.data]);
       setNewItem({
@@ -235,7 +236,9 @@ const OrderDetail = () => {
         item_type: 'katalog_urunu',
         item_status: 'netlesecek'
       });
+      // Sipariş geçmişine kalem eklendi bilgisi ekle
       toast.success('Kalem eklendi');
+      fetchOrderDetail(); // Geçmişi güncellemek için
     } catch (error) {
       toast.error('Kalem eklenemedi: ' + (error.response?.data?.detail || error.message));
     }
