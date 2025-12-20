@@ -441,7 +441,7 @@ const OrderCreate = () => {
         <Card className="p-6 border-zinc-200 space-y-6">
           
           {/* Müşteri Bilgileri */}
-          {(currentConfig.fields?.includes('customer')) && (
+          {(currentFields.includes('customer')) && (
             <div className="space-y-4">
               <h3 className="font-semibold text-zinc-900 border-b pb-2">Müşteri Bilgileri</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -486,7 +486,7 @@ const OrderCreate = () => {
           )}
 
           {/* VKN/TC - Zorunlu */}
-          {(currentConfig.fields?.includes('tax_required')) && (
+          {(currentFields.includes('tax_required')) && (
             <div className="space-y-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200">
               <h3 className="font-semibold text-zinc-900">VKN / TC Kimlik No *</h3>
               
@@ -561,7 +561,7 @@ const OrderCreate = () => {
           )}
 
           {/* VKN/TC - Opsiyonel */}
-          {(currentConfig.fields?.includes('tax_optional') || currentConfig.fields?.includes('tax')) && (
+          {(currentFields.includes('tax_optional') || currentFields.includes('tax')) && (
             <div className="space-y-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200">
               <h3 className="font-semibold text-zinc-900">VKN / TC Kimlik No (Opsiyonel)</h3>
               
@@ -619,7 +619,7 @@ const OrderCreate = () => {
           )}
 
           {/* Ödeme Bilgileri */}
-          {(currentConfig.fields?.includes('payment')) && (
+          {(currentFields.includes('payment')) && (
             <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-zinc-900">Ödeme Durumu</h3>
               
@@ -660,7 +660,7 @@ const OrderCreate = () => {
           )}
 
           {/* Teslimat Bilgileri */}
-          {(currentConfig.fields?.includes('delivery')) && (
+          {(currentFields.includes('delivery')) && (
             <div className="space-y-4">
               <h3 className="font-semibold text-zinc-900 border-b pb-2">Teslimat Bilgileri</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -869,7 +869,7 @@ const OrderCreate = () => {
           )}
 
           {/* Ürün Ekleme */}
-          {(currentConfig.fields?.includes('products')) && (
+          {(currentFields.includes('products')) && (
             <div className="space-y-4">
               <h3 className="font-semibold text-zinc-900 border-b pb-2">Ürünler *</h3>
               
@@ -952,7 +952,7 @@ const OrderCreate = () => {
           )}
 
           {/* Notlar */}
-          {(currentConfig.fields?.includes('notes')) && (
+          {(currentFields.includes('notes')) && (
             <div className="space-y-2">
               <Label>Notlar</Label>
               <Textarea
