@@ -582,6 +582,7 @@ async def get_products(
     query = {}
     if search:
         query['$or'] = [
+            {"name": {"$regex": search, "$options": "i"}},
             {"product_name": {"$regex": search, "$options": "i"}},
             {"web_service_code": {"$regex": search, "$options": "i"}},
             {"barcode": {"$regex": search, "$options": "i"}},
@@ -589,6 +590,32 @@ async def get_products(
         ]
     
     products = await db.products.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
+    for product in products:
+        if isinstance(product.get('created_at'), str):
+            product['created_at'] = datetime.fromisoformat(product['created_at'])
+    return products
+
+@api_router.get("/products/search", response_model=List[Product])
+async def search_products(
+    q: str,
+    limit: int = 20,
+    current_user: User = Depends(get_current_user)
+):
+    """Search products by name, code, or barcode"""
+    if not q or len(q) < 2:
+        return []
+    
+    query = {
+        '$or': [
+            {"name": {"$regex": q, "$options": "i"}},
+            {"product_name": {"$regex": q, "$options": "i"}},
+            {"web_service_code": {"$regex": q, "$options": "i"}},
+            {"barcode": {"$regex": q, "$options": "i"}},
+            {"brand": {"$regex": q, "$options": "i"}}
+        ]
+    }
+    
+    products = await db.products.find(query, {"_id": 0}).limit(limit).to_list(limit)
     for product in products:
         if isinstance(product.get('created_at'), str):
             product['created_at'] = datetime.fromisoformat(product['created_at'])
