@@ -598,17 +598,26 @@ const OrderCreate = () => {
                     className="h-4 w-4 rounded border-zinc-300" />
                   <span className="text-sm font-medium">Teslim Edildi Sadece Fatura</span>
                 </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={formData.site_payment}
+                    onChange={(e) => handleChange('site_payment', e.target.checked)}
+                    className="h-4 w-4 rounded border-zinc-300" />
+                  <span className="text-sm font-medium">Siteden Ödeme Yapıldı</span>
+                </label>
               </div>
 
-              <div className="space-y-2">
-                <Label>Site Ödemesi İşlem Numarası <span className="text-xs text-zinc-500">(İşlem numaranızı not ediniz)</span></Label>
-                <Input
-                  value={formData.online_payment_ref}
-                  onChange={(e) => handleChange('online_payment_ref', e.target.value.toUpperCase())}
-                  placeholder="CRxxxxxx"
-                  className="max-w-xs font-mono"
-                />
-              </div>
+              {/* Site ödemesi işaretliyse işlem numarası göster */}
+              {formData.site_payment && (
+                <div className="space-y-2">
+                  <Label>Site Ödemesi İşlem Numarası <span className="text-xs text-zinc-500">(İşlem numaranızı not ediniz)</span></Label>
+                  <Input
+                    value={formData.online_payment_ref}
+                    onChange={(e) => handleChange('online_payment_ref', e.target.value.toUpperCase())}
+                    placeholder="CRxxxxxx"
+                    className="max-w-xs font-mono"
+                  />
+                </div>
+              )}
             </div>
           )}
 
