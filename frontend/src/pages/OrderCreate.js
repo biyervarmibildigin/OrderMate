@@ -239,12 +239,12 @@ const OrderCreate = () => {
   const currentOrderType = orderTypes.find(t => t.code === formData.order_type);
   const currentOrderTypeName = currentOrderType?.name || currentConfig.label || formData.order_type;
   
-  // API'den gelen sipariş türü veya statik config - yoksa default alanlar
-  const hasStaticConfig = !!ORDER_TYPE_CONFIG[formData.order_type];
+  // Öncelik: API'den gelen fields > statik config fields > default fields
   const defaultFields = ['customer', 'tax', 'payment', 'delivery', 'products', 'notes'];
-  const currentFields = hasStaticConfig ? (currentConfig.fields || defaultFields) : defaultFields;
+  const currentFields = currentOrderType?.fields || currentConfig.fields || defaultFields;
   
   const isTaxRequired = currentFields.includes('tax_required');
+  const hasTaxField = currentFields.includes('tax') || currentFields.includes('tax_required');
   // Kurumsal siparişleri tespit et (kurumsal_cari, kurumsal_pesin)
   const isCorporateOrder = formData.order_type?.startsWith('kurumsal');
 
