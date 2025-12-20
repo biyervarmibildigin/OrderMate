@@ -385,11 +385,11 @@ const OrderCreate = () => {
               <h3 className="font-semibold text-zinc-900 border-b pb-2">Müşteri Bilgileri</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Müşteri Adı *</Label>
+                  <Label>Sipariş Veren / Yetkili Adı *</Label>
                   <Input
                     value={formData.customer_name}
                     onChange={(e) => handleChange('customer_name', e.target.value)}
-                    placeholder="Müşteri adı"
+                    placeholder="Sipariş veren kişi adı"
                     required
                   />
                 </div>
