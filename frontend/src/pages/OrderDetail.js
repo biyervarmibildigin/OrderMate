@@ -341,7 +341,10 @@ const OrderDetail = () => {
 
   const cargoStatusOptions = [
     { value: 'yok', label: 'Yok', color: 'bg-zinc-100 text-zinc-800' },
-    { value: 'hazirlaniyor', label: 'Hazırlanıyor', color: 'bg-amber-100 text-amber-800' },
+    { value: 'hazirlaniyor', label: 'Kargo Hazırlanıyor', color: 'bg-amber-100 text-amber-800' },
+    { value: 'kargo_hazirlandi', label: 'Kargo Hazırlandı', color: 'bg-blue-100 text-blue-800' },
+    { value: 'paketlendi', label: 'Paketlendi', color: 'bg-blue-100 text-blue-800' },
+    { value: 'gonderime_hazir', label: 'Gönderime Hazır', color: 'bg-indigo-100 text-indigo-800' },
     { value: 'kargoda', label: 'Kargoda', color: 'bg-blue-100 text-blue-800' },
     { value: 'teslim', label: 'Teslim Edildi', color: 'bg-emerald-100 text-emerald-800' }
   ];
