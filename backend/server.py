@@ -1485,7 +1485,11 @@ async def get_orders(
 
 @api_router.get("/orders/{order_id}", response_model=OrderWithItems)
 async def get_order(order_id: str, current_user: User = Depends(get_current_user)):
+    # order_id veya order_code ile arama yap
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        # order_code ile dene
+        order = await db.orders.find_one({"order_code": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     
@@ -1494,8 +1498,9 @@ async def get_order(order_id: str, current_user: User = Depends(get_current_user
     if isinstance(order.get('updated_at'), str):
         order['updated_at'] = datetime.fromisoformat(order['updated_at'])
     
-    # Get order items
-    items = await db.order_items.find({"order_id": order_id}, {"_id": 0}).to_list(1000)
+    # Get order items - order.id kullan
+    actual_order_id = order.get('id')
+    items = await db.order_items.find({"order_id": actual_order_id}, {"_id": 0}).to_list(1000)
     for item in items:
         if isinstance(item.get('created_at'), str):
             item['created_at'] = datetime.fromisoformat(item['created_at'])
@@ -1506,7 +1511,10 @@ async def get_order(order_id: str, current_user: User = Depends(get_current_user
 
 @api_router.put("/orders/{order_id}", response_model=Order)
 async def update_order(order_id: str, order_data: OrderCreate, current_user: User = Depends(get_current_user)):
+    # order_id veya order_code ile arama yap
     existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not existing:
+        existing = await db.orders.find_one({"order_code": order_id}, {"_id": 0})
     if not existing:
         raise HTTPException(status_code=404, detail="Order not found")
     
