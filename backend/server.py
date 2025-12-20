@@ -249,10 +249,12 @@ class OrderCreate(BaseModel):
         tax_id_type = self.tax_id_type
         order_type = self.order_type
         
-        # Showroom satış için E-posta ve VKN/TC zorunlu
+        # Tüm siparişlerde e-posta zorunlu (fatura e-posta ile gönderilecek)
+        if not self.customer_email:
+            raise ValueError('E-posta adresi zorunludur (fatura gönderimi için)')
+        
+        # Showroom satış için VKN/TC zorunlu
         if order_type == 'showroom_satis':
-            if not self.customer_email:
-                raise ValueError('E-posta adresi zorunludur')
             if not tax_number:
                 raise ValueError('VKN veya TC Kimlik No zorunludur')
         
