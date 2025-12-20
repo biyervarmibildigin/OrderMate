@@ -207,3 +207,5 @@ test_plan:
 agent_communication:
     - agent: "main"
     - message: "Implemented PDF generation with Turkish font support, bank accounts management, logo upload, and extended PDF settings. All features tested via curl and screenshot. Ready for comprehensive testing."
+    - agent: "testing"
+    - message: "Starting comprehensive testing of Orders page search functionality and OrderDetail cargo status options and error messaging. Will test: 1) Login with admin/admin123, 2) Search by order code and product name, 3) New cargo status options, 4) Order status update error handling."
