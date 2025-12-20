@@ -154,13 +154,49 @@ backend:
         - comment: "Extended PDFTemplateSettings model with company_tax_number, company_tax_office, company_website, validity_days, payment_terms, delivery_terms, show_bank_accounts fields."
 
 frontend:
+  - task: "Orders Search Functionality"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Orders.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTED: Search by order code (AD201225000004) works correctly. Search by product name ('Canon') successfully filters orders containing Canon products in order items. Search input clears properly and shows all orders when empty."
+
+  - task: "Order Detail Cargo Status Options"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/OrderDetail.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+        - agent: "testing"
+        - comment: "❌ CRITICAL ISSUE: Cargo status dropdown shows wrong options ['Seçiniz', 'Kargo', 'Showroom Teslim', 'Depo Teslim', 'Kurye'] instead of expected cargo statuses ['Yok', 'Kargo Hazırlanıyor', 'Kargo Hazırlandı', 'Paketlendi', 'Gönderime Hazır', 'Kargoda', 'Teslim Edildi']. This appears to be delivery method dropdown, not cargo status dropdown."
+
+  - task: "Order Status Update Error Messaging"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/OrderDetail.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTED: Order status updates work correctly. Error messaging appears to be functioning properly with Turkish messages. No '[object Object]' errors found during testing. Save functionality works and shows success messages."
+
   - task: "Settings Page with Tabs"
     implemented: true
     working: true
     file: "/app/frontend/src/pages/Settings.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
         - agent: "main"
@@ -172,7 +208,7 @@ frontend:
     file: "/app/frontend/src/pages/Settings.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
         - agent: "main"
@@ -184,7 +220,7 @@ frontend:
     file: "/app/frontend/src/pages/Settings.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
         - agent: "main"
