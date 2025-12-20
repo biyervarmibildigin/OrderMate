@@ -139,8 +139,9 @@ const Dashboard = () => {
           return (
             <Card
               key={card.title}
-              className="p-6 hover:shadow-md transition-shadow duration-200 border-zinc-200"
+              className="p-6 hover:shadow-lg transition-all duration-200 border-zinc-200 cursor-pointer hover:border-zinc-400"
               data-testid={`stat-${card.title.toLowerCase().replace(/\s+/g, '-')}`}
+              onClick={() => navigate(card.filterUrl)}
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -155,6 +156,7 @@ const Dashboard = () => {
                   <Icon className={`h-6 w-6 ${card.color}`} strokeWidth={1.5} />
                 </div>
               </div>
+              <p className="text-xs text-zinc-400 mt-3">Tıklayarak listele →</p>
             </Card>
           );
         })}
