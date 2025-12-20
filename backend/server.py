@@ -801,13 +801,17 @@ async def generate_order_pdf(order_id: str, current_user: User = Depends(get_cur
     from reportlab.platypus import Paragraph, Spacer
     from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
     
-    # Get order
+    # Get order (order_id veya order_code ile)
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not order:
+        order = await db.orders.find_one({"order_code": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     
+    actual_id = order.get('id')
+    
     # Get order items
-    items = await db.order_items.find({"order_id": order_id}, {"_id": 0}).to_list(1000)
+    items = await db.order_items.find({"order_id": actual_id}, {"_id": 0}).to_list(1000)
     
     # Get PDF template settings
     template_doc = await db.pdf_settings.find_one({"id": "pdf_template_settings"}, {"_id": 0})
