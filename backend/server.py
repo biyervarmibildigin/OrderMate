@@ -1635,9 +1635,11 @@ async def update_order(order_id: str, order_data: OrderCreate, current_user: Use
     
     update_data['history'] = history_entries
     
-    await db.orders.update_one({"id": order_id}, {"$set": update_data})
+    # Gerçek order id'yi kullan (order_code ile arama yapılmış olabilir)
+    actual_id = existing.get('id')
+    await db.orders.update_one({"id": actual_id}, {"$set": update_data})
     
-    updated = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    updated = await db.orders.find_one({"id": actual_id}, {"_id": 0})
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     if isinstance(updated.get('updated_at'), str):
