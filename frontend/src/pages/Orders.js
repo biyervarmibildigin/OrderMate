@@ -45,7 +45,7 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [filters]);
+  }, [filters, searchTerm]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -116,15 +116,8 @@ const Orders = () => {
       : <Badge className="bg-red-100 text-red-800"><FileText className="h-3 w-3 mr-1" />İrsaliye ✗</Badge>;
   };
 
-  const filteredOrders = orders.filter(order => {
-    if (!searchTerm) return true;
-    const search = searchTerm.toLowerCase();
-    return (
-      order.order_number?.toString().includes(search) ||
-      order.customer_name?.toLowerCase().includes(search) ||
-      order.created_by_name?.toLowerCase().includes(search)
-    );
-  });
+  // Liste, backend filtre ve arama parametrelerine göre geliyor
+  const filteredOrders = orders;
 
   if (loading && orders.length === 0) {
     return (

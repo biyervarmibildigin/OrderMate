@@ -133,7 +133,10 @@ class InvoiceStatus:
 
 class CargoStatus:
     NONE = "yok"
-    PREPARING = "hazirlaniyor"
+    PREPARING = "hazirlaniyor"  # Kargo hazırlanmaya başladı
+    READY = "kargo_hazirlandi"  # Kargo hazırlandı
+    PACKAGED = "paketlendi"     # Paketlendi
+    READY_TO_SHIP = "gonderime_hazir"  # Gönderime hazır
     IN_CARGO = "kargoda"
     DELIVERED = "teslim"
 
@@ -1503,11 +1506,36 @@ async def get_orders(
     if cargo_status:
         query['cargo_status'] = cargo_status
     if search:
-        query['$or'] = [
+        # Müşteri adı, telefon, sipariş kodu ve ürün adı/kodu üzerinden arama
+        or_conditions = [
             {"customer_name": {"$regex": search, "$options": "i"}},
             {"customer_phone": {"$regex": search, "$options": "i"}},
-            {"order_number": {"$regex": search, "$options": "i"}}
+            {"order_code": {"$regex": search, "$options": "i"}},
         ]
+
+        # Sayısal bir arama ise sipariş numarasını da dene
+        if search.isdigit():
+            try:
+                or_conditions.append({"order_number": int(search)})
+            except ValueError:
+                pass
+
+        # Ürün adı / ürün kodu ile sipariş bulmak için order_items koleksiyonunda arama
+        item_or_conditions = [
+            {"product_name": {"$regex": search, "$options": "i"}},
+        ]
+
+        matching_items = await db.order_items.find(
+            {"$or": item_or_conditions},
+            {"_id": 0, "order_id": 1}
+        ).to_list(1000)
+
+        if matching_items:
+            order_ids_from_items = list({item["order_id"] for item in matching_items if item.get("order_id")})
+            if order_ids_from_items:
+                or_conditions.append({"id": {"$in": order_ids_from_items}})
+
+        query['$or'] = or_conditions
     
     orders = await db.orders.find(query, {"_id": 0}).sort("order_number", -1).skip(skip).limit(limit).to_list(limit)
     for order in orders:
