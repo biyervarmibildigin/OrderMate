@@ -189,7 +189,7 @@ const OrderDetail = () => {
   const handleSaveOrder = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API_URL}/orders/${id}`, editData);
+      await axios.put(`${API_URL}/orders/${order.id}`, editData);
       toast.success('Sipariş güncellendi');
       setEditMode(false);
       fetchOrderDetail();
@@ -204,7 +204,7 @@ const OrderDetail = () => {
     if (!newNote.trim()) return;
     
     try {
-      await axios.post(`${API_URL}/orders/${id}/add-note`, { note: newNote });
+      await axios.post(`${API_URL}/orders/${order.id}/add-note`, { note: newNote });
       toast.success('Not eklendi');
       setNoteDialogOpen(false);
       setNewNote('');
