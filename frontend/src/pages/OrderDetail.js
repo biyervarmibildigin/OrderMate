@@ -615,30 +615,39 @@ const OrderDetail = () => {
         <h2 className="text-lg font-bold font-heading text-zinc-900 mb-4">Sipariş Kalemleri</h2>
         
         <div className="space-y-3">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-center justify-between p-4 bg-zinc-50 rounded-lg">
-              <div className="flex-1">
-                <p className="font-semibold text-zinc-900">{item.product_name}</p>
-                <p className="text-sm text-zinc-500">
-                  Adet: {item.quantity} • Birim: {item.unit_price?.toFixed(2)} TL • Toplam: {item.total_price?.toFixed(2)} TL
-                </p>
+          {items.map((item) => {
+            // Son 5 dakikada eklenen kalemleri "Yeni" olarak işaretle
+            const isNew = item.created_at && (new Date() - new Date(item.created_at)) < 5 * 60 * 1000;
+            return (
+              <div key={item.id} className={`flex items-center justify-between p-4 rounded-lg ${isNew ? 'bg-emerald-50 border border-emerald-200' : 'bg-zinc-50'}`}>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-zinc-900">{item.product_name}</p>
+                    {isNew && <Badge className="bg-emerald-100 text-emerald-800 text-xs">Yeni Eklendi</Badge>}
+                    {item.item_type === 'manuel_urun' && <Badge className="bg-amber-100 text-amber-800 text-xs">Manuel</Badge>}
+                    {item.item_type === 'katalog_urunu' && <Badge className="bg-blue-100 text-blue-800 text-xs">Katalog</Badge>}
+                  </div>
+                  <p className="text-sm text-zinc-500">
+                    Adet: {item.quantity} • Birim: {item.unit_price?.toFixed(2)} TL • Toplam: {item.total_price?.toFixed(2)} TL
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={item.item_status}
+                    onChange={(e) => handleUpdateItemStatus(item.id, e.target.value)}
+                    className="h-9 px-3 rounded-md border border-zinc-300 text-sm"
+                  >
+                    {['netlesecek', 'stokta', 'temin_edilecek', 'uretimde', 'hazir', 'gonderildi', 'iptal'].map(s => (
+                      <option key={s} value={s}>{getItemStatusLabel(s)}</option>
+                    ))}
+                  </select>
+                  <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item.id)} className="text-red-600 hover:text-red-700">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <select
-                  value={item.item_status}
-                  onChange={(e) => handleUpdateItemStatus(item.id, e.target.value)}
-                  className="h-9 px-3 rounded-md border border-zinc-300 text-sm"
-                >
-                  {['netlesecek', 'stokta', 'temin_edilecek', 'uretimde', 'hazir', 'gonderildi', 'iptal'].map(s => (
-                    <option key={s} value={s}>{getItemStatusLabel(s)}</option>
-                  ))}
-                </select>
-                <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item.id)} className="text-red-600 hover:text-red-700">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Total */}
