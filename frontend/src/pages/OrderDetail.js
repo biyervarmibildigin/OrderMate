@@ -799,7 +799,7 @@ const OrderDetail = () => {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium text-sm">{product.name}</p>
+                        <p className="font-medium text-sm">{product.name || product.product_name}</p>
                         <p className="text-xs text-zinc-500">{product.brand} • {product.web_service_code}</p>
                       </div>
                       <div className="text-right">
