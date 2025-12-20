@@ -96,9 +96,10 @@ const OrderDetail = () => {
 
   // Ürün seçildiğinde
   const handleSelectProductForItem = (product) => {
+    const productName = product.name || product.product_name;
     setNewItem({
       ...newItem,
-      product_name: product.name,
+      product_name: productName,
       product_id: product.product_id,
       unit_price: product.price || 0,
       total_price: (product.price || 0) * newItem.quantity,
