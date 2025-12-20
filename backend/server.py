@@ -339,6 +339,7 @@ class OrderTypeModel(BaseModel):
     description: Optional[str] = None
     is_active: bool = True
     order: int = 0
+    fields: List[str] = ['customer', 'tax', 'payment', 'delivery', 'products', 'notes']  # Form alanları
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class OrderTypeCreate(BaseModel):
@@ -347,6 +348,7 @@ class OrderTypeCreate(BaseModel):
     description: Optional[str] = None
     is_active: bool = True
     order: int = 0
+    fields: List[str] = ['customer', 'tax', 'payment', 'delivery', 'products', 'notes']  # Form alanları
 
 # Bank Account Model
 class BankAccount(BaseModel):
