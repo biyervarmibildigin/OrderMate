@@ -461,6 +461,13 @@ const OrderCreate = () => {
                   <span className="text-sm">TC Kimlik No (Bireysel - 11 hane)</span>
                 </label>
               </div>
+              
+              {/* Şahıs firması notu */}
+              {formData.tax_id_type === 'tc' && (
+                <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
+                  💡 Şahıs firması ise TC Kimlik No bölümünü kullanınız
+                </p>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -493,17 +500,18 @@ const OrderCreate = () => {
                 </div>
               </div>
               
-              {/* VKN seçildiğinde Firma/Kurum Adı */}
+              {/* VKN seçildiğinde Firma/Kurum Adı - zorunlu */}
               {formData.tax_id_type === 'vkn' && (
                 <div className="space-y-2 pt-2 border-t border-zinc-200">
-                  <Label>Firma / Kurum Adı *</Label>
+                  <Label>Firma Unvanı *</Label>
                   <Input
                     value={formData.company_name}
                     onChange={(e) => handleChange('company_name', e.target.value)}
-                    placeholder="VKN'ye kayıtlı firma adı"
+                    placeholder="VKN'ye kayıtlı firma unvanı"
                     className="font-medium"
+                    required
                   />
-                  <p className="text-xs text-zinc-500">Bu VKN'ye kayıtlı firma/kurum adını girin</p>
+                  <p className="text-xs text-zinc-500">VKN girildiğinde Firma Unvanı zorunludur</p>
                 </div>
               )}
             </div>
