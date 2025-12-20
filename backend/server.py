@@ -191,7 +191,7 @@ class Order(BaseModel):
     site_payment: bool = False  # Siteden ödeme yapıldı
     online_payment_ref: Optional[str] = None  # Site ödemesi işlem numarası
     whatsapp_content: Optional[str] = None
-    attachments: List[str] = []  # file URLs or base64
+    attachments: List[Dict[str, Any]] = []  # file URLs or base64
     notes: Optional[str] = None
     history: List[OrderHistoryEntry] = []  # Sipariş geçmişi
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
