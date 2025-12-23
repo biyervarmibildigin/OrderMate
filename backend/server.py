@@ -1766,24 +1766,6 @@ async def update_order(order_id: str, order_data: OrderCreate, current_user: Use
         updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
     return Order(**updated)
 
-
-    for field, label in payment_fields.items():
-        old_val = existing.get(field, False)
-        new_val = update_data.get(field, False)
-        if old_val != new_val:
-            status = "işaretlendi" if new_val else "kaldırıldı"
-            history_entry = {
-                "id": str(uuid.uuid4()),
-                "action": "payment_change",
-                "description": f"Ödeme Durumu: {label} {status}",
-                "old_value": str(old_val),
-                "new_value": str(new_val),
-                "user_id": current_user.id,
-                "user_name": current_user.full_name,
-                "created_at": datetime.now(timezone.utc).isoformat()
-            }
-            history_entries.append(history_entry)
-    
     # Check for online payment ref change
     old_ref = existing.get('online_payment_ref')
     new_ref = update_data.get('online_payment_ref')
