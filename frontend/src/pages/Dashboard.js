@@ -228,6 +228,9 @@ const Dashboard = () => {
                 {stats?.items_to_procure > 0 && ['warehouse', 'finance', 'admin'].includes(user?.role) && (
                   <li>• {stats.items_to_procure} kalem temin edilmeli</li>
                 )}
+                {stats?.overdue_quotes > 0 && ['finance', 'admin'].includes(user?.role) && (
+                  <li>• {stats.overdue_quotes} teklifin ödeme vadesi geçti</li>
+                )}
               </ul>
             </div>
           </div>
