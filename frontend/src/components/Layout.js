@@ -149,8 +149,8 @@ const Layout = ({ children }) => {
               OrderMate
             </h1>
             {user && (
-              <div className="relative ml-auto">
-                <button
+                <div className="relative ml-auto">
+                  <button
                     type="button"
                     onClick={() => setNotifOpen((prev) => !prev)}
                     className="relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50"
