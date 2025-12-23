@@ -348,6 +348,12 @@ const OrderDetail = () => {
     { value: 'kargoda', label: 'Kargoda', color: 'bg-blue-100 text-blue-800' },
     { value: 'teslim', label: 'Teslim Edildi', color: 'bg-emerald-100 text-emerald-800' }
   ];
+  const cargoBarcodeStatusOptions = [
+    { value: 'yazdirilmadi', label: 'Yazdırılmadı', color: 'bg-zinc-100 text-zinc-800' },
+    { value: 'yazdirildi', label: 'Yazdırıldı', color: 'bg-emerald-100 text-emerald-800' },
+  ];
+
+
 
   const getStatusBadge = (status, options) => {
     const config = options.find(o => o.value === status) || { label: status, color: 'bg-zinc-100 text-zinc-800' };
