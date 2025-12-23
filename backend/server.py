@@ -1753,6 +1753,46 @@ async def add_order_note(order_id: str, request: AddHistoryNoteRequest, current_
     # Mention tespiti (@kullaniciadi)
     note_text = request.note or ""
     mentioned_usernames = set()
+
+class NotificationOut(BaseModel):
+    id: str
+    user_id: str
+    user_name: Optional[str] = None
+    order_id: str
+    order_code: str
+    message: str
+    created_by_id: str
+    created_by_name: str
+    created_at: datetime
+    read: bool
+
+@api_router.get("/notifications", response_model=List[NotificationOut])
+async def get_notifications(limit: int = 20, skip: int = 0, current_user: User = Depends(get_current_user)):
+    """Geçerli kullanıcı için son bildirimleri döndür"""
+    cursor = db.notifications.find(
+        {"user_id": current_user.id},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit)
+    notifs = await cursor.to_list(limit)
+    # created_at string geldiyse datetime'a çevir
+    for n in notifs:
+        if isinstance(n.get("created_at"), str):
+            n["created_at"] = datetime.fromisoformat(n["created_at"])
+    return [NotificationOut(**n) for n in notifs]
+
+class MarkNotificationReadRequest(BaseModel):
+    notification_ids: List[str]
+
+@api_router.post("/notifications/mark-read")
+async def mark_notifications_read(req: MarkNotificationReadRequest, current_user: User = Depends(get_current_user)):
+    if not req.notification_ids:
+        return {"updated": 0}
+    result = await db.notifications.update_many(
+        {"id": {"$in": req.notification_ids}, "user_id": current_user.id},
+        {"$set": {"read": True}}
+    )
+    return {"updated": result.modified_count}
+
     for part in note_text.split():
         if part.startswith("@") and len(part) > 1:
             username = part[1:].strip().strip('.,;:!?)(')
