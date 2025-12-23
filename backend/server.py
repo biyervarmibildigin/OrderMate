@@ -2077,28 +2077,28 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     overdue_quotes = 0
     if current_user.role in [UserRole.FINANCE, UserRole.ADMIN]:
         cursor = db.orders.find(
-            {"order_type": "teklif", "payment_term_days": {"$ne": None}},
-            {"_id": 0, "created_at": 1, "payment_term_days": 1}
+            {"order_type": {"$in": ["teklif", "kurumsal_cari", "kurumsal_pesin"]}, "payment_term_days": {"$ne": None}},
+            {"_id": 0, "payment_start_at": 1, "payment_term_days": 1}
         )
         quotes = await cursor.to_list(5000)
         now = datetime.now(timezone.utc)
         for q in quotes:
-            created_raw = q.get("created_at")
+            start_raw = q.get("payment_start_at") or q.get("created_at")
             days = q.get("payment_term_days")
-            if not created_raw or days is None:
+            if not start_raw or days is None:
                 continue
-            if isinstance(created_raw, str):
+            if isinstance(start_raw, str):
                 try:
-                    created = datetime.fromisoformat(created_raw)
+                    start_dt = datetime.fromisoformat(start_raw)
                 except Exception:
                     continue
             else:
-                created = created_raw
+                start_dt = start_raw
             try:
                 days_int = int(days)
             except (TypeError, ValueError):
                 continue
-            due_date = created + timedelta(days=days_int)
+            due_date = start_dt + timedelta(days=days_int)
             if due_date < now:
                 overdue_quotes += 1
     
