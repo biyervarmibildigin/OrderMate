@@ -144,13 +144,12 @@ const Layout = ({ children }) => {
       {/* Sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-64 bg-white border-r border-zinc-200">
         <div className="flex-1 flex flex-col overflow-y-auto">
-          <div className="flex items-center justify-center h-16 border-b border-zinc-200 px-6">
-            <div className="flex items-center justify-between w-full">
-              <h1 className="text-2xl font-bold font-heading tracking-tight text-zinc-900">
-                OrderMate
-              </h1>
-              {user && (
-                <div className="relative">
+          <div className="flex items-center justify-between h-16 border-b border-zinc-200 px-4">
+            <h1 className="text-2xl font-bold font-heading tracking-tight text-zinc-900">
+              OrderMate
+            </h1>
+            {user && (
+              <div className="relative ml-auto">
                   <button
                     type="button"
                     onClick={() => setNotifOpen((prev) => !prev)}
