@@ -253,6 +253,8 @@ class OrderCreate(BaseModel):
     cargo_tracking_code: Optional[str] = None
     general_status: str = OrderStatus.WAITING_INFO
     # Ödeme ve Teslimat Durumları
+    payment_term_days: Optional[int] = None  # Ödeme vadesi (gün cinsinden, tekliflerde kullanılır)
+
     pos_payment: bool = False  # POS cihazından çekildi
     delivered_invoice_only: bool = False  # Teslim edildi sadece fatura
     site_payment: bool = False  # Siteden ödeme yapıldı
