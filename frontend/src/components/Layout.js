@@ -37,9 +37,9 @@ const Layout = ({ children }) => {
         const list = response.data || [];
 
         // Önceki okunmamışlardan farklı olan yeni unread bildirimleri bul
-        if (showNewToast && notifications.length > 0) {
+        if (showNewToast && notificationsRef.current.length > 0) {
           const prevUnreadIds = new Set(
-            notifications.filter((n) => !n.read).map((n) => n.id)
+            notificationsRef.current.filter((n) => !n.read).map((n) => n.id)
           );
           const currentUnread = list.filter((n) => !n.read);
           const newOnes = currentUnread.filter((n) => !prevUnreadIds.has(n.id));
