@@ -186,7 +186,7 @@ const Layout = ({ children }) => {
                               <div className="flex items-start gap-2">
                                 <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs text-zinc-800 truncate">
+                                  <p className="text-xs text-zinc-800 whitespace-normal break-words">
                                     {n.created_by_name || 'Bir kullanıcı'} sizi {n.order_code || 'bir siparişte'} etiketledi.
                                   </p>
                                   {n.order_code && (
