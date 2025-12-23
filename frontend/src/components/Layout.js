@@ -30,21 +30,40 @@ const Layout = ({ children }) => {
   React.useEffect(() => {
     if (!user) return;
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = async (showNewToast = false) => {
       try {
         const response = await axios.get(`${API_URL}/notifications?limit=20`);
-        setNotifications(response.data || []);
-        setUnreadCount(response.data.filter((n) => !n.read).length);
+        const list = response.data || [];
+
+        // Önceki okunmamışlardan farklı olan yeni unread bildirimleri bul
+        if (showNewToast && notifications.length > 0) {
+          const prevUnreadIds = new Set(
+            notifications.filter((n) => !n.read).map((n) => n.id)
+          );
+          const currentUnread = list.filter((n) => !n.read);
+          const newOnes = currentUnread.filter((n) => !prevUnreadIds.has(n.id));
+
+          newOnes.forEach((n) => {
+            toast.info(`${n.created_by_name || 'Bir kullanıcı'} sizi ${n.order_code || 'bir siparişte'} etiketledi.`, {
+              description: n.message,
+            });
+          });
+        }
+
+        setNotifications(list);
+        setUnreadCount(list.filter((n) => !n.read).length);
       } catch (error) {
         console.error('Bildirimler alınamadı', error);
       }
     };
 
-    fetchNotifications();
+    // İlk yükleme
+    fetchNotifications(false);
 
-    const interval = setInterval(fetchNotifications, 30000);
+    // Daha sık kontrol (5 sn)
+    const interval = setInterval(() => fetchNotifications(true), 5000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, notifications]);
 
   const handleNotificationClick = async (notif) => {
     try {
