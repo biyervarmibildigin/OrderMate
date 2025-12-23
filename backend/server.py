@@ -2050,6 +2050,35 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
     items_to_procure = 0
     if current_user.role in [UserRole.WAREHOUSE, UserRole.FINANCE, UserRole.ADMIN]:
         items_to_procure = await db.order_items.count_documents({"item_status": ItemStatus.TO_BE_PROCURED})
+
+    # Overdue quotes (for finance/admin)
+    overdue_quotes = 0
+    if current_user.role in [UserRole.FINANCE, UserRole.ADMIN]:
+        cursor = db.orders.find(
+            {"order_type": "teklif", "payment_term_days": {"$ne": None}},
+            {"_id": 0, "created_at": 1, "payment_term_days": 1}
+        )
+        quotes = await cursor.to_list(5000)
+        now = datetime.now(timezone.utc)
+        for q in quotes:
+            created_raw = q.get("created_at")
+            days = q.get("payment_term_days")
+            if not created_raw or days is None:
+                continue
+            if isinstance(created_raw, str):
+                try:
+                    created = datetime.fromisoformat(created_raw)
+                except Exception:
+                    continue
+            else:
+                created = created_raw
+            try:
+                days_int = int(days)
+            except (TypeError, ValueError):
+                continue
+            due_date = created + timedelta(days=days_int)
+            if due_date < now:
+                overdue_quotes += 1
     
     return {
         "total_orders": total_orders,
@@ -2057,7 +2086,8 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         "in_progress": in_progress,
         "ready": ready,
         "pending_invoices": pending_invoices,
-        "items_to_procure": items_to_procure
+        "items_to_procure": items_to_procure,
+        "overdue_quotes": overdue_quotes
     }
 
 # Include router

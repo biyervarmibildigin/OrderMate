@@ -114,6 +114,15 @@ const Dashboard = () => {
       show: ['warehouse', 'finance', 'admin'].includes(user?.role),
       filterUrl: '/orders?item_status=temin_edilecek'
     },
+    {
+      title: 'Vadesi Geçen Teklifler',
+      value: stats?.overdue_quotes || 0,
+      icon: AlertTriangle,
+      color: 'text-red-600',
+      bgColor: 'bg-red-100',
+      show: ['finance', 'admin'].includes(user?.role),
+      filterUrl: '/orders?order_type=teklif'
+    },
   ];
 
   return (
@@ -203,7 +212,7 @@ const Dashboard = () => {
       </Card>
 
       {/* Alerts */}
-      {(stats?.waiting_info > 0 || stats?.pending_invoices > 0 || stats?.items_to_procure > 0) && (
+      {(stats?.waiting_info > 0 || stats?.pending_invoices > 0 || stats?.items_to_procure > 0 || stats?.overdue_quotes > 0) && (
         <Card className="p-6 border-amber-200 bg-amber-50">
           <div className="flex items-start">
             <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
