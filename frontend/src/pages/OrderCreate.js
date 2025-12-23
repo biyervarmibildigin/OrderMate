@@ -576,7 +576,7 @@ const OrderCreate = () => {
           {/* VKN/TC - Opsiyonel */}
           {(currentFields.includes('tax_optional') || currentFields.includes('tax')) && (
             <div className="space-y-4 p-4 bg-zinc-50 rounded-lg border border-zinc-200">
-              <h3 className="font-semibold text-zinc-900">VKN / TC Kimlik No (Opsiyonel)</h3>
+              <h3 className="font-semibold text-zinc-900">VKN / TC Kimlik No</h3>
               
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -671,6 +671,12 @@ const OrderCreate = () => {
                     onChange={(e) => handleChange('site_payment', e.target.checked)}
                     className="h-4 w-4 rounded border-zinc-300" />
                   <span className="text-sm font-medium">Siteden Ödeme Yapıldı</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={formData.bank_transfer}
+                    onChange={(e) => handleChange('bank_transfer', e.target.checked)}
+                    className="h-4 w-4 rounded border-zinc-300" />
+                  <span className="text-sm font-medium">Banka Havalesi ile Ödendi</span>
                 </label>
               </div>
 
