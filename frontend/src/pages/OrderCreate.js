@@ -934,9 +934,9 @@ const OrderCreate = () => {
 
                 {searchTerm.length >= 2 && !searching && searchResults.length === 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg p-4">
-                    <p className="text-sm text-zinc-600 mb-3">"{searchTerm}" için ürün bulunamadı</p>
+                    <p className="text-sm text-zinc-600 mb-3">&quot;{searchTerm}&quot; için ürün bulunamadı</p>
                     <Button type="button" variant="outline" size="sm" onClick={handleCreateManualProduct} className="w-full">
-                      <Plus className="mr-2 h-4 w-4" />"{searchTerm}" olarak manuel ekle
+                      <Plus className="mr-2 h-4 w-4" />&quot;{searchTerm}&quot; olarak manuel ekle
                     </Button>
                   </div>
                 )}
