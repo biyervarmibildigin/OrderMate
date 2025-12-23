@@ -767,13 +767,6 @@ const OrderDetail = () => {
             )}
 
 
-                    );
-                  })()}
-                  {getStatusBadge(order.invoice_status, invoiceStatusOptions)}
-                </div>
-              )}
-            </div>
-
             {/* Cargo Status */}
             <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg">
               <span className="text-sm font-medium text-zinc-600">Kargo Durumu</span>
