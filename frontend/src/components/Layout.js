@@ -12,6 +12,7 @@ import {
   Bell
 } from 'lucide-react';
 import axios from 'axios';
+import { toast } from './ui/sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
