@@ -1589,6 +1589,12 @@ async def get_orders(
         query['$or'] = or_conditions
 
     orders = await db.orders.find(query, {"_id": 0}).sort("order_number", -1).skip(skip).limit(limit).to_list(limit)
+    for order in orders:
+        if isinstance(order.get('created_at'), str):
+            order['created_at'] = datetime.fromisoformat(order['created_at'])
+        if isinstance(order.get('updated_at'), str):
+            order['updated_at'] = datetime.fromisoformat(order['updated_at'])
+    return orders
 
 
 class ConvertOrderTypeRequest(BaseModel):
