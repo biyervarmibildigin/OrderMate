@@ -1624,6 +1624,23 @@ async def convert_order_type(order_id: str, payload: ConvertOrderTypeRequest, cu
     if target not in allowed_types:
         raise HTTPException(status_code=400, detail="Geçersiz hedef sipariş türü")
 
+    # Ödeme vadesi zorunluluğu: tekliften siparişe dönerken vade yoksa hata ver
+    # Öncelik: payload.payment_term_days (kullanıcı şimdi giriyorsa)
+    # Aksi halde mevcut payment_term_days kullanılmaya devam edilir
+    incoming_term = payload.payment_term_days
+    existing_term = existing.get("payment_term_days")
+    if incoming_term is None and existing_term is None:
+        raise HTTPException(status_code=400, detail="Ödeme vadesi (gün) zorunludur. Lütfen bir vade girin.")
+
+    if incoming_term is not None:
+        try:
+            existing["payment_term_days"] = int(incoming_term)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="Ödeme vadesi geçerli bir sayı olmalıdır")
+
+    # Vade sayacının başlangıcı: teklif başarılı şekilde siparişe dönüştüğü an
+    existing["payment_start_at"] = datetime.now(timezone.utc).isoformat()
+
     old_type = existing.get("order_type")
     existing["order_type"] = target
     existing["updated_at"] = datetime.now(timezone.utc).isoformat()
