@@ -24,6 +24,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState([]);
+  const notificationsRef = React.useRef([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [notifOpen, setNotifOpen] = React.useState(false);
 
