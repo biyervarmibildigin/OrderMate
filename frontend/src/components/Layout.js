@@ -52,6 +52,7 @@ const Layout = ({ children }) => {
         }
 
         setNotifications(list);
+        notificationsRef.current = list;
         setUnreadCount(list.filter((n) => !n.read).length);
       } catch (error) {
         console.error('Bildirimler alınamadı', error);
