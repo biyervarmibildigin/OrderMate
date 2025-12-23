@@ -142,7 +142,7 @@ const Layout = ({ children }) => {
                     )}
                   </button>
                   {notifOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white border border-zinc-200 rounded-lg shadow-lg z-20 text-left">
+                    <div className="absolute right-0 mt-2 w-96 bg-white border border-zinc-200 rounded-lg shadow-lg z-20 text-left">
                       <div className="px-3 py-2 border-b border-zinc-200 flex items-center justify-between">
                         <span className="text-xs font-medium text-zinc-600">Bildirimler</span>
                         <span className="text-[10px] text-zinc-400">Son 20</span>
