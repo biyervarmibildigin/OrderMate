@@ -518,6 +518,29 @@ async def login(credentials: UserLogin):
     
     if not user_doc.get('is_active', False):
         raise HTTPException(status_code=403, detail="User account is inactive")
+@api_router.get("/users/online-stats")
+async def get_online_stats(current_user: User = Depends(get_current_user)):
+    # Son 5 dakikada aktif olanlar online kabul edilir
+    now = datetime.now(timezone.utc)
+    five_minutes_ago = now - timedelta(minutes=5)
+
+    # Toplam aktif kullanıcı sayısı
+    total_count = await db.users.count_documents({"is_active": True})
+
+    # last_active_at alanı son 5 dakikada olan kullanıcılar
+    cursor = db.users.find(
+        {
+            "is_active": True,
+            "last_active_at": {"$gte": five_minutes_ago.isoformat()}
+        },
+        {"_id": 0, "id": 1}
+    )
+    online_users = await cursor.to_list(1000)
+    online_count = len(online_users)
+
+    return {"online": online_count, "total": total_count}
+
+
     
     # Convert ISO string to datetime
     if isinstance(user_doc['created_at'], str):
