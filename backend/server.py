@@ -117,6 +117,11 @@ class ProductCreate(BaseModel):
     supplier: Optional[str] = None
 
 class OrderType:
+class CargoBarcodeStatus:
+    NOT_PRINTED = "yazdirilmadi"
+    PRINTED = "yazdirildi"
+
+
     SHOWROOM = "showroom_satis"
     CORPORATE = "cari_kurumsal"
     INCOMPLETE = "eksik_bilgili"
