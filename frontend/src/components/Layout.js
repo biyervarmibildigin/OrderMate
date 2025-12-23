@@ -149,7 +149,7 @@ const Layout = ({ children }) => {
               OrderMate
             </h1>
             {user && (
-              <div className="relative ml-auto">
+                <div className="relative ml-auto">
                   <button
                     type="button"
                     onClick={() => setNotifOpen((prev) => !prev)}
