@@ -473,6 +473,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     user_doc = await db.users.find_one({"id": user_id}, {"_id": 0})
     if user_doc is None:
         raise HTTPException(status_code=401, detail="User not found")
+    # Kullanıcının son aktif zamanını güncelle
+    await db.users.update_one(
+        {"id": user_doc["id"]},
+        {"$set": {"last_active_at": datetime.now(timezone.utc).isoformat()}},
+    )
+
+
     
     return User(**user_doc)
 
