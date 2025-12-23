@@ -550,16 +550,7 @@ async def get_online_stats(current_user: User = Depends(get_current_user)):
     return {"online": online_count, "total": total_count}
 
 
-    if isinstance(user_doc['created_at'], str):
-        user_doc['created_at'] = datetime.fromisoformat(user_doc['created_at'])
-
-    user = User(**user_doc)
-    access_token = create_access_token(data={"sub": user.id, "role": user.role})
-
-    return Token(access_token=access_token, token_type="bearer", user=user)
-
-
-@api_router.get("/users/online-stats")
+@api_router.get("/auth/me", response_model=User)
 async def get_online_stats(current_user: User = Depends(get_current_user)):
     # Son 5 dakikada aktif olanlar online kabul edilir
     now = datetime.now(timezone.utc)
