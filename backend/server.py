@@ -1834,12 +1834,6 @@ async def mark_notifications_read(req: MarkNotificationReadRequest, current_user
     return {"updated": result.modified_count}
 
  
-    await db.orders.update_one(
-        {"id": actual_id}, 
-        {"$set": {"history": history_entries, "updated_at": datetime.now(timezone.utc).isoformat()}}
-    )
-    
-    return {"message": "Not eklendi", "entry": history_entry}
 
 @api_router.delete("/orders/{order_id}")
 async def delete_order(order_id: str, current_user: User = Depends(get_current_user)):
