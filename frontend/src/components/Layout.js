@@ -13,10 +13,9 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from './ui/sonner';
+import { Button } from './ui/button';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
-
-import { Button } from './ui/button';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
