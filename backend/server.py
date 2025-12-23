@@ -206,6 +206,8 @@ class Order(BaseModel):
     history: List[OrderHistoryEntry] = []  # Sipariş geçmişi
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    payment_start_at: Optional[datetime] = None  # Ödeme vadesi başlangıç zamanı
+
 
 class Notification(BaseModel):
     payment_term_days: Optional[int] = None
@@ -257,6 +259,8 @@ class OrderCreate(BaseModel):
     same_address: bool = True  # Fatura ve teslimat adresi aynı mı?
     delivery_method: Optional[str] = None
     invoice_status: str = InvoiceStatus.NOT_ISSUED
+    payment_start_at: Optional[datetime] = None
+
     invoice_number: Optional[str] = None  # Fatura No
     waybill_status: str = WaybillStatus.NOT_ISSUED
     cargo_status: str = CargoStatus.NONE
@@ -1599,6 +1603,7 @@ async def get_orders(
 
 class ConvertOrderTypeRequest(BaseModel):
     target_type: str
+    payment_term_days: Optional[int] = None
 
 
 @api_router.post("/orders/{order_id}/convert-type", response_model=Order)
