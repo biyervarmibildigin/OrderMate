@@ -10,6 +10,8 @@ import {
   LogOut,
   Menu
 } from 'lucide-react';
+  Bell,
+
 import { Button } from './ui/button';
 
 const Layout = ({ children }) => {
