@@ -38,6 +38,17 @@ export const AuthProvider = ({ children }) => {
       password,
     });
     const { access_token, user: userData } = response.data;
+
+    // Online kullanıcı istatistiğini de çek
+    try {
+      const statsRes = await axios.get(`${API_URL}/users/online-stats`, {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+      userData.onlineStats = statsRes.data;
+    } catch (e) {
+      console.error('Online istatistik alınamadı', e);
+    }
+
     localStorage.setItem('token', access_token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
     setUser(userData);
