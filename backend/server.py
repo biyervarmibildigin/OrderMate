@@ -1573,6 +1573,59 @@ async def get_orders(
 
         # Ürün adı / ürün kodu ile sipariş bulmak için order_items koleksiyonunda arama
         item_or_conditions = [
+
+class ConvertOrderTypeRequest(BaseModel):
+    target_type: str
+
+
+@api_router.post("/orders/{order_id}/convert-type", response_model=Order)
+async def convert_order_type(order_id: str, payload: ConvertOrderTypeRequest, current_user: User = Depends(get_current_user)):
+    """Teklif aşamasındaki bir siparişi Kurumsal/Cari veya Kurumsal (Peşin Ödeme) tipine dönüştür."""
+    # Siparişi id veya order_code ile bul
+    existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    if not existing:
+        existing = await db.orders.find_one({"order_code": order_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if existing.get("order_type") != "teklif":
+        raise HTTPException(status_code=400, detail="Sadece teklif aşamasındaki siparişler dönüştürülebilir")
+
+    target = payload.target_type
+    allowed_types = {"kurumsal_cari": "Kurumsal/Cari Hesap", "kurumsal_pesin": "Kurumsal (Peşin Ödeme)"}
+    if target not in allowed_types:
+        raise HTTPException(status_code=400, detail="Geçersiz hedef sipariş türü")
+
+    old_type = existing.get("order_type")
+    existing["order_type"] = target
+    existing["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+    # Geçmişe kayıt
+    history_entries = existing.get("history", []) or []
+    history_entry = {
+        "id": str(uuid.uuid4()),
+        "action": "order_type_change",
+        "description": f"Sipariş türü {old_type} → {target} olarak değiştirildi",
+        "old_value": old_type,
+        "new_value": target,
+        "user_id": current_user.id,
+        "user_name": current_user.full_name,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    history_entries.append(history_entry)
+    existing["history"] = history_entries
+
+    await db.orders.update_one({"id": existing["id"]}, {"$set": existing})
+
+    # Tip dönüşümünden sonra modeli tekrar oluştur
+    if isinstance(existing.get("created_at"), str):
+        existing["created_at"] = datetime.fromisoformat(existing["created_at"])
+    if isinstance(existing.get("updated_at"), str):
+        existing["updated_at"] = datetime.fromisoformat(existing["updated_at"])
+
+    return Order(**existing)
+
+
             {"product_name": {"$regex": search, "$options": "i"}},
         ]
 
