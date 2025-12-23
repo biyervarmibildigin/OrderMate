@@ -17,6 +17,45 @@ const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 
 import { Button } from './ui/button';
+  const [notifications, setNotifications] = React.useState([]);
+  const [unreadCount, setUnreadCount] = React.useState(0);
+  const [notifOpen, setNotifOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!user) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/notifications?limit=20`);
+        setNotifications(response.data || []);
+        setUnreadCount(response.data.filter((n) => !n.read).length);
+      } catch (error) {
+        console.error('Bildirimler alınamadı', error);
+      }
+    };
+
+    fetchNotifications();
+
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const handleNotificationClick = async (notif) => {
+    try {
+      await axios.post(`${API_URL}/notifications/mark-read`, {
+        notification_ids: [notif.id],
+      });
+      setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n)));
+      setUnreadCount((prev) => Math.max(0, prev - (notif.read ? 0 : 1)));
+      if (notif.order_code) {
+        navigate(`/orders/${notif.order_code}`);
+      }
+    } catch (error) {
+      console.error('Bildirim güncellenemedi', error);
+    }
+  };
+
+
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
