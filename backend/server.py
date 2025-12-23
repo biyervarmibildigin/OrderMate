@@ -259,6 +259,7 @@ class OrderCreate(BaseModel):
     cargo_status: str = CargoStatus.NONE
     cargo_company: Optional[str] = None
     cargo_tracking_code: Optional[str] = None
+    cargo_barcode_status: str = CargoBarcodeStatus.NOT_PRINTED
     general_status: str = OrderStatus.WAITING_INFO
     # Ödeme ve Teslimat Durumları
     payment_term_days: Optional[int] = None  # Ödeme vadesi (gün cinsinden, tekliflerde kullanılır)
