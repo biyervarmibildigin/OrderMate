@@ -11,6 +11,10 @@ import {
   Menu
 } from 'lucide-react';
   Bell,
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+
 
 import { Button } from './ui/button';
 
