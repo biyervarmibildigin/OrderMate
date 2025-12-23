@@ -228,6 +228,27 @@ const OrderDetail = () => {
 
   const handleAddItem = async () => {
     if (!newItem.product_name) {
+  };
+
+  const handleConvertOrderType = async (targetType) => {
+    if (!order) return;
+    try {
+      const response = await axios.post(`${API_URL}/orders/${order.id}/convert-type`, {
+        target_type: targetType,
+      });
+      setOrder(response.data);
+      setEditData(response.data);
+      toast.success(
+        `Sipariş türü güncellendi (${targetType === 'kurumsal_cari' ? 'Kurumsal/Cari Hesap' : 'Kurumsal (Peşin Ödeme)'})`
+      );
+    } catch (error) {
+      const detail = error.response?.data?.detail;
+      const msg = typeof detail === 'string' ? detail : 'Bilinmeyen hata';
+      toast.error(`Sipariş türü güncellenemedi: ${msg}`);
+    }
+  };
+
+
       toast.error('Ürün adı gerekli');
       return;
     }
