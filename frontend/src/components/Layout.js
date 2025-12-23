@@ -189,7 +189,7 @@ const Layout = ({ children }) => {
                                 <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs text-zinc-800 whitespace-normal break-words">
-                                    {n.created_by_name || 'Bir kullanıcı'} sizi {n.order_code || 'bir siparişte'} etiketledi.
+                                    {n.created_by_name || 'Bir kullanıcı'} sizi etiketledi.
                                   </p>
                                   {n.order_code && (
                                     <p className="text-[11px] text-zinc-500 mt-0.5">Sipariş: {n.order_code}</p>
