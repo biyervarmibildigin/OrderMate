@@ -200,6 +200,68 @@ const Layout = ({ children }) => {
         </div>
       </aside>
 
+      {/* Global notification bell (top-right) */}
+      {user && (
+        <div className="fixed top-4 right-4 z-30 hidden md:block">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setNotifOpen((prev) => !prev)}
+              className="relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 shadow-sm"
+            >
+              <Bell className="h-4 w-4 text-zinc-700" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+            {notifOpen && (
+              <div className="absolute right-0 mt-2 w-96 bg-white border border-zinc-200 rounded-lg shadow-lg z-20 text-left">
+                <div className="px-3 py-2 border-b border-zinc-200 flex items-center justify-between">
+                  <span className="text-xs font-medium text-zinc-600">Bildirimler</span>
+                  <span className="text-[10px] text-zinc-400">Son 20</span>
+                </div>
+                {notifications.length === 0 ? (
+                  <div className="px-3 py-4 text-xs text-zinc-500">Henüz bildiriminiz yok.</div>
+                ) : (
+                  <ul className="max-h-80 overflow-auto text-sm">
+                    {notifications.map((n) => (
+                      <li
+                        key={n.id}
+                        onClick={() => {
+                          setNotifOpen(false);
+                          handleNotificationClick(n);
+                        }}
+                        className={`px-3 py-2.5 border-b border-zinc-100 cursor-pointer hover:bg-zinc-50 ${
+                          !n.read ? 'bg-zinc-50' : 'bg-white'
+                        }`}
+                        title={n.message}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-zinc-800 whitespace-normal break-words">
+                              {n.created_by_name || 'Bir kullanıcı'} sizi etiketledi.
+                            </p>
+                            {n.order_code && (
+                              <p className="text-[11px] text-zinc-500 mt-0.5">Sipariş: {n.order_code}</p>
+                            )}
+                            <p className="text-[11px] text-zinc-500 truncate" title={n.message}>
+                              {n.message}
+                            </p>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-zinc-200 z-10 flex items-center justify-between px-4">
         <h1 className="text-xl font-bold font-heading tracking-tight text-zinc-900">
