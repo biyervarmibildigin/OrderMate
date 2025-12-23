@@ -70,6 +70,7 @@ const OrderCreate = () => {
   
   const [formData, setFormData] = useState({
     order_type: '',
+    payment_term_days: '', // Ödeme vadesi (gün)
     customer_name: '',
     customer_phone: '',
     customer_email: '',
@@ -336,7 +337,18 @@ const OrderCreate = () => {
       toast.success('Sipariş oluşturuldu');
       navigate(`/orders/${orderCode || orderId}`);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Sipariş oluşturulamadı');
+      const errorDetail = error.response?.data?.detail;
+      let errorMsg = 'Sipariş oluşturulamadı';
+      if (typeof errorDetail === 'string') {
+        errorMsg = errorDetail;
+      } else if (Array.isArray(errorDetail)) {
+        errorMsg = errorDetail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+      } else if (errorDetail) {
+        errorMsg = JSON.stringify(errorDetail);
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -622,6 +634,23 @@ const OrderCreate = () => {
           {(currentFields.includes('payment')) && (
             <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-zinc-900">Ödeme Durumu</h3>
+              
+              {/* Teklifler için ödeme vadesi (gün) */}
+              {formData.order_type === 'teklif' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Ödeme Vadesi (gün)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.payment_term_days}
+                      onChange={(e) => handleChange('payment_term_days', e.target.value ? parseInt(e.target.value, 10) : '')}
+                      placeholder="Örn. 30"
+                    />
+                    <p className="text-xs text-zinc-500">Teklif onaylandıktan sonra ödeme için tanımlanan süre.</p>
+                  </div>
+                </div>
+              )}
               
               <div className="flex flex-wrap gap-6">
                 <label className="flex items-center gap-2 cursor-pointer">
