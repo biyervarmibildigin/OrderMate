@@ -198,25 +198,6 @@ const OrderDetail = () => {
       const errorDetail = error.response?.data?.detail;
       let errorMsg = 'Bilinmeyen hata';
       if (typeof errorDetail === 'string') {
-  const handleConvertOrderType = async (targetType) => {
-    if (!order) return;
-    try {
-      const response = await axios.post(`${API_URL}/orders/${order.id}/convert-type`, {
-        target_type: targetType,
-      });
-      setOrder(response.data);
-      setEditData(response.data);
-      toast.success(
-        `Sipariş türü güncellendi (${targetType === 'kurumsal_cari' ? 'Kurumsal/Cari Hesap' : 'Kurumsal (Peşin Ödeme)'})`
-      );
-    } catch (error) {
-      const detail = error.response?.data?.detail;
-      const msg = typeof detail === 'string' ? detail : 'Bilinmeyen hata';
-      toast.error(`Sipariş türü güncellenemedi: ${msg}`);
-    }
-  };
-
-
         errorMsg = errorDetail;
       } else if (Array.isArray(errorDetail)) {
         errorMsg = errorDetail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
