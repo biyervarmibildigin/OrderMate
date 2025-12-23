@@ -228,15 +228,18 @@ frontend:
 
   - task: "In-app notifications for @mention in order notes"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/Layout.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Implemented notification system with bell icon, badge count, dropdown, and @mention detection in order notes. Backend creates notifications when users are mentioned with @username format. Frontend shows notifications and marks as read when clicked."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTED: Notification system working correctly. Bell icon shows badge count (1, 2). @mention detection works (@furkan creates notification for furkan user). Multiple mentions work (@admin @furkan creates separate notifications for both users). Dropdown opens and shows notifications with order codes. Backend API creates notifications correctly when notes contain @username format. Minor: Navigation from notification to order detail needs improvement, but core functionality works."
 
 metadata:
   created_by: "main_agent"
