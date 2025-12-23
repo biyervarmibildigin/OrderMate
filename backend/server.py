@@ -1486,14 +1486,8 @@ async def get_orders(
 ):
     query = {}
     
-    # Role-based filtering
-    if current_user.role == UserRole.SHOWROOM:
-        query['order_type'] = OrderType.SHOWROOM
-    elif current_user.role == UserRole.CORPORATE_SALES:
-        query['$or'] = [
-            {"order_type": OrderType.CORPORATE},
-            {"created_by": current_user.id}
-        ]
+    # NOT: Tüm roller için ortak sipariş havuzu. Kullanıcılar mevcut tüm siparişleri görebilir.
+    # İleride gerekirse burada role göre görünürlük kısıtları tekrar eklenebilir.
     
     if order_type:
         query['order_type'] = order_type
