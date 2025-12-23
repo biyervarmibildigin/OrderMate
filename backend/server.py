@@ -198,6 +198,20 @@ class Order(BaseModel):
     notes: Optional[str] = None
     history: List[OrderHistoryEntry] = []  # Sipariş geçmişi
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+class Notification(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_name: Optional[str] = None
+    order_id: str
+    order_code: str
+    message: str
+    created_by_id: str
+    created_by_name: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    read: bool = False
+
+
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ShippingAddress(BaseModel):
