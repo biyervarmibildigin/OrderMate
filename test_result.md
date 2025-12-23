@@ -234,9 +234,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Order Detail Cargo Status Options - CRITICAL ISSUE FOUND"
-  stuck_tasks:
-    - "Order Detail Cargo Status Options"
+    - "In-app notifications for @mention in order notes"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
