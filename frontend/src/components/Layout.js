@@ -15,8 +15,13 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
-
 import { Button } from './ui/button';
+
+const Layout = ({ children }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [notifOpen, setNotifOpen] = React.useState(false);
@@ -54,14 +59,6 @@ import { Button } from './ui/button';
       console.error('Bildirim güncellenemedi', error);
     }
   };
-
-
-
-const Layout = ({ children }) => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
     logout();
