@@ -1921,15 +1921,9 @@ async def delete_order_item(item_id: str, current_user: User = Depends(get_curre
 
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
+    # Ortak sipariş havuzu: tüm roller aynı toplamları görür
     query = {}
-    if current_user.role == UserRole.SHOWROOM:
-        query['order_type'] = OrderType.SHOWROOM
-    elif current_user.role == UserRole.CORPORATE_SALES:
-        query['$or'] = [
-            {"order_type": OrderType.CORPORATE},
-            {"created_by": current_user.id}
-        ]
-    
+
     total_orders = await db.orders.count_documents(query)
     
     waiting_info_query = {**query, "general_status": OrderStatus.WAITING_INFO}
