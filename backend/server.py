@@ -1749,6 +1749,34 @@ async def add_order_note(order_id: str, request: AddHistoryNoteRequest, current_
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     history_entries.append(history_entry)
+
+    # Mention tespiti (@kullaniciadi)
+    note_text = request.note or ""
+    mentioned_usernames = set()
+    for part in note_text.split():
+        if part.startswith("@") and len(part) > 1:
+            username = part[1:].strip().strip('.,;:!?)(')
+            if username:
+                mentioned_usernames.add(username)
+
+    # Mention edilen kullanıcılara bildirim oluştur
+    if mentioned_usernames:
+        cursor = db.users.find({"username": {"$in": list(mentioned_usernames)}}, {"_id": 0})
+        mentioned_users = await cursor.to_list(100)
+        notifications = []
+        for u in mentioned_users:
+            notif = Notification(
+                user_id=u["id"],
+                user_name=u.get("full_name") or u.get("username"),
+                order_id=actual_id,
+                order_code=existing.get("order_code", ""),
+                message=note_text,
+                created_by_id=current_user.id,
+                created_by_name=current_user.full_name,
+            )
+            notifications.append(notif.model_dump())
+        if notifications:
+            await db.notifications.insert_many(notifications)
     
     await db.orders.update_one(
         {"id": actual_id}, 
