@@ -738,6 +738,9 @@ const OrderDetail = () => {
                       <span className="text-xs font-mono text-zinc-600 bg-zinc-200 px-2 py-1 rounded" title={`Sorgulamak için ${7 - daysDiff} gün bekleyin`}>
                         #{order.invoice_number}
                       </span>
+                    );
+                  })()}
+                </div>
               )}
             </div>
 
