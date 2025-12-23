@@ -531,9 +531,16 @@ const OrderCreate = () => {
                   <Input
                     value={formData.tax_number}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      const maxLength = formData.tax_id_type === 'vkn' ? 10 : 11;
-                      handleChange('tax_number', value.slice(0, maxLength));
+                      let value = e.target.value.replace(/\D/g, '');
+                      if (formData.tax_id_type === 'vkn' && value.length > 10) {
+                        // 11 hane yazılırsa otomatik olarak TCKN moduna geç
+                        handleChange('tax_id_type', 'tc');
+                        value = value.slice(0, 11);
+                      } else {
+                        const maxLength = formData.tax_id_type === 'vkn' ? 10 : 11;
+                        value = value.slice(0, maxLength);
+                      }
+                      handleChange('tax_number', value);
                       setTaxError('');
                     }}
                     placeholder={formData.tax_id_type === 'vkn' ? '10 haneli VKN' : '11 haneli TC No'}
@@ -599,9 +606,15 @@ const OrderCreate = () => {
                   <Input
                     value={formData.tax_number}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      const maxLength = formData.tax_id_type === 'vkn' ? 10 : 11;
-                      handleChange('tax_number', value.slice(0, maxLength));
+                      let value = e.target.value.replace(/\D/g, '');
+                      if (formData.tax_id_type === 'vkn' && value.length > 10) {
+                        handleChange('tax_id_type', 'tc');
+                        value = value.slice(0, 11);
+                      } else {
+                        const maxLength = formData.tax_id_type === 'vkn' ? 10 : 11;
+                        value = value.slice(0, maxLength);
+                      }
+                      handleChange('tax_number', value);
                     }}
                     placeholder={formData.tax_id_type === 'vkn' ? '10 haneli VKN' : '11 haneli TC No'}
                   />
