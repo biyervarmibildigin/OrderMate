@@ -192,6 +192,7 @@ class Order(BaseModel):
     cargo_status: str = CargoStatus.NONE
     cargo_company: Optional[str] = None  # Yurtiçi, MNG, Aras, PTT, etc.
     cargo_tracking_code: Optional[str] = None
+    cargo_barcode_status: str = CargoBarcodeStatus.NOT_PRINTED
     general_status: str = OrderStatus.WAITING_INFO
     # Ödeme ve Teslimat Durumları
     pos_payment: bool = False  # POS cihazından çekildi
