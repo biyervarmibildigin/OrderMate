@@ -210,7 +210,8 @@ const OrderCreate = () => {
       unit_price: 0,
       total_price: 0,
       item_type: 'manuel_urun',
-      item_status: 'netlesecek'
+      item_status: 'netlesecek',
+      external_url: ''
     }]);
     setSearchTerm('');
     setSearchResults([]);
@@ -950,6 +951,18 @@ const OrderCreate = () => {
                         <p className="font-medium text-sm">{product.product_name}</p>
                         {product.web_service_code && (
                           <p className="text-xs text-zinc-500">Kod: {product.web_service_code}</p>
+                        )}
+                        {product.item_type && product.item_type.startsWith('manuel') && (
+                          <div className="mt-1 space-y-1">
+                            <Label className="text-xs text-zinc-500">Alternatif Link (URL)</Label>
+                            <Input
+                              type="url"
+                              placeholder="https://..."
+                              value={product.external_url || ''}
+                              onChange={(e) => handleProductChange(index, 'external_url', e.target.value)}
+                              className="h-8 text-xs"
+                            />
+                          </div>
                         )}
                       </div>
                       <Input type="number" placeholder="Adet" value={product.quantity} min="1"

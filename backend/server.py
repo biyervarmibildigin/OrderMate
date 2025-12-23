@@ -345,6 +345,7 @@ class OrderItem(BaseModel):
     notes: Optional[str] = None
     supplier_info: Optional[str] = None
     estimated_ready_date: Optional[str] = None
+    external_url: Optional[str] = None  # Manuel ürünler için alternatif link
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -360,6 +361,7 @@ class OrderItemCreate(BaseModel):
     notes: Optional[str] = None
     supplier_info: Optional[str] = None
     estimated_ready_date: Optional[str] = None
+    external_url: Optional[str] = None
 
 class OrderWithItems(BaseModel):
     order: Order
