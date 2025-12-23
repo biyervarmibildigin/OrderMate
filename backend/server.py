@@ -199,6 +199,7 @@ class Order(BaseModel):
     pos_payment: bool = False  # POS cihazından çekildi
     delivered_invoice_only: bool = False  # Teslim edildi sadece fatura
     site_payment: bool = False  # Siteden ödeme yapıldı
+    bank_transfer: bool = False  # Banka havalesi ile ödendi
     online_payment_ref: Optional[str] = None  # Site ödemesi işlem numarası
     whatsapp_content: Optional[str] = None
     attachments: List[Dict[str, Any]] = []  # file URLs or base64
