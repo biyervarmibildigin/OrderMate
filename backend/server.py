@@ -1690,6 +1690,34 @@ async def update_order(order_id: str, order_data: OrderCreate, current_user: Use
         old_val = existing.get(field, False)
         new_val = update_data.get(field, False)
         if old_val != new_val:
+            history_entry = {
+                "id": str(uuid.uuid4()),
+                "action": "payment_change",
+                "description": f"Ödeme Durumu: {label} {'eklendi' if new_val else 'kaldırıldı'}",
+                "old_value": old_val,
+                "new_value": new_val,
+                "user_id": current_user.id,
+                "user_name": current_user.full_name,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            history_entries.append(history_entry)
+
+    # Geçmişi güncelle
+    update_data['history'] = history_entries
+
+    await db.orders.update_one({"id": existing['id']}, {"$set": update_data})
+    updated = await db.orders.find_one({"id": existing['id']}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated.get('updated_at'), str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    return Order(**updated)
+
+
+    for field, label in payment_fields.items():
+        old_val = existing.get(field, False)
+        new_val = update_data.get(field, False)
+        if old_val != new_val:
             status = "işaretlendi" if new_val else "kaldırıldı"
             history_entry = {
                 "id": str(uuid.uuid4()),
