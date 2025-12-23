@@ -198,6 +198,25 @@ const OrderDetail = () => {
       const errorDetail = error.response?.data?.detail;
       let errorMsg = 'Bilinmeyen hata';
       if (typeof errorDetail === 'string') {
+  const handleConvertOrderType = async (targetType) => {
+    if (!order) return;
+    try {
+      const response = await axios.post(`${API_URL}/orders/${order.id}/convert-type`, {
+        target_type: targetType,
+      });
+      setOrder(response.data);
+      setEditData(response.data);
+      toast.success(
+        `Sipariş türü güncellendi (${targetType === 'kurumsal_cari' ? 'Kurumsal/Cari Hesap' : 'Kurumsal (Peşin Ödeme)'})`
+      );
+    } catch (error) {
+      const detail = error.response?.data?.detail;
+      const msg = typeof detail === 'string' ? detail : 'Bilinmeyen hata';
+      toast.error(`Sipariş türü güncellenemedi: ${msg}`);
+    }
+  };
+
+
         errorMsg = errorDetail;
       } else if (Array.isArray(errorDetail)) {
         errorMsg = errorDetail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
@@ -407,28 +426,48 @@ const OrderDetail = () => {
         </div>
         <div className="flex gap-2">
           {order.order_type === 'teklif' && (
-            <Button 
-              variant="outline" 
-              onClick={async () => {
-                try {
-                  const token = localStorage.getItem('token');
-                  const response = await fetch(`${API_URL}/orders/${order.id}/pdf`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                  });
-                  const blob = await response.blob();
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `teklif_${order.order_number}.pdf`;
-                  a.click();
-                } catch (error) {
-                  toast.error('PDF indirilemedi');
-                }
-              }}
-            >
-              <FileDown className="mr-2 h-4 w-4" />
-              Teklif PDF İndir
-            </Button>
+            <>
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`${API_URL}/orders/${order.id}/pdf`, {
+                      headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `teklif_${order.order_number}.pdf`;
+                    a.click();
+                  } catch (error) {
+                    toast.error('PDF indirilemedi');
+                  }
+                }}
+              >
+                <FileDown className="mr-2 h-4 w-4" />
+                Teklif PDF İndir
+              </Button>
+              {!editMode && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleConvertOrderType('kurumsal_cari')}
+                  >
+                    Kurumsal/Cari Hesap
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleConvertOrderType('kurumsal_pesin')}
+                  >
+                    Kurumsal (Peşin Ödeme)
+                  </Button>
+                </div>
+              )}
+            </>
           )}
           {!editMode ? (
             <div className="flex gap-2">
