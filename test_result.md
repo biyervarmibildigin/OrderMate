@@ -226,6 +226,18 @@ frontend:
         - agent: "main"
         - comment: "Logo upload with preview, file type validation, and remove button implemented."
 
+  - task: "In-app notifications for @mention in order notes"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/Layout.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Implemented notification system with bell icon, badge count, dropdown, and @mention detection in order notes. Backend creates notifications when users are mentioned with @username format. Frontend shows notifications and marks as read when clicked."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
