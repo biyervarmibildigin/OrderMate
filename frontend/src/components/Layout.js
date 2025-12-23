@@ -306,18 +306,24 @@ const Layout = ({ children }) => {
                 );
               })}
             </nav>
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-zinc-200">
-              <div className="flex items-center mb-3">
+            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-zinc-200 space-y-2">
+              <div className="flex items-center mb-1">
                 <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center font-semibold text-zinc-700">
                   {user?.full_name?.charAt(0) || 'U'}
                 </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-zinc-900">{user?.full_name}</p>
-                  <p className={`text-xs font-mono ${getRoleColor(user?.role)}`}>
+                <div className="ml-3 flex-1 min-w-0">
+                  <p className="text-sm font-medium text-zinc-900 truncate">{user?.full_name}</p>
+                  <p className={`text-xs font-mono truncate ${getRoleColor(user?.role)}`}>
                     {getRoleLabel(user?.role)}
                   </p>
                 </div>
               </div>
+              {user?.onlineStats && (
+                <div className="flex items-center justify-between text-[11px] text-zinc-500 bg-zinc-50 border border-zinc-200 rounded px-2 py-1">
+                  <span>Online: <span className="font-semibold text-emerald-600">{user.onlineStats.online}</span></span>
+                  <span>Toplam: <span className="font-mono">{user.onlineStats.total}</span></span>
+                </div>
+              )}
               <Button
                 onClick={handleLogout}
                 variant="outline"
