@@ -275,9 +275,26 @@ const OrderDetail = () => {
 
   const handleConvertOrderType = async (targetType) => {
     if (!order) return;
+
+    let paymentTerm = order.payment_term_days;
+    if (!paymentTerm || Number.isNaN(Number(paymentTerm))) {
+      const input = window.prompt('Ödeme vadesi (gün) giriniz:', '30');
+      if (!input) {
+        toast.error('Ödeme vadesi girilmedi. İşlem iptal edildi.');
+        return;
+      }
+      const parsed = parseInt(input, 10);
+      if (Number.isNaN(parsed) || parsed < 0) {
+        toast.error('Geçerli bir vade (gün) giriniz.');
+        return;
+      }
+      paymentTerm = parsed;
+    }
+
     try {
       const response = await axios.post(`${API_URL}/orders/${order.id}/convert-type`, {
         target_type: targetType,
+        payment_term_days: paymentTerm,
       });
       setOrder(response.data);
       setEditData(response.data);
