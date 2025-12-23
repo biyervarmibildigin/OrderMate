@@ -762,7 +762,7 @@ const OrderCreate = () => {
                 <div className="space-y-2">
                   <Label>Alıcı Adı *</Label>
                   <Input
-                    value={formData.shipping_address?.recipient_name || ''}
+                    value={formData.shipping_address?.recipient_name || formData.customer_name || ''}
                     onChange={(e) => handleAddressChange('shipping_address', 'recipient_name', e.target.value)}
                     placeholder="Teslim alacak kişinin adı soyadı"
                     required
@@ -771,7 +771,7 @@ const OrderCreate = () => {
                 <div className="space-y-2">
                   <Label>Alıcı Telefon *</Label>
                   <Input
-                    value={formData.shipping_address?.recipient_phone || ''}
+                    value={formData.shipping_address?.recipient_phone || formData.customer_phone || ''}
                     onChange={(e) => handleAddressChange('shipping_address', 'recipient_phone', e.target.value)}
                     placeholder="05XX XXX XX XX"
                     required
@@ -780,7 +780,7 @@ const OrderCreate = () => {
                 <div className="md:col-span-2 space-y-2">
                   <Label>Teslimat Adresi *</Label>
                   <Textarea
-                    value={formData.shipping_address?.address || ''}
+                    value={formData.shipping_address?.address || formData.customer_address || ''}
                     onChange={(e) => handleAddressChange('shipping_address', 'address', e.target.value)}
                     placeholder="Kargo teslimat adresi (Sokak, Cadde, No, Bina...)"
                     rows={2}
