@@ -151,10 +151,10 @@ const Layout = ({ children }) => {
             {user && (
               <div className="relative ml-auto">
                 <button
-                    type="button"
-                    onClick={() => setNotifOpen((prev) => !prev)}
-                    className="relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50"
-                  >
+                  type="button"
+                  onClick={() => setNotifOpen((prev) => !prev)}
+                  className="relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50"
+                >
                     <Bell className="h-4 w-4 text-zinc-700" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white flex items-center justify-center">
