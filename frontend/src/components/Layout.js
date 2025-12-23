@@ -8,9 +8,9 @@ import {
   Users, 
   Settings as SettingsIcon,
   LogOut,
-  Menu
+  Menu,
+  Bell
 } from 'lucide-react';
-  Bell,
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
