@@ -199,6 +199,8 @@ class Order(BaseModel):
     history: List[OrderHistoryEntry] = []  # Sipariş geçmişi
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 class Notification(BaseModel):
+    payment_term_days: Optional[int] = None
+
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
