@@ -65,7 +65,7 @@ const Layout = ({ children }) => {
     // Daha sık kontrol (5 sn)
     const interval = setInterval(() => fetchNotifications(true), 5000);
     return () => clearInterval(interval);
-  }, [user, notifications]);
+  }, [user]);
 
   const handleNotificationClick = async (notif) => {
     try {
