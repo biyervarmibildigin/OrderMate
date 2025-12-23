@@ -205,6 +205,8 @@ class Order(BaseModel):
     notes: Optional[str] = None
     history: List[OrderHistoryEntry] = []  # Sipariş geçmişi
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class Notification(BaseModel):
     payment_term_days: Optional[int] = None
 
