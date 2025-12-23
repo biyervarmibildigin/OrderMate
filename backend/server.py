@@ -72,6 +72,8 @@ class User(BaseModel):
     role: str
     is_active: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_active_at: Optional[datetime] = None
+
 
 class UserCreate(BaseModel):
     username: str
