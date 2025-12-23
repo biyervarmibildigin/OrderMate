@@ -738,6 +738,32 @@ const OrderDetail = () => {
                       <span className="text-xs font-mono text-zinc-600 bg-zinc-200 px-2 py-1 rounded" title={`Sorgulamak için ${7 - daysDiff} gün bekleyin`}>
                         #{order.invoice_number}
                       </span>
+              )}
+            </div>
+
+            {/* Cargo Barcode Status - Only for Kargo */}
+            {order.delivery_method === 'kargo' && (
+              <div className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg">
+                <span className="text-sm font-medium text-zinc-600">Kargo Barkodu</span>
+                {editMode ? (
+                  <select
+                    className="h-9 px-3 rounded-md border border-zinc-300 text-sm"
+                    value={editData.cargo_barcode_status || 'yazdirilmadi'}
+                    onChange={(e) => setEditData({ ...editData, cargo_barcode_status: e.target.value })}
+                  >
+                    {cargoBarcodeStatusOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  getStatusBadge(order.cargo_barcode_status || 'yazdirilmadi', cargoBarcodeStatusOptions)
+                )}
+              </div>
+            )}
+
+
                     );
                   })()}
                   {getStatusBadge(order.invoice_status, invoiceStatusOptions)}
