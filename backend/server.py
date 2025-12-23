@@ -1573,6 +1573,23 @@ async def get_orders(
 
         # Ürün adı / ürün kodu ile sipariş bulmak için order_items koleksiyonunda arama
         item_or_conditions = [
+            {"product_name": {"$regex": search, "$options": "i"}},
+        ]
+
+        matching_items = await db.order_items.find(
+            {"$or": item_or_conditions},
+            {"_id": 0, "order_id": 1}
+        ).to_list(1000)
+
+        if matching_items:
+            order_ids_from_items = list({item["order_id"] for item in matching_items if item.get("order_id")})
+            if order_ids_from_items:
+                or_conditions.append({"id": {"$in": order_ids_from_items}})
+
+        query['$or'] = or_conditions
+
+    orders = await db.orders.find(query, {"_id": 0}).sort("order_number", -1).skip(skip).limit(limit).to_list(limit)
+
 
 class ConvertOrderTypeRequest(BaseModel):
     target_type: str
