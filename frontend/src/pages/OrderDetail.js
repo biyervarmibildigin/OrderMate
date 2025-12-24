@@ -515,7 +515,52 @@ const OrderDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Order Details */}
         <Card className="p-6 border-zinc-200">
-          <h2 className="text-lg font-bold font-heading text-zinc-900 mb-4">Sipariş Bilgileri</h2>
+          <h2 className="text-lg font-bold font-heading text-zinc-900 mb-2">Sipariş Bilgileri</h2>
+
+          {/* Muhasebe için hızlı kopyalama: Sipariş kodu ve müşteri adı */}
+          {!editMode && (
+            <div className="flex flex-wrap gap-2 mb-3 text-xs text-zinc-600">
+              {order.order_code && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.order_code);
+                    toast.success('Sipariş kodu panoya kopyalandı');
+                  }}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded border border-zinc-200 bg-zinc-50 hover:bg-zinc-100"
+                >
+                  <span className="font-mono text-[11px]">{order.order_code}</span>
+                  <span className="text-[10px] text-zinc-500">kopyala</span>
+                </button>
+              )}
+              {order.customer_name && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.customer_name);
+                    toast.success('Müşteri adı panoya kopyalandı');
+                  }}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded border border-zinc-200 bg-zinc-50 hover:bg-zinc-100"
+                >
+                  <span className="truncate max-w-[140px]">{order.customer_name}</span>
+                  <span className="text-[10px] text-zinc-500">kopyala</span>
+                </button>
+              )}
+              {order.tax_number && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.tax_number);
+                    toast.success('Vergi No panoya kopyalandı');
+                  }}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded border border-zinc-200 bg-zinc-50 hover:bg-zinc-100"
+                >
+                  <span className="font-mono text-[11px]">{order.tax_number}</span>
+                  <span className="text-[10px] text-zinc-500">kopyala</span>
+                </button>
+              )}
+            </div>
+          )}
           
           {editMode ? (
             <div className="space-y-4">
