@@ -9,7 +9,7 @@ import { Badge } from '../components/ui/badge';
 import { Textarea } from '../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Loader, FileDown, Edit, History, MessageSquarePlus, Save, X, AlertTriangle, Search, Upload, File, Image, Eye, Copy } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader, FileDown, Edit, History, MessageSquarePlus, Save, X, AlertTriangle, Search, Upload, File, Image, Eye, Copy, ExternalLink, Calendar, User } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
