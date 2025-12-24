@@ -1525,6 +1525,10 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
         created_by_name=current_user.full_name,
         **order_data.model_dump()
     )
+
+    # Showroom Satış (Perakende) siparişleri otomatik olarak tamamlandı durumuna alınır
+    if order.order_type == "showroom_satis":
+        order.general_status = OrderStatus.COMPLETED
     
     doc = order.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
