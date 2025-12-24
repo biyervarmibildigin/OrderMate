@@ -59,7 +59,9 @@ const Orders = () => {
       if (filters.invoice_status) params.append('invoice_status', filters.invoice_status);
       if (filters.waybill_status) params.append('waybill_status', filters.waybill_status);
       if (filters.cargo_status) params.append('cargo_status', filters.cargo_status);
+      if (filters.cargo_barcode_status) params.append('cargo_barcode_status', filters.cargo_barcode_status);
       if (filters.order_type) params.append('order_type', filters.order_type);
+      if (filters.my_orders) params.append('my_orders', 'true');
       if (searchTerm) params.append('search', searchTerm.trim());
       
       const url = `${API_URL}/orders${params.toString() ? '?' + params.toString() : ''}`;
