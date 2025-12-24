@@ -160,8 +160,8 @@ class OrderHistoryEntry(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     action: str  # status_change, note_added, item_added, item_removed, edited, waybill_issued, invoice_issued
     description: str
-    old_value: Optional[str] = None
-    new_value: Optional[str] = None
+    old_value: Optional[Any] = None
+    new_value: Optional[Any] = None
     user_id: str
     user_name: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
