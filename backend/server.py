@@ -2121,7 +2121,16 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
         "ready": ready,
         "pending_invoices": pending_invoices,
         "items_to_procure": items_to_procure,
-        "overdue_quotes": overdue_quotes
+        "overdue_quotes": overdue_quotes,
+        "cargo_barcode_not_printed": await db.orders.count_documents({
+            "delivery_method": "kargo", 
+            "cargo_barcode_status": CargoBarcodeStatus.NOT_PRINTED,
+            "general_status": {"$nin": [OrderStatus.COMPLETED]}
+        }),
+        "my_assigned_orders": await db.orders.count_documents({
+            "assigned_user_id": current_user.id,
+            "general_status": {"$nin": [OrderStatus.COMPLETED]}
+        })
     }
 
 # Include router
