@@ -80,8 +80,10 @@ const Orders = () => {
       invoice_status: '',
       waybill_status: '',
       cargo_status: '',
+      cargo_barcode_status: '',
       order_type: '',
-      item_status: ''
+      item_status: '',
+      my_orders: false
     });
     setSearchParams({});
   };
