@@ -1060,6 +1060,19 @@ const OrderDetail = () => {
                     {isNew && <Badge className="bg-emerald-100 text-emerald-800 text-xs">Yeni Eklendi</Badge>}
                     {item.item_type === 'manuel_urun' && <Badge className="bg-amber-100 text-amber-800 text-xs">Manuel</Badge>}
                     {item.item_type === 'katalog_urunu' && <Badge className="bg-blue-100 text-blue-800 text-xs">Katalog</Badge>}
+                    {/* External URL Link */}
+                    {item.item_type === 'manuel_urun' && item.external_url && (
+                      <a 
+                        href={item.external_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200 transition-colors"
+                        title="Ürün Linki"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Link
+                      </a>
+                    )}
                   </div>
                   <p className="text-sm text-zinc-500">
                     Adet: {item.quantity} • Birim: {item.unit_price?.toFixed(2)} TL • Toplam: {item.total_price?.toFixed(2)} TL
