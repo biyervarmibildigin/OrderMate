@@ -1,178 +1,178 @@
 {
   "summary": {
     "total_tests": 28,
-    "passed_tests": 28,
-    "success_rate": 1.0,
-    "timestamp": "2025-12-19T22:27:59.572358"
+    "passed_tests": 27,
+    "success_rate": 0.9642857142857143,
+    "timestamp": "2025-12-24T21:43:43.453391"
   },
   "detailed_results": [
     {
       "test": "Login admin",
       "success": true,
       "details": "Role: admin \u2713",
-      "timestamp": "2025-12-19T22:27:57.515682"
+      "timestamp": "2025-12-24T21:43:41.407373"
     },
     {
       "test": "Login showroom",
       "success": true,
       "details": "Role: showroom \u2713",
-      "timestamp": "2025-12-19T22:27:57.785853"
+      "timestamp": "2025-12-24T21:43:41.676770"
     },
     {
       "test": "Login furkan",
       "success": true,
       "details": "Role: corporate_sales \u2713",
-      "timestamp": "2025-12-19T22:27:58.052629"
+      "timestamp": "2025-12-24T21:43:41.937626"
     },
     {
       "test": "Login esat",
       "success": true,
       "details": "Role: warehouse \u2713",
-      "timestamp": "2025-12-19T22:27:58.316964"
+      "timestamp": "2025-12-24T21:43:42.199914"
     },
     {
       "test": "Login ozgen",
       "success": true,
       "details": "Role: accounting \u2713",
-      "timestamp": "2025-12-19T22:27:58.578324"
+      "timestamp": "2025-12-24T21:43:42.459654"
     },
     {
       "test": "Dashboard stats for admin",
       "success": true,
-      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
-      "timestamp": "2025-12-19T22:27:58.619765"
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure', 'overdue_quotes', 'cargo_barcode_not_printed', 'my_assigned_orders']",
+      "timestamp": "2025-12-24T21:43:42.501438"
     },
     {
       "test": "Dashboard stats for showroom",
       "success": true,
-      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
-      "timestamp": "2025-12-19T22:27:58.660386"
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure', 'overdue_quotes', 'cargo_barcode_not_printed', 'my_assigned_orders']",
+      "timestamp": "2025-12-24T21:43:42.548595"
     },
     {
       "test": "Dashboard stats for furkan",
       "success": true,
-      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
-      "timestamp": "2025-12-19T22:27:58.702584"
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure', 'overdue_quotes', 'cargo_barcode_not_printed', 'my_assigned_orders']",
+      "timestamp": "2025-12-24T21:43:42.592075"
     },
     {
       "test": "Dashboard stats for esat",
       "success": true,
-      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
-      "timestamp": "2025-12-19T22:27:58.742383"
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure', 'overdue_quotes', 'cargo_barcode_not_printed', 'my_assigned_orders']",
+      "timestamp": "2025-12-24T21:43:42.627957"
     },
     {
       "test": "Dashboard stats for ozgen",
       "success": true,
-      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure']",
-      "timestamp": "2025-12-19T22:27:58.785954"
+      "details": "Fields: ['total_orders', 'waiting_info', 'in_progress', 'ready', 'pending_invoices', 'items_to_procure', 'overdue_quotes', 'cargo_barcode_not_printed', 'my_assigned_orders']",
+      "timestamp": "2025-12-24T21:43:42.667867"
     },
     {
       "test": "Get users (admin)",
       "success": true,
-      "details": "Retrieved 8 users",
-      "timestamp": "2025-12-19T22:27:58.829182"
+      "details": "Retrieved 10 users",
+      "timestamp": "2025-12-24T21:43:42.705261"
     },
     {
       "test": "Get users (showroom - should fail)",
       "success": true,
       "details": "Status: 403 (Expected 403)",
-      "timestamp": "2025-12-19T22:27:58.867684"
+      "timestamp": "2025-12-24T21:43:42.745166"
     },
     {
       "test": "Get products",
       "success": true,
       "details": "Retrieved 10 products",
-      "timestamp": "2025-12-19T22:27:58.908380"
+      "timestamp": "2025-12-24T21:43:42.785064"
     },
     {
       "test": "Create product",
       "success": true,
-      "details": "Created product ID: 072c5227-b6e2-4cb2-86a0-4f5e7dfe3251",
-      "timestamp": "2025-12-19T22:27:58.948601"
+      "details": "Created product ID: ffecacf8-d47a-4a84-a9ca-004a9e7cbfc4",
+      "timestamp": "2025-12-24T21:43:42.834052"
     },
     {
       "test": "Get single product",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-12-19T22:27:58.995338"
+      "timestamp": "2025-12-24T21:43:42.878026"
     },
     {
       "test": "Get orders",
       "success": true,
-      "details": "Retrieved 4 orders",
-      "timestamp": "2025-12-19T22:27:59.053161"
+      "details": "Retrieved 7 orders",
+      "timestamp": "2025-12-24T21:43:42.917744"
     },
     {
       "test": "Create regular order",
       "success": true,
-      "details": "Created order #5 (ID: 34844e1e-8b57-41d2-9d31-ad5a85677a5b)",
-      "timestamp": "2025-12-19T22:27:59.091412"
+      "details": "Created order #8 (ID: a8b35a10-131e-4ba9-9e28-5c9570ff778d)",
+      "timestamp": "2025-12-24T21:43:42.956307"
     },
     {
       "test": "Get order with items",
       "success": true,
-      "details": "Order #5 with 0 items",
-      "timestamp": "2025-12-19T22:27:59.130942"
+      "details": "Order #8 with 0 items",
+      "timestamp": "2025-12-24T21:43:42.994476"
     },
     {
       "test": "Add order item",
       "success": true,
-      "details": "Added item ID: a7667583-1796-48d4-a328-43a632376248",
-      "timestamp": "2025-12-19T22:27:59.167967"
+      "details": "Added item ID: b6d1e14b-7e26-4fcb-94cd-942894ad217c",
+      "timestamp": "2025-12-24T21:43:43.032268"
     },
     {
       "test": "Update item status",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-12-19T22:27:59.221822"
+      "timestamp": "2025-12-24T21:43:43.074326"
     },
     {
       "test": "Delete order item",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-12-19T22:27:59.261869"
+      "timestamp": "2025-12-24T21:43:43.112447"
     },
     {
       "test": "Create corporate order (same address)",
       "success": true,
-      "details": "Created order ID: 8bf5aad9-89ac-4d57-b533-78304fb0e16a",
-      "timestamp": "2025-12-19T22:27:59.301590"
+      "details": "Created order ID: ad3860b9-9846-4ffa-bff1-9cc3c81a715c",
+      "timestamp": "2025-12-24T21:43:43.190829"
     },
     {
       "test": "Corporate order billing address saved",
       "success": true,
       "details": "Billing address present: True, Same address: True",
-      "timestamp": "2025-12-19T22:27:59.339515"
+      "timestamp": "2025-12-24T21:43:43.229481"
     },
     {
       "test": "Create corporate order (different addresses)",
       "success": true,
-      "details": "Created order ID: f884c728-854b-498c-a21d-4aa7c638c99b",
-      "timestamp": "2025-12-19T22:27:59.377545"
+      "details": "Created order ID: 49e0cc06-56f9-4504-8876-3355a6c284c1",
+      "timestamp": "2025-12-24T21:43:43.272850"
     },
     {
       "test": "Corporate order different addresses saved",
       "success": true,
       "details": "Billing: True, Shipping: True, Same address: False, Shipping valid: True",
-      "timestamp": "2025-12-19T22:27:59.419885"
+      "timestamp": "2025-12-24T21:43:43.313235"
     },
     {
       "test": "Corporate order validation test",
       "success": true,
       "details": "Backend response status: 422 (Frontend should validate required fields)",
-      "timestamp": "2025-12-19T22:27:59.460374"
+      "timestamp": "2025-12-24T21:43:43.352843"
     },
     {
       "test": "Showroom role filtering",
-      "success": true,
-      "details": "Total orders: 1, Showroom orders: 1",
-      "timestamp": "2025-12-19T22:27:59.504498"
+      "success": false,
+      "details": "Total orders: 10, Showroom orders: 7",
+      "timestamp": "2025-12-24T21:43:43.393333"
     },
     {
       "test": "CSV upload",
       "success": true,
       "details": "Uploaded 2 products (Added: 0, Updated: 2)",
-      "timestamp": "2025-12-19T22:27:59.571933"
+      "timestamp": "2025-12-24T21:43:43.453165"
     }
   ]
 }
