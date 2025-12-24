@@ -37,6 +37,7 @@ const OrderDetail = () => {
   const [newNote, setNewNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [users, setUsers] = useState([]);
   // Ürün arama state'leri
   const [productSearchTerm, setProductSearchTerm] = useState('');
   const [productSearchResults, setProductSearchResults] = useState([]);
@@ -55,6 +56,19 @@ const OrderDetail = () => {
   const [uploading, setUploading] = useState(false);
   const [previewDialog, setPreviewDialog] = useState({ open: false, url: '', type: '' });
   const fileInputRef = useRef(null);
+
+  // Kullanıcı listesi yükle
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/users`);
+        setUsers(response.data.filter(u => u.is_active));
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     fetchOrderDetail();
