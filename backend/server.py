@@ -208,10 +208,13 @@ class Order(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     payment_start_at: Optional[datetime] = None  # Ödeme vadesi başlangıç zamanı
+    payment_term_days: Optional[int] = None  # Ödeme vadesi (gün)
+    # Sorumlu kullanıcı atama
+    assigned_user_id: Optional[str] = None
+    assigned_user_name: Optional[str] = None
 
 
 class Notification(BaseModel):
-    payment_term_days: Optional[int] = None
 
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
