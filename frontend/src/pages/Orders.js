@@ -22,8 +22,10 @@ const Orders = () => {
     invoice_status: searchParams.get('invoice_status') || '',
     waybill_status: searchParams.get('waybill_status') || '',
     cargo_status: searchParams.get('cargo_status') || '',
+    cargo_barcode_status: searchParams.get('cargo_barcode_status') || '',
     order_type: searchParams.get('order_type') || '',
-    item_status: searchParams.get('item_status') || ''
+    item_status: searchParams.get('item_status') || '',
+    my_orders: searchParams.get('my_orders') === 'true'
   });
 
   // URL parametreleri değiştiğinde filtreleri güncelle
@@ -33,8 +35,10 @@ const Orders = () => {
       invoice_status: searchParams.get('invoice_status') || '',
       waybill_status: searchParams.get('waybill_status') || '',
       cargo_status: searchParams.get('cargo_status') || '',
+      cargo_barcode_status: searchParams.get('cargo_barcode_status') || '',
       order_type: searchParams.get('order_type') || '',
-      item_status: searchParams.get('item_status') || ''
+      item_status: searchParams.get('item_status') || '',
+      my_orders: searchParams.get('my_orders') === 'true'
     };
     setFilters(newFilters);
     // URL'de filtre varsa filtre panelini aç
