@@ -1719,7 +1719,7 @@ async def get_order(order_id: str, current_user: User = Depends(get_current_user
     return OrderWithItems(order=Order(**order), items=[OrderItem(**item) for item in items])
 
 @api_router.put("/orders/{order_id}", response_model=Order)
-async def update_order(order_id: str, order_data: OrderCreate, current_user: User = Depends(get_current_user)):
+async def update_order(order_id: str, order_data: Dict[str, Any], current_user: User = Depends(get_current_user)):
     # order_id veya order_code ile arama yap
     existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not existing:
@@ -1727,7 +1727,8 @@ async def update_order(order_id: str, order_data: OrderCreate, current_user: Use
     if not existing:
         raise HTTPException(status_code=404, detail="Order not found")
     
-    update_data = order_data.model_dump()
+    # Partial update - sadece gönderilen alanları güncelle
+    update_data = {k: v for k, v in order_data.items() if v is not None}
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
     
     # Track changes in history
