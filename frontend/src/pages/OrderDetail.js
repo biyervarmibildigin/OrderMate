@@ -648,11 +648,65 @@ const OrderDetail = () => {
           ) : (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
-                <div><span className="text-zinc-500 text-sm">Sipariş Veren / Yetkili</span><p className="font-medium">{order.customer_name || '-'}</p></div>
-                <div><span className="text-zinc-500 text-sm">Telefon</span><p className="font-medium">{order.customer_phone || '-'}</p></div>
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <span className="text-zinc-500 text-sm">Sipariş Veren / Yetkili</span>
+                    <p className="font-medium">{order.customer_name || '-'}</p>
+                  </div>
+                  {order.customer_name && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(order.customer_name);
+                        toast.success('Müşteri adı panoya kopyalandı');
+                      }}
+                      className="inline-flex items-center justify-center h-7 w-7 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-500 hover:text-zinc-700"
+                      title="Panoya kopyala"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <span className="text-zinc-500 text-sm">Telefon</span>
+                    <p className="font-medium">{order.customer_phone || '-'}</p>
+                  </div>
+                  {order.customer_phone && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(order.customer_phone);
+                        toast.success('Telefon panoya kopyalandı');
+                      }}
+                      className="inline-flex items-center justify-center h-7 w-7 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-500 hover:text-zinc-700"
+                      title="Panoya kopyala"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><span className="text-zinc-500 text-sm">E-posta</span><p className="font-medium">{order.customer_email || '-'}</p></div>
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <span className="text-zinc-500 text-sm">E-posta</span>
+                    <p className="font-medium">{order.customer_email || '-'}</p>
+                  </div>
+                  {order.customer_email && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(order.customer_email);
+                        toast.success('E-posta panoya kopyalandı');
+                      }}
+                      className="inline-flex items-center justify-center h-7 w-7 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-500 hover:text-zinc-700"
+                      title="Panoya kopyala"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
                 <div><span className="text-zinc-500 text-sm">Teslimat</span><p className="font-medium">{
                   order.delivery_method === 'kargo' ? 'Kargo' :
                   order.delivery_method === 'showroom_teslim' ? 'Showroom Teslim' :
