@@ -1,0 +1,100 @@
+{
+  "summary": {
+    "total_tests": 15,
+    "passed_tests": 15,
+    "success_rate": 1.0,
+    "timestamp": "2025-12-24T21:44:57.759852"
+  },
+  "detailed_results": [
+    {
+      "test": "Admin login",
+      "success": true,
+      "details": "Admin token obtained",
+      "timestamp": "2025-12-24T21:44:56.884257"
+    },
+    {
+      "test": "Warehouse login",
+      "success": true,
+      "details": "Warehouse token obtained",
+      "timestamp": "2025-12-24T21:44:57.150562"
+    },
+    {
+      "test": "Dashboard has cargo_barcode_not_printed stat",
+      "success": true,
+      "details": "Value: 3",
+      "timestamp": "2025-12-24T21:44:57.228583"
+    },
+    {
+      "test": "Dashboard has my_assigned_orders stat",
+      "success": true,
+      "details": "Value: 1",
+      "timestamp": "2025-12-24T21:44:57.228614"
+    },
+    {
+      "test": "Warehouse user sees cargo barcode stats",
+      "success": true,
+      "details": "Warehouse cargo stat: 3",
+      "timestamp": "2025-12-24T21:44:57.272811"
+    },
+    {
+      "test": "my_orders filter works",
+      "success": true,
+      "details": "Retrieved 1 orders assigned to current user",
+      "timestamp": "2025-12-24T21:44:57.312582"
+    },
+    {
+      "test": "cargo_barcode_status filter works",
+      "success": true,
+      "details": "Retrieved 10 orders with unprinted cargo barcodes",
+      "timestamp": "2025-12-24T21:44:57.351857"
+    },
+    {
+      "test": "Create order with user assignment",
+      "success": true,
+      "details": "Assigned to: Furkan Karaca (ID: b5b27a26-45c3-468a-8c37-3881f7830445)",
+      "timestamp": "2025-12-24T21:44:57.432809"
+    },
+    {
+      "test": "Update order assignment (unassign)",
+      "success": true,
+      "details": "Successfully unassigned user from order",
+      "timestamp": "2025-12-24T21:44:57.472819"
+    },
+    {
+      "test": "Create order with payment terms",
+      "success": true,
+      "details": "Payment term: 30 days, Start: 2025-12-24T21:44:57.472948",
+      "timestamp": "2025-12-24T21:44:57.514562"
+    },
+    {
+      "test": "Order details include payment terms",
+      "success": true,
+      "details": "Payment term days: 30, Start date: 2025-12-24T21:44:57.472000",
+      "timestamp": "2025-12-24T21:44:57.555583"
+    },
+    {
+      "test": "Create manual item with external URL",
+      "success": true,
+      "details": "Item ID: 04eb6662-5202-4ec2-9573-3ed80e548888, URL: https://example.com/product/test-item, Type: manuel_urun",
+      "timestamp": "2025-12-24T21:44:57.639842"
+    },
+    {
+      "test": "Manual item with URL saved correctly",
+      "success": true,
+      "details": "URL preserved: True, Manual type: True",
+      "timestamp": "2025-12-24T21:44:57.679061"
+    },
+    {
+      "test": "Create order with cargo barcode status",
+      "success": true,
+      "details": "Cargo barcode status: yazdirilmadi",
+      "timestamp": "2025-12-24T21:44:57.717952"
+    },
+    {
+      "test": "Update cargo barcode status",
+      "success": true,
+      "details": "Updated status: yazdirildi",
+      "timestamp": "2025-12-24T21:44:57.759554"
+    }
+  ]
+}
