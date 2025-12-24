@@ -1526,8 +1526,10 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
         **order_data.model_dump()
     )
 
-    # Showroom Satış (Perakende) siparişleri otomatik olarak tamamlandı durumuna alınır
-    if order.order_type == "showroom_satis":
+    # Showroom Satış (Perakende) siparişleri için:
+    # - Teslimat şekli Showroom/Elden ise otomatik tamamlandı
+    # - Teslimat şekli Kargo/Kurye ise tamamlanmış sayılmasın
+    if order.order_type == "showroom_satis" and order.delivery_method not in [DeliveryMethod.CARGO, "kurye"]:
         order.general_status = OrderStatus.COMPLETED
     
     doc = order.model_dump()
