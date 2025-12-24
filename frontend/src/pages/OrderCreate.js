@@ -269,15 +269,19 @@ const OrderCreate = () => {
     // Kargo seçilmişse ve kurumsal değilse, kargo adresi zorunlu alanlarını kontrol et
     if (formData.delivery_method === 'kargo' && !isCorporateOrder) {
       const { shipping_address } = formData;
-      if (!shipping_address.recipient_name?.trim()) {
+      const recipientName = (shipping_address.recipient_name || formData.customer_name || '').trim();
+      const recipientPhone = (shipping_address.recipient_phone || formData.customer_phone || '').trim();
+      const address = (shipping_address.address || formData.customer_address || '').trim();
+
+      if (!recipientName) {
         toast.error('Kargo için Alıcı Adı zorunludur');
         return;
       }
-      if (!shipping_address.recipient_phone?.trim()) {
+      if (!recipientPhone) {
         toast.error('Kargo için Alıcı Telefonu zorunludur');
         return;
       }
-      if (!shipping_address.address?.trim()) {
+      if (!address) {
         toast.error('Kargo için Teslimat Adresi zorunludur');
         return;
       }
@@ -309,6 +313,11 @@ const OrderCreate = () => {
     try {
       // Kurumsal sipariş değilse, billing_address null yap
       const orderData = { ...formData };
+
+      // Boş vade değerini backend'e göndermeyelim (Optional[int] ile uyumlu olsun)
+      if (orderData.payment_term_days === '' || orderData.payment_term_days === null) {
+        delete orderData.payment_term_days;
+      }
       if (!isCorporateOrder) {
         orderData.billing_address = null;
         // Kargo değilse shipping_address de null
