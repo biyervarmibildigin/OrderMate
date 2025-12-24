@@ -108,6 +108,24 @@ const Dashboard = () => {
       filterUrl: '/orders?invoice_status=kesilmedi'
     },
     {
+      title: 'Kargo Barkodu Yazdırılmamış',
+      value: stats?.cargo_barcode_not_printed || 0,
+      icon: Barcode,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-100',
+      show: ['warehouse', 'admin'].includes(user?.role),
+      filterUrl: '/orders?cargo_barcode_status=yazdirilmadi'
+    },
+    {
+      title: 'Bana Atanan Siparişler',
+      value: stats?.my_assigned_orders || 0,
+      icon: UserCheck,
+      color: 'text-cyan-600',
+      bgColor: 'bg-cyan-100',
+      show: true,
+      filterUrl: '/orders?my_orders=true'
+    },
+    {
       title: 'Temin Edilecek',
       value: stats?.items_to_procure || 0,
       icon: Package,
