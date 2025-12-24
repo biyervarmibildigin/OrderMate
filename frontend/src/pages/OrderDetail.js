@@ -855,6 +855,43 @@ const OrderDetail = () => {
               {order.notes && (
                 <div><span className="text-zinc-500 text-sm">Notlar</span><p className="font-medium">{order.notes}</p></div>
               )}
+
+              {/* Vade Bilgisi */}
+              {order.payment_term_days && (
+                <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-200 mt-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="h-4 w-4 text-indigo-600" />
+                    <span className="text-indigo-800 text-xs font-semibold">VADE BİLGİSİ</span>
+                  </div>
+                  <p className="text-sm font-medium text-indigo-900">
+                    Ödeme Vadesi: {order.payment_term_days} gün
+                  </p>
+                  {(() => {
+                    const startDate = order.payment_start_at ? new Date(order.payment_start_at) : new Date(order.created_at);
+                    const dueDate = new Date(startDate.getTime() + order.payment_term_days * 24 * 60 * 60 * 1000);
+                    const now = new Date();
+                    const isOverdue = dueDate < now;
+                    const daysLeft = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+                    return (
+                      <p className={`text-sm mt-1 ${isOverdue ? 'text-red-600 font-bold' : 'text-indigo-700'}`}>
+                        Vade Tarihi: {dueDate.toLocaleDateString('tr-TR')}
+                        {isOverdue ? ` (${Math.abs(daysLeft)} gün gecikmiş!)` : ` (${daysLeft} gün kaldı)`}
+                      </p>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* Sorumlu Kullanıcı */}
+              {order.assigned_user_name && (
+                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200 mt-3">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-purple-600" />
+                    <span className="text-purple-800 text-xs font-semibold">SORUMLU KULLANICI</span>
+                  </div>
+                  <p className="text-sm font-medium text-purple-900 mt-1">{order.assigned_user_name}</p>
+                </div>
+              )}
             </div>
           )}
         </Card>
