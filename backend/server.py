@@ -283,6 +283,9 @@ class OrderCreate(BaseModel):
     whatsapp_content: Optional[str] = None
     attachments: List[Dict[str, Any]] = []  # Dosya ekleri
     notes: Optional[str] = None
+    # Sorumlu kullanıcı atama
+    assigned_user_id: Optional[str] = None
+    assigned_user_name: Optional[str] = None
     
     @model_validator(mode='after')
     def validate_tax_and_email(self):
