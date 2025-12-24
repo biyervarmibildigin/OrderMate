@@ -658,6 +658,27 @@ const OrderDetail = () => {
                 <Label>Notlar</Label>
                 <Textarea value={editData.notes || ''} onChange={(e) => setEditData({...editData, notes: e.target.value})} rows={2} />
               </div>
+              {/* Sorumlu Kullanıcı Atama */}
+              <div className="space-y-2">
+                <Label>Sorumlu Kullanıcı</Label>
+                <select
+                  className="w-full h-10 px-3 rounded-md border border-zinc-300"
+                  value={editData.assigned_user_id || ''}
+                  onChange={(e) => {
+                    const selectedUser = users.find(u => u.id === e.target.value);
+                    setEditData({
+                      ...editData,
+                      assigned_user_id: e.target.value || null,
+                      assigned_user_name: selectedUser?.full_name || null
+                    });
+                  }}
+                >
+                  <option value="">Atanmadı</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.full_name} ({u.role})</option>
+                  ))}
+                </select>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
