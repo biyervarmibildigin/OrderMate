@@ -1575,6 +1575,12 @@ async def get_orders(
         query['waybill_status'] = waybill_status
     if cargo_status:
         query['cargo_status'] = cargo_status
+    if cargo_barcode_status:
+        query['cargo_barcode_status'] = cargo_barcode_status
+    if assigned_user_id:
+        query['assigned_user_id'] = assigned_user_id
+    if my_orders:
+        query['assigned_user_id'] = current_user.id
     if search:
         # Müşteri adı, telefon, sipariş kodu ve ürün adı/kodu üzerinden arama
         or_conditions = [
