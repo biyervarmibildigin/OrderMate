@@ -2121,6 +2121,11 @@ async def get_dashboard_stats(current_user: User = Depends(get_current_user)):
             except (TypeError, ValueError):
                 continue
             due_date = start_dt + timedelta(days=days_int)
+            # Ensure both datetimes are timezone-aware
+            if start_dt.tzinfo is None:
+                start_dt = start_dt.replace(tzinfo=timezone.utc)
+            if due_date.tzinfo is None:
+                due_date = due_date.replace(tzinfo=timezone.utc)
             if due_date < now:
                 overdue_quotes += 1
     
