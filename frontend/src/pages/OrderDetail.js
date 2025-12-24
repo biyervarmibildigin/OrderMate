@@ -720,8 +720,44 @@ const OrderDetail = () => {
               )}
               {(order.tax_office || order.tax_number) && (
                 <div className="grid grid-cols-2 gap-4">
-                  <div><span className="text-zinc-500 text-sm">Vergi Dairesi</span><p className="font-medium">{order.tax_office || '-'}</p></div>
-                  <div><span className="text-zinc-500 text-sm">Vergi No</span><p className="font-medium">{order.tax_number || '-'}</p></div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <span className="text-zinc-500 text-sm">Vergi Dairesi</span>
+                      <p className="font-medium">{order.tax_office || '-'}</p>
+                    </div>
+                    {order.tax_office && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(order.tax_office);
+                          toast.success('Vergi Dairesi panoya kopyalandı');
+                        }}
+                        className="inline-flex items-center justify-center h-7 w-7 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-500 hover:text-zinc-700"
+                        title="Panoya kopyala"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <span className="text-zinc-500 text-sm">Vergi No</span>
+                      <p className="font-medium">{order.tax_number || '-'}</p>
+                    </div>
+                    {order.tax_number && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(order.tax_number);
+                          toast.success('Vergi No panoya kopyalandı');
+                        }}
+                        className="inline-flex items-center justify-center h-7 w-7 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-500 hover:text-zinc-700"
+                        title="Panoya kopyala"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 
