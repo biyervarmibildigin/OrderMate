@@ -979,6 +979,7 @@ const OrderDetail = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
+                  {getStatusBadge(order.invoice_status || 'kesilmedi', invoiceStatusOptions)}
                   {order.invoice_number && order.invoice_status === 'kesildi' && (() => {
                     // Sipariş tarihinden 7 gün geçip geçmediğini kontrol et
                     const orderDate = new Date(order.created_at);
