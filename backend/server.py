@@ -1555,6 +1555,7 @@ async def get_orders(
     cargo_barcode_status: Optional[str] = None,
     assigned_user_id: Optional[str] = None,
     my_orders: Optional[bool] = None,
+    item_status: Optional[str] = None,
     search: Optional[str] = None,
     limit: int = 100,
     skip: int = 0,
@@ -1581,6 +1582,20 @@ async def get_orders(
         query['assigned_user_id'] = assigned_user_id
     if my_orders:
         query['assigned_user_id'] = current_user.id
+    
+    # item_status filtresi: belirli kaleme sahip siparişleri bul
+    if item_status:
+        matching_items = await db.order_items.find(
+            {"item_status": item_status},
+            {"_id": 0, "order_id": 1}
+        ).to_list(1000)
+        order_ids_with_item_status = list({item["order_id"] for item in matching_items if item.get("order_id")})
+        if order_ids_with_item_status:
+            query['id'] = {"$in": order_ids_with_item_status}
+        else:
+            # Hiç eşleşen kalem yoksa boş liste döndür
+            return []
+    
     if search:
         # Müşteri adı, telefon, sipariş kodu ve ürün adı/kodu üzerinden arama
         or_conditions = [
