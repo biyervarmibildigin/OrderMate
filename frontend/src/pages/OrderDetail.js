@@ -887,6 +887,35 @@ const OrderDetail = () => {
                   </div>
                 </div>
               )}
+
+              {/* Teslimat Adresi - Kargo/Kurye için */}
+              {(order.delivery_method === 'kargo' || order.delivery_method === 'kurye') && (
+                <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-orange-800 text-xs font-semibold">📦 TESLİMAT ADRESİ</span>
+                    <Badge className="bg-orange-100 text-orange-700 text-xs">
+                      {order.delivery_method === 'kargo' ? 'Kargo' : 'Kurye'}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <p className="font-medium text-orange-900">
+                      {order.shipping_address?.recipient_name || order.customer_name || '-'}
+                    </p>
+                    <p className="text-orange-700">
+                      {order.shipping_address?.recipient_phone || order.customer_phone || '-'}
+                    </p>
+                    <p className="text-orange-700">
+                      {order.shipping_address?.address || order.customer_address || '-'}
+                    </p>
+                    {(order.shipping_address?.city || order.shipping_address?.district) && (
+                      <p className="text-orange-600 text-xs">
+                        {[order.shipping_address?.district, order.shipping_address?.city].filter(Boolean).join(' / ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {order.notes && (
                 <div><span className="text-zinc-500 text-sm">Notlar</span><p className="font-medium">{order.notes}</p></div>
               )}
